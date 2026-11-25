@@ -412,6 +412,8 @@ html.tm .faixa-ped span,html.tm .fora-l small{font-size:16px}
   .nav-ped:hover{background:rgba(255,255,255,.08)}
 }
 html.tm .np-item .meta{font-size:16px}
+.np-item .np-rasc{grid-column:1 / -1;margin-top:4px;justify-self:start;background:#FFF1D6;color:#6B4E0E;border-radius:8px;padding:3px 8px;font-size:14px;font-weight:600}
+html.tm .np-item .np-rasc{font-size:15.5px}
 </style>
 </head>
 <body>
@@ -1265,7 +1267,7 @@ function listaHTML(lista){
     const etq = etiquetaValidade(o);
     return `<div class="orc-card"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
       <span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span>
-      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido ? ` · Pedido ${esc(o.pedido.num)}` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
+      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido && o.pedido.num ? ` · Pedido ${esc(o.pedido.num)}` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
       ${data||etq ? `<span class="extra">${data?`<span>${data}</span>`:''}${etq}</span>` : ''}
     </button>
     <div class="orc-acoes">
@@ -2488,7 +2490,7 @@ function exportarPlanilha(tipo){
     A.forEach(o=>{ const t = totais(o);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa, o.cliente.nome, o.cliente.cnpj, o.cliente.tel, o.cliente.cidade, o.representada,
         numBR(t.sub), numBR(t.desc), numBR(t.frete), numBR(t.total), NOME_ST[o.status],
-        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o)), o.pedido ? o.pedido.num : '', o.pedido ? numBR(totais(orcDoPedido(o)).total) : '']); });
+        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o)), o.pedido && o.pedido.num ? o.pedido.num : '', o.pedido && o.pedido.num ? numBR(totais(orcDoPedido(o)).total) : '']); });
   }
   const txt = '﻿' + linhas.map(l=>l.map(celula).join(';')).join('\r\n');
   baixarArquivo(txt, `${tipo==='itens'?'itens-':''}orcamentos-rap-${hojeISO()}.csv`, 'text/csv;charset=utf-8');
@@ -2764,18 +2766,20 @@ function proximoPedido(anoFixo){
   return {ano, n, txt: `${ano}-${String(n).padStart(3,'0')}`};
 }
 function faixaPedidoHTML(o){
-  if(o.pedido) return `<div class="faixa-ped tem"><div><b>Pedido Nº ${esc(o.pedido.num)}</b><span>${o.pedido.emitidoEm ? 'Enviado em '+dataBR(dataLocal(o.pedido.emitidoEm)) : 'Criado em '+dataBR(o.pedido.data)} · ${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
-    <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('doc',20)} Abrir pedido</button></div>`;
+  if(o.pedido) return `<div class="faixa-ped tem"><div><b>${o.pedido.num ? 'Pedido Nº '+esc(o.pedido.num) : 'Pedido começado'}</b><span>${o.pedido.emitidoEm ? 'Enviado em '+dataBR(dataLocal(o.pedido.emitidoEm)) : 'Ainda não enviado'} · ${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
+    <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('doc',20)} ${o.pedido.emitidoEm ? 'Abrir pedido' : 'Continuar pedido'}</button></div>`;
   return '';
 }
-function semPedido(){ return ativos().filter(o=>o.status==='fechado' && !o.pedido).sort((a,b)=> dataFechado(b).localeCompare(dataFechado(a))); }
+const pedidoFeito = o => !!(o.pedido && o.pedido.emitidoEm);   // só conta como feito depois que o PDF foi enviado ou baixado
+function semPedido(){ return ativos().filter(o=>o.status==='fechado' && !pedidoFeito(o)).sort((a,b)=> dataFechado(b).localeCompare(dataFechado(a))); }
 function escolherParaPedido(){
   const l = semPedido();
   const corpo = l.length
-    ? `<p class="txt-suave">Orçamentos fechados que ainda não têm pedido. Toque no que vai virar pedido.</p>
+    ? `<p class="txt-suave">${l.length===1 ? '1 orçamento fechado está' : l.length+' orçamentos fechados estão'} esperando o pedido. Toque no que vai virar pedido.</p>
        <div id="np-lista">${l.map(o=>`<button class="np-item" data-o="${o.id}">
          <span class="cli">${esc(o.cliente.empresa||o.cliente.nome||'Sem cliente')}</span><span class="tot">${moeda(totais(o).total)}</span>
-         <span class="meta">Orçamento Nº ${esc(o.num)} · fechado em ${dataBR(dataFechado(o))}${o.representada ? ' · '+esc(o.representada) : ''}</span></button>`).join('')}</div>`
+         <span class="meta">Orçamento Nº ${esc(o.num)} · fechado em ${dataBR(dataFechado(o))}${o.representada ? ' · '+esc(o.representada) : ''}</span>
+         ${o.pedido ? `<span class="np-rasc">Pedido começado, ainda não enviado. Toque para continuar.</span>` : ''}</button>`).join('')}</div>`
     : `<div class="vazio" style="margin:6px 0 10px"><strong>Nenhum orçamento esperando pedido</strong>Quando você marcar um orçamento como “Fechado”, ele aparece aqui.</div>`;
   const v = abrirFolha('Novo pedido', corpo);
   const lista = v.querySelector('#np-lista');
@@ -2785,13 +2789,9 @@ function emitirPedido(oid){
   const o = acharOrc(oid); if(!o) return;
   if(!o.pedido){
     if(!o.itens.length){ aviso('O orçamento não tem itens.'); return; }
-    const pn = proximoPedido();
-    if(!E.config.seqPed) E.config.seqPed = {};
-    E.config.seqPed[pn.ano] = pn.n; mudouGeral();
-    o.pedido = {num: pn.txt, data: hojeISO(), criado: agora(), representada: o.representada || '',
+    o.pedido = {num: '', data: hojeISO(), criado: agora(), representada: o.representada || '',
       itens: JSON.parse(JSON.stringify(o.itens)), fora: [], obs: o.obs || ''};
     mudou(o); salvarJa();
-    aviso(`Pedido Nº ${pn.txt} criado.`, 3000);
   }
   if(tela.nome==='pedido') desenhar(); else irComHistorico({nome:'pedido', id:oid});
 }
@@ -2810,7 +2810,7 @@ function voltarAoPedido(oid, iid){
 }
 async function apagarPedido(oid){
   const o = acharOrc(oid);
-  if(await confirmar(`Apagar o pedido Nº ${o.pedido.num}? O orçamento continua fechado e você pode emitir outro.`, 'Apagar pedido')){
+  if(await confirmar(`Apagar ${o.pedido.num ? 'o pedido Nº '+o.pedido.num : 'este pedido'}? O orçamento continua fechado e você pode emitir outro.`, 'Apagar pedido')){
     delete o.pedido; mudou(o); salvarJa(); voltar(); aviso('Pedido apagado.');
   }
 }
@@ -2824,10 +2824,10 @@ function telaPedido(oid){
   app.innerHTML = `
   <header class="topo">
     <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
-    <span class="titulo">Pedido ${esc(P.num)}</span>
+    <span class="titulo">${P.num ? 'Pedido '+esc(P.num) : 'Novo pedido'}</span>
   </header>
   <main>
-    <p class="ref-orc">Do orçamento Nº ${esc(o.num)} · ${esc(c.empresa||c.nome||'')}</p>
+    <p class="ref-orc">Do orçamento Nº ${esc(o.num)} · ${esc(c.empresa||c.nome||'')}${P.num ? '' : ' · o número do pedido sai junto com o PDF'}</p>
     <section class="bloco"><h2>Representada</h2><div class="cartao">
       <label class="campo" style="margin-top:0"><span>Para qual representada vai o pedido</span>
         <select id="p-rep"><option value="">Escolha</option>${[...new Set([...FORNECEDORES, ...(P.representada?[P.representada]:[])])].map(r=>`<option ${P.representada===r?'selected':''}>${esc(r)}</option>`).join('')}</select></label>
@@ -2876,6 +2876,13 @@ function pdfPedido(oid){
   if(!P.representada){ aviso('Escolha para qual representada vai o pedido.'); document.getElementById('p-rep').focus(); return; }
   const inc = P.itens.findIndex(i=>faltaNoItem(i).length);
   if(inc>=0){ aviso(`O item ${P.itens[inc].prod} está sem ${faltaNoItem(P.itens[inc]).join(' e ')}. Corrija no orçamento.`, 4500); return; }
+  if(!P.num){   // o número do pedido é dado aqui, no primeiro PDF
+    const pn = proximoPedido();
+    if(!E.config.seqPed) E.config.seqPed = {};
+    E.config.seqPed[pn.ano] = pn.n; mudouGeral();
+    P.num = pn.txt; P.data = hojeISO(); mudou(o); salvarJa();
+    telaPedido(oid);
+  }
   let blob; try{ blob = gerarPDF(o, true).output('blob'); }catch(e){ console.error(e); aviso('Não foi possível gerar o PDF.'); return; }
   const quem = (o.cliente.empresa||o.cliente.nome||'cliente').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
   const nome = `Pedido-RAP-${P.num}-${quem}.pdf`;
@@ -3446,7 +3453,7 @@ function atualizarNav(){
     const logo = LOGO_TOPO.replace(/id="([^"]+)"/g,'id="nav-$1"').replace(/url\(#([^)]+)\)/g,'url(#nav-$1)').replace(/href="#([^"]+)"/g,'href="#nav-$1"');   // ids próprios: o logo do topo usa os mesmos nomes
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
-      <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Novo pedido</button>
+      <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Novo pedido <span class="np-cont" id="nav-np" hidden></span></button>
       ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span></button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
@@ -3456,6 +3463,7 @@ function atualizarNav(){
   document.body.classList.toggle('com-nav', !!aba);
   nav.querySelectorAll('[data-aba]').forEach(b=>{ if(b.dataset.aba===aba) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   const r = document.getElementById('nav-rodape'); if(r) r.textContent = rodapeNuvem();
+  const np = document.getElementById('nav-np'); if(np){ const n = semPedido().length; np.hidden = !n; np.textContent = n; }
 }
 /* toda tela desenhada atualiza o menu */
 ['telaInicio','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes'].forEach(nome=>{
