@@ -373,6 +373,30 @@ html.tm .ci-sub,html.tm .ci-meta{font-size:16.5px} html.tm .ci-nome{font-size:19
 .preco-velho b{color:#5A400A}
 .dica-preco .velho{display:block;margin-top:2px;color:#8A5A0B;font-weight:600}
 html.tm .dica-envio,html.tm .preco-velho{font-size:16px}
+
+/* salvar e pedido */
+.btn.ok{background:#E7F4EC;border-color:#9BCFAE;color:#14532D}
+.salvo.mostra{opacity:1 !important}
+.faixa-ped{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:14px 16px;border-radius:var(--raio);background:#EAF1FD;border:1px solid #BFD3F5}
+.faixa-ped>div{flex:1;min-width:0}
+.faixa-ped b{display:block;color:var(--marinho);font-size:17px}
+.faixa-ped span{display:block;color:var(--txt,#3A4352);font-size:14.5px;line-height:1.4;margin-top:2px}
+.faixa-ped .btn{flex:none}
+@media (max-width:560px){ .faixa-ped{flex-direction:column;align-items:stretch} }
+.ref-orc{margin:0 2px 12px;color:var(--suave);font-size:15px}
+.h-sub{font-family:Barlow,sans-serif;font-weight:500;color:var(--suave);font-size:14px;margin-left:6px}
+.item-fixo{cursor:default}
+.orc-acoes.um{grid-template-columns:1fr}
+.fora-l{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-top:6px;border:1px dashed var(--linha);border-radius:10px;background:#FAFBFD}
+.fora-l span{flex:1;min-width:0;color:var(--suave);text-decoration:line-through}
+.fora-l b{color:var(--tinta);font-weight:600}
+.fora-l small{display:block;font-size:13.5px}
+.fora-l .btn{min-height:40px;padding:0 14px;text-decoration:none}
+.p-tot{margin-top:14px}
+.rs-total{border-top:1.5px solid var(--linha);margin-top:6px;padding-top:8px}
+.rs-total b{font-family:Plex,sans-serif;color:var(--marinho);font-size:18px}
+.exc-txt{color:#B42318 !important;border-color:#F1C7C2 !important}
+html.tm .faixa-ped span,html.tm .fora-l small{font-size:16px}
 </style>
 </head>
 <body>
@@ -816,7 +840,7 @@ const CHAVE = 'rap-orcamentos-v1';
 const TESTE = false;
 const NUVEM_CONFIG = {"apiKey": "AIzaSyAN7dGMMiING53Pedv1yNhqQwXsjNb-ScQ", "authDomain": "orcamentos-rap.firebaseapp.com", "projectId": "orcamentos-rap", "storageBucket": "orcamentos-rap.firebasestorage.app", "messagingSenderId": "187997430413", "appId": "1:187997430413:web:af40b938bb4ed30d63f8c4"};          // configuração do Firebase (fica null até ser preenchida)
 const NUVEM_PASTA = TESTE ? 'teste-' : '';  // a versão de teste guarda na nuvem separada dos orçamentos reais
-const VERSAO = 6;
+const VERSAO = 7;
 const DIA = 86400000;
 
 /* carrega as fontes na tela a partir das mesmas fontes do PDF */
@@ -897,7 +921,7 @@ function estadoInicial(){
     config:{
       nome:'Ralfe Antonio Pereira', cargo:'Representante comercial',
       whats:'(41) 99245-1717', email:'ralfeapereira@outlook.com', site:'rap-representacoes.onrender.com',
-      pagamento:'', entrega:'', validade:'7 dias', obs:'', seq:{}, fornec:{...CNPJ_FORNECEDORES}, comissao:{},
+      pagamento:'', entrega:'', validade:'7 dias', obs:'IPI incluso.', seq:{}, seqPed:{}, fornec:{...CNPJ_FORNECEDORES}, comissao:{},
       ultimaCopia:'', aceite:false, textoMaior:false, dicaIOS:false
     },
     produtos: PRODUTOS_PADRAO.map(([cat,nome,un]) => ({id:uid(),cat,nome,un})),
@@ -956,6 +980,11 @@ function migrar(D){
     D.versao = 6;
   }
   if(!D.config.comissao) D.config.comissao = {};
+  if(D.versao < 7){
+    if(!String(D.config.obs||'').trim()) D.config.obs = 'IPI incluso.';
+    D.versao = 7;
+  }
+  if(!D.config.seqPed) D.config.seqPed = {};
   if(!Array.isArray(D.recentes)) D.recentes = [];
   if(!Array.isArray(D._apagarNuvem)) D._apagarNuvem = [];
   return D;
@@ -1115,6 +1144,7 @@ function desenhar(){
   else if(tela.nome==='relatorio') telaRelatorio();
   else if(tela.nome==='cliente') telaCliente(tela.id);
   else if(tela.nome==='clientes') telaClientes();
+  else if(tela.nome==='pedido') telaPedido(tela.id);
 }
 
 /* ================= tela: início ================= */
@@ -1219,7 +1249,7 @@ function listaHTML(lista){
     const etq = etiquetaValidade(o);
     return `<div class="orc-card"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
       <span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span>
-      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
+      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido ? ` · Pedido ${esc(o.pedido.num)}` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
       ${data||etq ? `<span class="extra">${data?`<span>${data}</span>`:''}${etq}</span>` : ''}
     </button>
     <div class="orc-acoes">
@@ -1385,6 +1415,7 @@ function telaOrc(id){
     <span class="salvo" id="salvo">✓ Salvo</span>
   </header>
   <main>
+    <div id="faixa-ped">${faixaPedidoHTML(o)}</div>
     <section class="bloco"><h2>Cliente</h2>
       <div class="cartao">
         ${linkHistoricoHTML(o)}
@@ -1451,7 +1482,7 @@ function telaOrc(id){
           <p class="com-txt" id="com-txt">${textoComissao(o)}</p>
         </div>
         <label class="campo"><span>Observações <small>(opcional)</small></span>
-          <textarea data-o="obs" placeholder="Ex.: preço com IPI incluso">${esc(o.obs)}</textarea></label>
+          <textarea data-o="obs" placeholder="Ex.: IPI incluso.">${esc(o.obs)}</textarea></label>
         <div class="duas">
           <label class="campo"><span>Data</span><input type="date" data-o="data" value="${esc(o.data)}"></label>
           <label class="campo"><span>Situação</span>
@@ -1466,7 +1497,7 @@ function telaOrc(id){
   </main>
   <div class="barra"><div class="in">
     <div class="tt"><small>Total</small><strong id="barra-tot">${moeda(totais(o).total)}</strong></div>
-    <button class="btn btn-sec" onclick="salvarEVoltar()">Salvar</button>
+    <button class="btn btn-sec" id="b-salvar" onclick="salvarOrc()">Salvar</button>
     <button class="btn btn-pri" onclick="acoesPDF('${o.id}')">${ic('pdf')} Gerar PDF</button>
   </div></div>`;
 
@@ -1530,6 +1561,8 @@ function aplicarSituacao(o, st){
 function mudouSituacao(o, st){
   aplicarSituacao(o, st);
   atualizarMotivo(o);
+  const fp = document.getElementById('faixa-ped'); if(fp) fp.innerHTML = faixaPedidoHTML(o);
+  if(st==='fechado' && !o.pedido){ aviso('Venda fechada! Já dá para emitir o pedido lá em cima.', 4000); window.scrollTo({top:0, behavior:'smooth'}); }
   document.getElementById('opcoes').innerHTML = opcoesHTML(o);
   if(st==='perdido') perguntarMotivo(o);
 }
@@ -1562,14 +1595,21 @@ function situacaoDaLista(oid){
     if(st===o.status){ fecharFolha(); return; }
     aplicarSituacao(o, st); mudou(o);
     if(st==='perdido'){ perguntarMotivo(o, ()=>desenhar()); aviso('Marcado como perdido.'); return; }
+    if(st==='fechado' && !o.pedido){
+      fecharFolha(async ()=>{ desenhar(); if(await confirmar(`Venda fechada! Quer emitir agora o pedido para a ${o.representada || 'representada'}?`, 'Emitir pedido', 'Depois')) emitirPedido(o.id); });
+      return;
+    }
     fecharFolha(()=>desenhar());
     aviso(st==='fechado' ? 'Orçamento marcado como fechado.' : 'Orçamento marcado como em aberto.');
   });
 }
 /* botão Salvar: grava e volta para a lista */
-function salvarEVoltar(){
+function salvarOrc(){
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
-  salvarJa(); agendarSinc(); aviso('Orçamento salvo.'); voltar();
+  salvarJa(); agendarSinc(); aviso('Orçamento salvo.');
+  const b = document.getElementById('b-salvar');
+  if(b){ b.textContent = '✓ Salvo'; b.classList.add('ok'); clearTimeout(b._t); b._t = setTimeout(()=>{ b.textContent = 'Salvar'; b.classList.remove('ok'); }, 2200); }
+  const sv = document.getElementById('salvo'); if(sv){ sv.classList.add('mostra'); clearTimeout(sv._t); sv._t = setTimeout(()=>sv.classList.remove('mostra'), 2200); }
 }
 function opcoesHTML(o){
   const tel = (o.cliente.tel||'').replace(/\D/g,'');
@@ -1736,12 +1776,12 @@ function fecharFolha(cb){
   if(!folhaAberta){ if(typeof cb==='function') cb(); return; }
   removerFolha(); desempilhar(cb);
 }
-function confirmar(msg, ok='Excluir'){
+function confirmar(msg, ok='Excluir', nao='Cancelar'){
   return new Promise(res=>{
     const v = document.createElement('div'); v.className='veu'; v.style.zIndex=55;
     v.innerHTML = `<div class="folha" role="alertdialog" aria-modal="true" style="max-width:440px">
       <div class="folha-corpo" style="padding:22px 20px 8px"><p style="margin:0;font-size:18px;color:var(--tinta);font-weight:600">${esc(msg)}</p></div>
-      <div class="folha-pe" style="border-top:0"><button class="btn btn-sec" data-r="0">Cancelar</button><button class="btn btn-pri" data-r="1" style="${ok==='Excluir'||ok==='Remover'?'background:var(--vermelho)':''}">${esc(ok)}</button></div></div>`;
+      <div class="folha-pe" style="border-top:0"><button class="btn btn-sec" data-r="0">${esc(nao)}</button><button class="btn btn-pri" data-r="1" style="${/^(Excluir|Remover|Apagar)/.test(ok)?'background:var(--vermelho)':''}">${esc(ok)}</button></div></div>`;
     let feito = false;
     const esc0 = e=>{ if(e.key==='Escape') fim(false); };
     const remover = ()=>{ v.remove(); confirmAberto = false; document.removeEventListener('keydown', esc0); };
@@ -2064,7 +2104,9 @@ function pdfPronto(o){
   };
 }
 
-function gerarPDF(o){
+function gerarPDF(o0, comoPedido){
+  const P = comoPedido ? o0.pedido : null;
+  const o = P ? orcDoPedido(o0) : o0;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({unit:'mm', format:'a4'});
   doc.addFileToVFS('Barlow-R.ttf', FONTES.regular); doc.addFont('Barlow-R.ttf','Barlow','normal');
@@ -2076,18 +2118,19 @@ function gerarPDF(o){
   const MAR = [19,41,92], TINTA=[22,28,37], TXT=[58,67,82], SUAVE=[107,116,132], LIN=[220,225,232];
   const cor = (a)=> doc.setTextColor(...a);
   const f = (fam, est, tam)=>{ doc.setFont(fam, est); doc.setFontSize(tam); };
-  const numero = numPDF(o);
+  const numero = P ? P.num : numPDF(o);
+  const TIPO = P ? 'Pedido' : 'Orçamento';
 
   function cabecalho(primeira){
     if(primeira){
       doc.addImage(FAIXA_PDF,'JPEG',0,0,W,30);
-      cor([255,255,255]); f('Plex','bold',20); doc.text('ORÇAMENTO', R, 13.5, {align:'right'});
+      cor([255,255,255]); f('Plex','bold',20); doc.text(TIPO.toUpperCase(), R, 13.5, {align:'right'});
       f('BarlowSB','normal',11); doc.text(`Nº ${numero}`, R, 20, {align:'right'});
       f('Barlow','normal',10); doc.setTextColor(214,226,248); doc.text(`Emitido em ${dataBR(o.data)}`, R, 25, {align:'right'});
       return 42;
     }
     doc.addImage(FAIXA_PDF,'JPEG',0,0,W,14);
-    cor([255,255,255]); f('BarlowSB','normal',10); doc.text(`Orçamento Nº ${numero}  (continuação)`, R, 9, {align:'right'});
+    cor([255,255,255]); f('BarlowSB','normal',10); doc.text(`${TIPO} Nº ${numero}  (continuação)`, R, 9, {align:'right'});
     return 24;
   }
   function rodape(){
@@ -2143,6 +2186,21 @@ function gerarPDF(o){
   }
   function tituloBloco(txt, x, yy){ cor(MAR); f('Plex','bold',11.5); doc.text(txt, x, yy); }
 
+  /* pedido: representada e referência ao orçamento */
+  if(P){
+    tituloBloco('Representada', M, y); y += 3;
+    const re = [['Empresa', P.representada || '—', true]];
+    const cf = (E.config.fornec||{})[P.representada]; if(cf) re.push(['CNPJ', cf]);
+    const rd = [['Orçamento', `Nº ${numPDF(o0)} de ${dataBR(o0.data)}`]];
+    if(o0.fechadoEm) rd.push(['Venda fechada em', dataBR(dataFechado(o0))]);
+    const meioR = M + (R-M)*0.56;
+    const hR = Math.max(pares(re, M+5, 0, meioR-M-10, 19, false), pares(rd, meioR, 0, R-meioR-5, 30, false));
+    doc.setFillColor(246,248,252); doc.setDrawColor(...LIN); doc.setLineWidth(.3);
+    doc.roundedRect(M, y, R-M, hR + 8, 2, 2, 'FD');
+    pares(re, M+5, y+6.6, meioR-M-10, 19, true);
+    pares(rd, meioR, y+6.6, R-meioR-5, 30, true);
+    y += hR + 8 + 10;
+  }
   /* dados do cliente */
   tituloBloco('Dados do cliente', M, y);
   y += 3;
@@ -2218,8 +2276,8 @@ function gerarPDF(o){
   cond.push(['Pagamento', o.pagamento || 'A combinar']);
   cond.push(['Prazo de entrega', o.entrega || 'A combinar']);
   cond.push(['Frete', o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : `Taxa de entrega de ${moeda(t.frete)}`]);
-  if(o.validade) cond.push(['Validade da proposta', textoValidade(o)]);
-  if(o.representada){
+  if(o.validade && !P) cond.push(['Validade da proposta', textoValidade(o)]);
+  if(o.representada && !P){
     cond.push(['Fornecedor', o.representada]);
     const cf = (E.config.fornec||{})[o.representada];
     if(cf) cond.push(['CNPJ fornecedor', cf]);
@@ -2263,7 +2321,7 @@ function gerarPDF(o){
   }
 
   /* aceite do cliente (opcional, ligado nas configurações) */
-  if(c.aceite){
+  if(c.aceite && !P){
     if(y + 34 > LIM){ doc.addPage(); y = cabecalho(false); }
     y += 24;
     doc.setDrawColor(150,158,170); doc.setLineWidth(.3);
@@ -2274,7 +2332,7 @@ function gerarPDF(o){
   }
 
   rodape();
-  doc.setProperties({title:`Orçamento ${numero} – RAP Representações`, author:c.nome, creator:'RAP Representações'});
+  doc.setProperties({title:`${TIPO} ${numero} – RAP Representações`, author:c.nome, creator:'RAP Representações'});
   return doc;
 }
 
@@ -2304,6 +2362,7 @@ function telaConfig(){
       <div class="campo"><span>Validade da proposta</span>${escolha('k','validade',c.validade,VALIDADES,'Ex.: 15 dias úteis','Deixar em branco')}</div>
       <label class="campo"><span>Observação padrão</span><textarea data-k="obs" placeholder="Ex.: preço com impostos inclusos">${esc(c.obs)}</textarea></label>
       <label class="campo"><span>Próximo número de ${ano}</span><input id="seq" inputmode="numeric" value="${(c.seq[ano]||0)+1}"></label>
+      <label class="campo"><span>Próximo número de pedido de ${ano}</span><input id="seq-ped" inputmode="numeric" value="${proximoPedido(ano).n}"></label>
     </div></section>
     <section class="bloco"><h2>CNPJ dos fornecedores</h2><div class="cartao">
       <p style="margin:0 0 4px;color:var(--suave);font-size:15px">Sai no PDF quando o fornecedor é escolhido no orçamento.</p>
@@ -2359,6 +2418,7 @@ function telaConfig(){
     c[el.dataset.k] = el.value; mudouGeral();
   }));
   document.getElementById('seq').addEventListener('input', e=>{ const n=parseInt(e.target.value); if(n>0){ c.seq[ano]=n-1; mudouGeral(); } });
+  document.getElementById('seq-ped').addEventListener('input', e=>{ const n=parseInt(e.target.value); if(n>0){ if(!c.seqPed) c.seqPed = {}; c.seqPed[ano]=n-1; mudouGeral(); } });
   document.getElementById('op-aceite').addEventListener('change', e=>{ c.aceite = e.target.checked; mudouGeral(); aviso(c.aceite ? 'O PDF vai sair com o campo de aceite.' : 'Campo de aceite desligado.'); });
   document.getElementById('op-tm').addEventListener('change', e=>{ c.textoMaior = e.target.checked; document.documentElement.classList.toggle('tm', c.textoMaior); salvar(); });
 }
@@ -2413,11 +2473,11 @@ function exportarPlanilha(tipo){
     A.forEach(o=>o.itens.forEach(i=>{ const v = valorItem(i);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa||o.cliente.nome, NOME_ST[o.status], i.prod, i.espec, numBRVar(lerNum(i.qtd)), i.un, numBRVar(lerNum(i.preco)), textoDesc(i), numBR(v.d), numBR(v.liq), o.representada]); }));
   } else {
-    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem','Comissão (%)','Comissão (R$)']];
+    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem','Comissão (%)','Comissão (R$)','Pedido nº','Total do pedido']];
     A.forEach(o=>{ const t = totais(o);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa, o.cliente.nome, o.cliente.cnpj, o.cliente.tel, o.cliente.cidade, o.representada,
         numBR(t.sub), numBR(t.desc), numBR(t.frete), numBR(t.total), NOME_ST[o.status],
-        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o))]); });
+        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o)), o.pedido ? o.pedido.num : '', o.pedido ? numBR(totais(orcDoPedido(o)).total) : '']); });
   }
   const txt = '﻿' + linhas.map(l=>l.map(celula).join(';')).join('\r\n');
   baixarArquivo(txt, `${tipo==='itens'?'itens-':''}orcamentos-rap-${hojeISO()}.csv`, 'text/csv;charset=utf-8');
@@ -2680,6 +2740,154 @@ function colarPedido(oid){
 }
 /* itens incompletos (vindos do pedido colado) */
 function faltaNoItem(i){ const f = []; if(!lerNum(i.qtd)) f.push('quantidade'); if(!lerNum(i.preco)) f.push('preço'); return f; }
+
+
+/* ================= pedido para a representada ================= */
+/* o pedido é uma cópia dos itens do orçamento fechado: dá para tirar itens sem mexer no orçamento */
+function orcDoPedido(o){ const P = o.pedido; return {...o, itens: P.itens, obs: P.obs, representada: P.representada, data: P.data}; }
+function proximoPedido(anoFixo){
+  const ano = anoFixo || new Date().getFullYear();
+  let maior = (E.config.seqPed||{})[ano] || 0;
+  E.orcs.forEach(o=>{ const m = o.pedido && String(o.pedido.num||'').match(/^(\d{4})-(\d+)/); if(m && Number(m[1])===ano) maior = Math.max(maior, Number(m[2])); });
+  const n = maior + 1;
+  return {ano, n, txt: `${ano}-${String(n).padStart(3,'0')}`};
+}
+function faixaPedidoHTML(o){
+  if(o.pedido) return `<div class="faixa-ped tem"><div><b>Pedido Nº ${esc(o.pedido.num)}</b><span>${o.pedido.emitidoEm ? 'Enviado em '+dataBR(dataLocal(o.pedido.emitidoEm)) : 'Criado em '+dataBR(o.pedido.data)} · ${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
+    <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('doc',20)} Abrir pedido</button></div>`;
+  if(o.status!=='fechado') return '';
+  return `<div class="faixa-ped"><div><b>Venda fechada</b><span>Emita o pedido para a ${esc(o.representada||'representada')}. Dá para tirar itens que o cliente não quis.</span></div>
+    <button class="btn btn-pri" onclick="emitirPedido('${o.id}')">${ic('doc',20)} Emitir pedido</button></div>`;
+}
+function emitirPedido(oid){
+  const o = acharOrc(oid); if(!o) return;
+  if(!o.pedido){
+    if(!o.itens.length){ aviso('O orçamento não tem itens.'); return; }
+    const pn = proximoPedido();
+    if(!E.config.seqPed) E.config.seqPed = {};
+    E.config.seqPed[pn.ano] = pn.n; mudouGeral();
+    o.pedido = {num: pn.txt, data: hojeISO(), criado: agora(), representada: o.representada || '',
+      itens: JSON.parse(JSON.stringify(o.itens)), fora: [], obs: o.obs || ''};
+    mudou(o); salvarJa();
+    aviso(`Pedido Nº ${pn.txt} criado. Tire os itens que o cliente não quis e gere o PDF.`, 4500);
+  }
+  if(tela.nome==='pedido') desenhar(); else irComHistorico({nome:'pedido', id:oid});
+}
+function tirarDoPedido(oid, iid){
+  const o = acharOrc(oid), P = o.pedido, k = P.itens.findIndex(i=>i.id===iid); if(k<0) return;
+  if(P.itens.length===1){ aviso('O pedido precisa ter pelo menos um item.'); return; }
+  P.fora.push(P.itens.splice(k,1)[0]); mudou(o); salvarJa(); telaPedido(oid);
+  aviso('Item tirado do pedido. O orçamento continua igual.');
+}
+function voltarAoPedido(oid, iid){
+  const o = acharOrc(oid), P = o.pedido, k = P.fora.findIndex(i=>i.id===iid); if(k<0) return;
+  const it = P.fora.splice(k,1)[0];
+  const ordem = id => { const n = o.itens.findIndex(i=>i.id===id); return n<0 ? 999 : n; };   // volta para a posição do orçamento
+  P.itens.push(it); P.itens.sort((a,b)=>ordem(a.id)-ordem(b.id));
+  mudou(o); salvarJa(); telaPedido(oid); aviso('Item recolocado no pedido.');
+}
+async function apagarPedido(oid){
+  const o = acharOrc(oid);
+  if(await confirmar(`Apagar o pedido Nº ${o.pedido.num}? O orçamento continua fechado e você pode emitir outro.`, 'Apagar pedido')){
+    delete o.pedido; mudou(o); salvarJa(); voltar(); aviso('Pedido apagado.');
+  }
+}
+function telaPedido(oid){
+  const o = acharOrc(oid); if(!o || !o.pedido){ voltar(); return; }
+  const P = o.pedido, ov = orcDoPedido(o), t = totais(ov), peso = pesoInfo(ov), c = o.cliente;
+  const cf = (E.config.fornec||{})[P.representada];
+  const linha = (k,v) => v ? `<div class="rs-l"><span>${k}</span><b>${esc(v)}</b></div>` : '';
+  const faltaCli = [!c.cnpj && 'CNPJ/CPF', !c.endereco && 'endereço', !c.cidade && 'cidade'].filter(Boolean);
+  const frete = o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : `Taxa de entrega de ${moeda(t.frete)}`;
+  app.innerHTML = `
+  <header class="topo">
+    <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
+    <span class="titulo">Pedido ${esc(P.num)}</span>
+  </header>
+  <main>
+    <p class="ref-orc">Do orçamento Nº ${esc(o.num)} · ${esc(c.empresa||c.nome||'')}</p>
+    <section class="bloco"><h2>Representada</h2><div class="cartao">
+      <label class="campo" style="margin-top:0"><span>Para qual representada vai o pedido</span>
+        <select id="p-rep"><option value="">Escolha</option>${[...new Set([...FORNECEDORES, ...(P.representada?[P.representada]:[])])].map(r=>`<option ${P.representada===r?'selected':''}>${esc(r)}</option>`).join('')}</select></label>
+      <p class="txt-suave" style="margin:8px 2px 0">${cf ? 'CNPJ '+esc(cf) : P.representada ? 'CNPJ não cadastrado (Ajustes).' : ''}</p>
+    </div></section>
+    <section class="bloco"><h2>Itens do pedido <small class="h-sub">${P.itens.length} de ${P.itens.length+P.fora.length}</small></h2>
+      <p class="txt-suave" style="margin:-4px 2px 10px">Tire os itens que o cliente não quis. O peso e o total mudam na hora, e o orçamento continua igual.</p>
+      <div id="p-itens">${P.itens.map((i,k)=>`<div class="item-card">
+        <div class="item item-fixo"><span class="nome">${k+1}. ${esc(i.prod)}</span><span class="val">${moeda(valorItem(i).liq)}</span>
+          ${i.espec?`<span class="esp">${esc(i.espec)}</span>`:''}<span class="conta">${num(lerNum(i.qtd))} ${esc(i.un)} × ${moedaUnit(lerNum(i.preco))}</span>
+          ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}</div>
+        <div class="orc-acoes um"><button class="exc" onclick="tirarDoPedido('${o.id}','${i.id}')">${ic('lixo',18)} Tirar do pedido</button></div></div>`).join('')}</div>
+      ${P.fora.length ? `<h3 class="sub-tab">Fora do pedido (${P.fora.length})</h3>${P.fora.map(i=>`<div class="fora-l"><span><b>${esc(i.prod)}</b><small>${num(lerNum(i.qtd))} ${esc(i.un)}${i.espec?' · '+esc(i.espec):''} · ${moeda(valorItem(i).liq)}</small></span>
+        <button class="btn btn-sec" onclick="voltarAoPedido('${o.id}','${i.id}')">Recolocar</button></div>`).join('')}` : ''}
+      <div class="cartao p-tot">
+        ${peso ? linha(peso.rotulo, peso.valor) : ''}${linha('Subtotal', moeda(t.sub))}${o.freteTipo==='valor'?linha('Taxa de entrega', moeda(t.frete)):''}${t.desc?linha('Descontos','– '+moeda(t.desc)):''}
+        <div class="rs-l rs-total"><span>Total do pedido</span><b>${moeda(t.total)}</b></div>
+      </div>
+    </section>
+    <section class="bloco"><h2>Cliente</h2><div class="cartao">
+      ${linha('Empresa',c.empresa)}${linha(tipoDoc(c.cnpj),c.cnpj)}${linha('Contato',c.nome)}${linha('Telefone',c.tel)}${linha('E-mail',c.email)}${linha('Endereço',c.endereco)}${linha('Cidade',c.cidade)}
+      ${faltaCli.length ? `<p class="preco-velho" style="margin-top:10px">Falta ${faltaCli.join(', ')}. A representada costuma precisar para faturar e entregar. Complete no orçamento.</p>` : ''}
+      <button class="link-simples" onclick="voltar()">Alterar dados do cliente no orçamento</button>
+    </div></section>
+    <section class="bloco"><h2>Condições</h2><div class="cartao">
+      ${linha('Pagamento', o.pagamento||'A combinar')}${linha('Prazo de entrega', o.entrega||'A combinar')}${linha('Frete', frete)}
+      <label class="campo"><span>Observações do pedido</span><textarea id="p-obs" placeholder="Ex.: IPI incluso. Entregar das 8h às 17h.">${esc(P.obs)}</textarea></label>
+    </div></section>
+    <section class="bloco"><div class="acoes">
+      <button class="btn btn-sec btn-cheio exc-txt" onclick="apagarPedido('${o.id}')">${ic('lixo')} Apagar este pedido</button>
+    </div></section>
+  </main>
+  <div class="barra"><div class="in">
+    <div class="tt"><small>Total do pedido</small><strong>${moeda(t.total)}</strong></div>
+    <button class="btn btn-pri" onclick="pdfPedido('${o.id}')">${ic('pdf')} Gerar PDF do pedido</button>
+  </div></div>`;
+  document.getElementById('p-rep').onchange = e=>{ P.representada = e.target.value; mudou(o); telaPedido(oid); };
+  document.getElementById('p-obs').addEventListener('input', e=>{ P.obs = e.target.value; mudou(o); });
+}
+function mensagemPedido(o){
+  const P = o.pedido, c = o.cliente, quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
+  return `Olá! Tudo bem?\nSegue o pedido nº ${P.num} do cliente ${c.empresa||c.nome}${c.cnpj?` (${tipoDoc(c.cnpj)} ${c.cnpj})`:''}, referente ao orçamento nº ${numPDF(o)}, no valor total de ${moeda(totais(orcDoPedido(o)).total)}.\nQualquer dúvida, estou à disposição.\n\n${quem} – RAP Representações`;
+}
+function pdfPedido(oid){
+  const o = acharOrc(oid), P = o.pedido;
+  if(!P.representada){ aviso('Escolha para qual representada vai o pedido.'); document.getElementById('p-rep').focus(); return; }
+  const inc = P.itens.findIndex(i=>faltaNoItem(i).length);
+  if(inc>=0){ aviso(`O item ${P.itens[inc].prod} está sem ${faltaNoItem(P.itens[inc]).join(' e ')}. Corrija no orçamento.`, 4500); return; }
+  let blob; try{ blob = gerarPDF(o, true).output('blob'); }catch(e){ console.error(e); aviso('Não foi possível gerar o PDF.'); return; }
+  const quem = (o.cliente.empresa||o.cliente.nome||'cliente').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
+  const nome = `Pedido-RAP-${P.num}-${quem}.pdf`;
+  const arq = new File([blob], nome, {type:'application/pdf'});
+  const podeCompartilhar = !!(navigator.canShare && navigator.canShare({files:[arq]}));
+  const corpo = `
+    <label class="campo" style="margin-top:0"><span>Mensagem para a ${esc(P.representada)} <small>(pode mudar)</small></span>
+      <textarea id="a-msg" rows="6">${esc(mensagemPedido(o))}</textarea></label>
+    <div class="acoes" style="margin-top:14px">
+      <button class="btn btn-zap btn-cheio" id="a-share">${ic('zap')} Enviar pelo WhatsApp</button>
+      <p class="dica-envio">${podeCompartilhar ? 'Escolha o WhatsApp e depois a conversa da representada.' : 'O PDF é baixado e o WhatsApp abre para você escolher a conversa da representada. Depois é só anexar no clipe.'}</p>
+      <button class="btn btn-pri btn-cheio" id="a-baixar">${ic('baixar')} Baixar PDF</button>
+      <button class="btn btn-sec btn-cheio" id="a-email">${ic('email')} Enviar por e-mail</button>
+      <button class="btn btn-sec btn-cheio" id="a-ver">${ic('olho')} Ver PDF</button>
+    </div>`;
+  const v = abrirFolha('PDF do pedido pronto', corpo);
+  const msg = ()=> v.querySelector('#a-msg').value.trim();
+  const marcar = ()=>{ P.emitidoEm = agora(); mudou(o); salvarJa(); };
+  const baixar = ()=>{ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); marcar(); };
+  v.querySelector('#a-share').onclick = async ()=>{
+    if(podeCompartilhar){ try{ await navigator.share({files:[arq], text:msg()}); marcar(); }catch(e){} return; }
+    baixar(); window.open(`https://wa.me/?text=${encodeURIComponent(msg())}`, '_blank');
+    aviso('O PDF foi baixado. No WhatsApp, escolha a representada e anexe o arquivo no clipe.', 6000);
+  };
+  v.querySelector('#a-baixar').onclick = baixar;
+  v.querySelector('#a-ver').onclick = ()=>{ window.open(URL.createObjectURL(blob),'_blank'); };
+  v.querySelector('#a-email').onclick = ()=>{
+    const assunto = `Pedido ${P.num} – ${o.cliente.empresa||o.cliente.nome} – RAP Representações`;
+    const c = E.config, texto = msg() + `\n${c.cargo||''}\n${c.whats||''}\n${c.email||''}`;
+    if(podeCompartilhar){ navigator.share({files:[arq], title:assunto, text:texto}).then(marcar).catch(()=>{}); return; }
+    baixar(); location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
+    aviso('O PDF foi baixado. Anexe ele no e-mail.');
+  };
+}
 
 /* ================= tela: histórico do cliente ================= */
 function docCliente(c){ const d = limpaDoc(c.cnpj); return (d.length===11 || d.length===14) ? d : ''; }
@@ -3045,8 +3253,10 @@ function aplicarGeral(g){
   if(!g){ if(!E.geralAlterado){ E.geralAlterado = agora(); mud = true; } return mud; }   // nuvem vazia: este aparelho envia o que tem
   const seqR = (g.config && g.config.seq) || {};
   Object.entries(seqR).forEach(([ano,n])=>{ if((E.config.seq[ano]||0) < n){ E.config.seq[ano] = n; mud = true; } });
+  if(!E.config.seqPed) E.config.seqPed = {};
+  Object.entries((g.config && g.config.seqPed) || {}).forEach(([ano,n])=>{ if((E.config.seqPed[ano]||0) < n){ E.config.seqPed[ano] = n; mud = true; } });
   if((g.alterado||'') > (E.geralAlterado||'')){
-    const doAparelho = {ultimaCopia:E.config.ultimaCopia, textoMaior:E.config.textoMaior, dicaIOS:E.config.dicaIOS, seq:E.config.seq};
+    const doAparelho = {ultimaCopia:E.config.ultimaCopia, textoMaior:E.config.textoMaior, dicaIOS:E.config.dicaIOS, seq:E.config.seq, seqPed:E.config.seqPed};
     E.config = {...E.config, ...(g.config||{}), ...doAparelho};
     if(Array.isArray(g.produtos) && g.produtos.length) E.produtos = g.produtos;
     E.precos = {...(E.precos||{}), ...(g.precos||{})};
@@ -3085,6 +3295,7 @@ function redesenharSeguro(forcar){
   else if(tela.nome==='config') telaConfig();
   else if(tela.nome==='cliente') telaCliente(tela.id);
   else if(tela.nome==='clientes') telaClientes();
+  else if(tela.nome==='pedido') telaPedido(tela.id);
 }
 function textoStatusNuvem(){
   if(!NUVEM) return '';
