@@ -366,6 +366,13 @@ html.tm .nav-b{font-size:15px}
 .ci-vend small{display:block;font-family:Barlow,sans-serif;font-weight:500;color:var(--suave);font-size:13px}
 .ci-sub,.ci-meta{color:var(--suave);font-size:15px}
 html.tm .ci-sub,html.tm .ci-meta{font-size:16.5px} html.tm .ci-nome{font-size:19px}
+
+/* envio e preço antigo */
+.dica-envio{margin:-2px 2px 4px;color:var(--suave);font-size:14px;line-height:1.4}
+.preco-velho{margin:8px 2px 0;padding:9px 12px;background:#FFF1D6;border-radius:10px;color:#6B4E0E;font-size:14.5px;line-height:1.4}
+.preco-velho b{color:#5A400A}
+.dica-preco .velho{display:block;margin-top:2px;color:#8A5A0B;font-weight:600}
+html.tm .dica-envio,html.tm .preco-velho{font-size:16px}
 </style>
 </head>
 <body>
@@ -1333,7 +1340,9 @@ function novoOrc(base, modo){
   E.orcs.push(o); mudou(o); mudouGeral();
   if(base){
     ir({nome:'orc',id:o.id});
-    aviso(modo==='cliente' ? `Novo orçamento para ${base.cliente.empresa||base.cliente.nome}: Nº ${o.num}` : `Cópia criada: Nº ${o.num}`);
+    const id = idadeDias(base.data);
+    if(modo!=='cliente' && base.itens.length && id >= DIAS_PRECO_VELHO) aviso(`Cópia criada: Nº ${o.num}. Os preços são de ${dataBR(base.data)}, ${id} dias atrás. Confira com o fornecedor.`, 6500);
+    else aviso(modo==='cliente' ? `Novo orçamento para ${base.cliente.empresa||base.cliente.nome}: Nº ${o.num}` : `Cópia criada: Nº ${o.num}`);
   }
   else irComHistorico({nome:'orc',id:o.id});
 }
@@ -1352,7 +1361,9 @@ function criarRevisao(oid){
     pagamento:b.pagamento, entrega:b.entrega, validade:b.validade, obs:b.obs
   };
   E.orcs.push(o); mudou(o);
-  ir({nome:'orc',id:o.id}); aviso(`Revisão criada: Nº ${o.num}`);
+  ir({nome:'orc',id:o.id});
+  const id = idadeDias(b.data);
+  aviso(b.itens.length && id >= DIAS_PRECO_VELHO ? `Revisão criada: Nº ${o.num}. Os preços são de ${dataBR(b.data)}, ${id} dias atrás. Confira com o fornecedor.` : `Revisão criada: Nº ${o.num}`, id >= DIAS_PRECO_VELHO ? 6500 : 2600);
 }
 
 /* ================= tela: orçamento ================= */
@@ -1807,8 +1818,10 @@ function especsDe(nome){
     .forEach(o=>o.itens.forEach(i=>{ if(i.espec && norm(i.prod)===n && !lista.includes(i.espec)) lista.push(i.espec); }));
   return lista.slice(0,10);
 }
+const DIAS_PRECO_VELHO = 15;   // preço de aço muda rápido: depois disso, pede para confirmar
+const idadeDias = iso => iso ? -diasAte(iso) : null;
 function lembrarProduto(it){
-  if(it.preco) E.precos[it.prod] = {preco:it.preco, un:it.un};
+  if(it.preco) E.precos[it.prod] = {preco:it.preco, un:it.un, em:hojeISO()};
   E.recentes = [it.prod, ...(E.recentes||[]).filter(x=>norm(x)!==norm(it.prod))].slice(0,8);
   E.geralAlterado = agora();
 }
@@ -1834,6 +1847,7 @@ function formItem(oid, iid, pid, nomeLivre){
     ${calcHTML(it)}
     <label class="campo"><span>Preço por <b id="f-unl">${esc(it.un)}</b> (R$)${ult.preco&&!atual?' <small>(último usado)</small>':''}</span>
       <input id="f-preco" inputmode="decimal" value="${esc(paraCampo(it.preco))}" enterkeyhint="next" placeholder="0,00"></label>
+    <p class="preco-velho" id="f-velho" hidden></p>
     <p class="dica-preco" id="f-ult" hidden></p>
     <div class="campo"><span>Desconto no produto <small>(opcional)</small></span>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px">
@@ -1861,12 +1875,21 @@ function formItem(oid, iid, pid, nomeLivre){
     if(!u){ el.hidden = true; return; }
     el.hidden = false;
     el.innerHTML = `Último preço para este cliente: <b>${moedaUnit(lerNum(u.i.preco))} por ${esc(u.i.un)}</b>${valorItem(u.i).d?` com desconto de ${textoDesc(u.i)}`:''}${u.i.espec?` (${esc(u.i.espec)})`:''}, no Nº ${esc(u.o.num)} de ${dataBR(u.o.data)}.`
+      + (idadeDias(u.o.data) >= DIAS_PRECO_VELHO ? ` <span class="velho">Faz ${idadeDias(u.o.data)} dias: confirme com o fornecedor.</span>` : '')
       + (r4(lerNum(u.i.preco))!==r4(lerNum($('#f-preco').value)) ? ` <button type="button" id="f-usar">Usar este preço</button>` : '');
     const b = el.querySelector('#f-usar');
     if(b) b.onclick = ()=>{ $('#f-preco').value = paraCampo(r4(lerNum(u.i.preco))); if($('#f-un').value!==u.i.un){ $('#f-un').value = u.i.un; $('#f-unl').textContent = u.i.un; } conta(); mostrarUltimo(); };
   };
   mostrarUltimo();
   ['#f-esp','#f-preco'].forEach(k=> $(k).addEventListener('input', mostrarUltimo));
+  const idadeUlt = idadeDias(ult.em);
+  const mostrarVelho = ()=>{
+    const el = $('#f-velho');
+    const mesmo = ult.preco && r4(lerNum($('#f-preco').value))===r4(ult.preco);
+    el.hidden = !(!atual && mesmo && idadeUlt!=null && idadeUlt >= DIAS_PRECO_VELHO);
+    if(!el.hidden) el.innerHTML = `<b>Preço de ${idadeUlt} dias atrás</b> (${dataBR(ult.em)}). Preço de aço muda: confirme com o fornecedor antes de enviar.`;
+  };
+  mostrarVelho(); $('#f-preco').addEventListener('input', mostrarVelho);
   $('#f-prod').addEventListener('input', ()=>{ $('#dl-esp').innerHTML = especsDe($('#f-prod').value).map(x=>`<option value="${esc(x)}">`).join(''); mostrarUltimo(); });
   setTimeout(()=> (it.prod ? $('#f-esp') : $('#f-prod')).focus(), 60);
   let calcUsado = it.calc || null;
@@ -1973,6 +1996,12 @@ function acoesPDF(oid){
   v.querySelector('#rs-corrigir').onclick = ()=> fecharFolha();
   v.querySelector('#rs-ok').onclick = ()=> pdfPronto(o);
 }
+function mensagemEnvio(o){
+  const primeiro = (o.cliente.nome||'').trim().split(/\s+/)[0];
+  const venc = vencimento(o);
+  const quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
+  return `${primeiro ? `Olá, ${primeiro}!` : 'Olá!'} Tudo bem?\nSegue o orçamento nº ${numPDF(o)}, no valor total de ${moeda(totais(o).total)}${venc ? `, válido até ${dataBR(venc)}` : ''}.\nQualquer dúvida, estou à disposição.\n\n${quem} – RAP Representações`;
+}
 function marcarEnviado(o){ if(!o.enviadoEm){ o.enviadoEm = agora(); mudou(o); } }
 function pdfPronto(o){
   let blob;
@@ -1980,17 +2009,31 @@ function pdfPronto(o){
   const nome = nomeArquivo(o);
   const arq = new File([blob], nome, {type:'application/pdf'});
   const podeCompartilhar = !!(navigator.canShare && navigator.canShare({files:[arq]}));
-  const corpo = `<div class="acoes">
-    ${podeCompartilhar?`<button class="btn btn-zap btn-cheio" id="a-share">${ic('zap')} Enviar pelo WhatsApp</button>`:''}
-    <button class="btn btn-pri btn-cheio" id="a-baixar">${ic('baixar')} Baixar PDF</button>
-    <button class="btn btn-sec btn-cheio" id="a-email">${ic('email')} Enviar por e-mail</button>
-    <button class="btn btn-sec btn-cheio" id="a-ver">${ic('olho')} Ver PDF</button>
-    ${podeCompartilhar?'':`<p style="margin:4px 0 0;color:var(--suave);font-size:15px">No computador: baixe o PDF e anexe na conversa do WhatsApp Web ou no e-mail.</p>`}
-  </div>`;
+  const tel = (o.cliente.tel||'').replace(/\D/g,'');
+  const corpo = `
+    <label class="campo" style="margin-top:0"><span>Mensagem que vai junto <small>(pode mudar)</small></span>
+      <textarea id="a-msg" rows="6">${esc(mensagemEnvio(o))}</textarea></label>
+    <div class="acoes" style="margin-top:14px">
+      <button class="btn btn-zap btn-cheio" id="a-share">${ic('zap')} Enviar pelo WhatsApp</button>
+      ${podeCompartilhar ? `<p class="dica-envio">Escolha o WhatsApp e depois a conversa do cliente. O PDF e a mensagem vão juntos.</p>`
+        : `<p class="dica-envio">O PDF é baixado e o WhatsApp abre ${tel.length>=10 ? 'na conversa do cliente' : 'para você escolher o contato'}, com a mensagem pronta. Depois é só anexar o arquivo no clipe.</p>`}
+      <button class="btn btn-pri btn-cheio" id="a-baixar">${ic('baixar')} Baixar PDF</button>
+      <button class="btn btn-sec btn-cheio" id="a-email">${ic('email')} Enviar por e-mail</button>
+      <button class="btn btn-sec btn-cheio" id="a-ver">${ic('olho')} Ver PDF</button>
+    </div>`;
   const v = abrirFolha('PDF pronto', corpo);
+  const msg = ()=> v.querySelector('#a-msg').value.trim();
   const baixar = ()=>{ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); marcarEnviado(o); };
-  if(podeCompartilhar) v.querySelector('#a-share').onclick = async ()=>{
-    try{ await navigator.share({files:[arq], title:`Orçamento ${o.num}`, text:`Orçamento ${o.num} – RAP Representações`}); marcarEnviado(o); }catch(e){}
+  v.querySelector('#a-share').onclick = async ()=>{
+    if(podeCompartilhar){
+      try{ await navigator.share({files:[arq], text:msg()}); marcarEnviado(o); }catch(e){}
+      return;
+    }
+    // computador: baixa o PDF e abre o WhatsApp (Web ou aplicativo) na conversa do cliente
+    baixar();
+    const numero = tel.length>=10 ? ((tel.startsWith('55') && tel.length>=12) ? tel : '55'+tel) : '';
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg())}`, '_blank');
+    aviso('O PDF foi baixado. No WhatsApp, clique no clipe e anexe o arquivo.', 6000);
   };
   v.querySelector('#a-baixar').onclick = baixar;
   v.querySelector('#a-ver').onclick = ()=>{ const u=URL.createObjectURL(blob); window.open(u,'_blank'); };
