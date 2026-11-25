@@ -238,6 +238,19 @@ html.tm .item-acoes .btn{font-size:17px}
 /* ===================== versão 5 (nuvem) ===================== */
 .link-simples{display:inline-block;background:none;border:0;padding:12px 2px 2px;color:var(--azul);font-weight:600;font-size:15px;text-decoration:underline;cursor:pointer}
 html.tm .link-simples{font-size:17px}
+
+/* botões Alterar e Excluir em cada orçamento da lista */
+.orc-card{display:flex;flex-direction:column}
+.orc-card .orc{border-bottom:0;border-radius:var(--raio) var(--raio) 0 0}
+.orc-acoes{display:grid;grid-template-columns:1fr 1fr 1fr;background:#fff;border:1px solid var(--linha);border-radius:0 0 var(--raio) var(--raio);overflow:hidden}
+.orc-acoes button{border:0;border-top:1px solid #EEF1F5;background:#fff;min-height:44px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--azul)}
+.orc-acoes button + button{border-left:1px solid #EEF1F5}
+.orc-acoes .sit{color:#167A3E}
+.orc-acoes .exc{color:var(--vermelho)}
+@media (max-width:400px){.barra .in{gap:8px}.barra .btn{padding:0 13px}.barra .btn svg{display:none}.barra .tt strong{font-size:19px}}
+@media (max-width:370px){.barra .tt strong{font-size:17px}}
+.orc-acoes button:active{background:#F7F9FC}
+html.tm .orc-acoes button{font-size:17px;min-height:50px}
 </style>
 </head>
 <body>
@@ -254,6 +267,7 @@ html.tm .link-simples{font-size:17px}
   <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
   <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-copia" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12.5l2.6 2.6L16 9.7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-cima" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-revisao" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 00-3-3L5 17v3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M13.5 6.5l3 3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
@@ -1057,11 +1071,16 @@ function listaHTML(lista){
     else if(o.status==='perdido' && o.perdidoEm) data = `Perdido em ${diaMes(dataLocal(o.perdidoEm))}`;
     else if(o.status==='aberto' && o.enviadoEm) data = `Enviado em ${diaMes(dataLocal(o.enviadoEm))}`;
     const etq = etiquetaValidade(o);
-    return `<button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
+    return `<div class="orc-card"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
       <span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span>
       <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
       ${data||etq ? `<span class="extra">${data?`<span>${data}</span>`:''}${etq}</span>` : ''}
-    </button>`;}).join('');
+    </button>
+    <div class="orc-acoes">
+      <button onclick="irComHistorico({nome:'orc',id:'${o.id}'})" aria-label="Alterar orçamento ${esc(o.num)}">${ic('revisao',18)} Alterar</button>
+      <button class="sit" onclick="situacaoDaLista('${o.id}')" aria-label="Mudar situação do orçamento ${esc(o.num)}">${ic('check',18)} Situação</button>
+      <button class="exc" onclick="excluirDaLista('${o.id}')" aria-label="Excluir orçamento ${esc(o.num)}">${ic('lixo',18)} Excluir</button>
+    </div></div>`;}).join('');
 }
 
 /* faixas de aviso no topo da tela inicial */
@@ -1254,6 +1273,7 @@ function telaOrc(id){
   </main>
   <div class="barra"><div class="in">
     <div class="tt"><small>Total</small><strong id="barra-tot">${moeda(totais(o).total)}</strong></div>
+    <button class="btn btn-sec" onclick="salvarEVoltar()">Salvar</button>
     <button class="btn btn-pri" onclick="acoesPDF('${o.id}')">${ic('pdf')} Gerar PDF</button>
   </div></div>`;
 
@@ -1293,10 +1313,14 @@ function telaOrc(id){
   }));
   ['freteValor','desconto'].forEach(k=> selecionarAoTocar(app.querySelector(`[data-o="${k}"]`)));
 }
-function mudouSituacao(o, st){
+function aplicarSituacao(o, st){
+  o.status = st;
   if(st==='fechado'){ o.fechadoEm = agora(); delete o.perdidoEm; delete o.motivoPerda; }
   else if(st==='perdido'){ o.perdidoEm = agora(); delete o.fechadoEm; }
   else { delete o.fechadoEm; delete o.perdidoEm; delete o.motivoPerda; }
+}
+function mudouSituacao(o, st){
+  aplicarSituacao(o, st);
   atualizarMotivo(o);
   document.getElementById('opcoes').innerHTML = opcoesHTML(o);
   if(st==='perdido') perguntarMotivo(o);
@@ -1308,15 +1332,36 @@ function atualizarMotivo(o){
   const p = document.getElementById('motivo-txt'); if(!p) return;
   p.hidden = o.status!=='perdido'; p.innerHTML = textoMotivo(o);
 }
-function perguntarMotivo(o){
+function perguntarMotivo(o, depois){
   const corpo = `<p class="txt-suave">Opcional. Ajuda a entender por que algumas vendas não fecham.</p>
     <div id="mot">${MOTIVOS.map(m=>`<button class="prod" data-m="${esc(m)}">${esc(m)}${o.motivoPerda===m?'<span>✓</span>':''}</button>`).join('')}</div>`;
   const v = abrirFolha('Motivo da perda', corpo, `<button class="btn btn-sec" id="mot-pular">Pular</button>`);
   v.querySelector('#mot').addEventListener('click', e=>{
     const b = e.target.closest('[data-m]'); if(!b) return;
-    o.motivoPerda = b.dataset.m; mudou(o); atualizarMotivo(o); fecharFolha();
+    o.motivoPerda = b.dataset.m; mudou(o); atualizarMotivo(o); fecharFolha(depois);
   });
-  v.querySelector('#mot-pular').onclick = ()=> fecharFolha();
+  v.querySelector('#mot-pular').onclick = ()=> fecharFolha(depois);
+}
+/* mudar a situação direto da lista, sem abrir o orçamento */
+function situacaoDaLista(oid){
+  const o = acharOrc(oid); if(!o) return;
+  const corpo = `<p class="txt-suave">Orçamento Nº ${esc(o.num)} · ${esc(o.cliente.empresa||o.cliente.nome||'Sem cliente')}</p>
+    <div id="sit">${Object.entries(NOME_ST).map(([k,t])=>`<button class="prod" data-s="${k}">${t}${o.status===k?'<span>✓ atual</span>':''}</button>`).join('')}</div>`;
+  const v = abrirFolha('Situação do orçamento', corpo);
+  v.querySelector('#sit').addEventListener('click', e=>{
+    const b = e.target.closest('[data-s]'); if(!b) return;
+    const st = b.dataset.s;
+    if(st===o.status){ fecharFolha(); return; }
+    aplicarSituacao(o, st); mudou(o);
+    if(st==='perdido'){ perguntarMotivo(o, ()=>telaInicio()); aviso('Marcado como perdido.'); return; }
+    fecharFolha(()=>telaInicio());
+    aviso(st==='fechado' ? 'Orçamento marcado como fechado.' : 'Orçamento marcado como em aberto.');
+  });
+}
+/* botão Salvar: grava e volta para a lista */
+function salvarEVoltar(){
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  salvarJa(); agendarSinc(); aviso('Orçamento salvo.'); voltar();
 }
 function opcoesHTML(o){
   const tel = (o.cliente.tel||'').replace(/\D/g,'');
@@ -1642,6 +1687,13 @@ function formItem(oid, iid, pid, nomeLivre){
   }
 }
 
+async function excluirDaLista(oid){
+  const o = acharOrc(oid); if(!o) return;
+  if(await confirmar(`Mover o orçamento ${o.num} para a lixeira? Dá para recuperar por 30 dias.`)){
+    o.excluidoEm = agora(); o.alterado = o.excluidoEm;
+    salvarJa(); agendarSinc(); telaInicio(); aviso('Orçamento movido para a lixeira.');
+  }
+}
 async function excluirOrc(oid){
   const o = acharOrc(oid);
   if(await confirmar(`Mover o orçamento ${o.num} para a lixeira? Dá para recuperar por 30 dias.`)){
