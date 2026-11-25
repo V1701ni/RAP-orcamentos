@@ -266,6 +266,39 @@ html.tm .orc-acoes button{font-size:17px;min-height:50px}
 .rt-feito{flex:none;color:#167A3E;font-weight:700;font-size:14px}
 .rt-mais{width:100%;border:0;border-top:1px solid #F3EAD3;background:#fff;color:var(--azul);font-weight:700;min-height:44px}
 html.tm .rt-info b{font-size:18px} html.tm .rt-info small,html.tm .rt-zap,html.tm .rt-abrir{font-size:16px} html.tm .retorno h2{font-size:18px}
+
+/* comissão e histórico do cliente */
+.resumo-mes .rm-com{grid-column:1 / -1}
+.resumo-mes .rm-sem{color:var(--suave)}
+.com-box{margin-top:16px;padding:12px 14px;background:#F3F6FB;border:1px solid var(--linha);border-radius:12px}
+.com-box .campo{margin-top:0}
+.com-linha{display:flex;align-items:center;gap:8px}
+.com-linha input{max-width:140px}
+.com-linha b{color:var(--suave);font-size:17px}
+.com-txt{margin:8px 2px 0;font-size:14.5px;color:var(--suave);line-height:1.45}
+.com-txt b,.vcom{color:var(--marinho)}
+.sub-tab{margin:22px 0 8px;font-size:15px;color:var(--tinta)}
+.tabela .linha-total td{border-top:1.5px solid var(--linha);font-weight:700}
+.link-hist{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 8px;padding:10px 12px;border:1px solid #D5E0F2;background:#F3F7FD;border-radius:10px;color:var(--tinta);font-size:15px;text-align:left;line-height:1.35}
+.link-hist svg{flex:none;color:var(--azul)}
+.link-hist b{color:var(--azul)}
+.cli-nome{margin:0;font-family:Plex,sans-serif;font-size:21px;color:var(--marinho);line-height:1.25}
+.cli-dados{margin:6px 0 0;color:var(--suave);font-size:15px;line-height:1.55}
+.cli-cab .acoes{margin-top:14px}
+.cli-resumo{margin:0 0 4px}
+.preco-l{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-top:1px solid #EEF1F5}
+.preco-l:first-child{border-top:0;padding-top:0}
+.preco-l b{color:var(--tinta);font-size:16px}
+.preco-l small.d{display:block;color:var(--suave);font-size:14px;margin-top:2px}
+.preco-l .status{font-size:12px;padding:0 8px}
+.preco-l .pv{text-align:right;font-family:Plex,sans-serif;font-weight:700;color:var(--marinho);font-size:17px;white-space:nowrap}
+.preco-l .pv small{display:block;font-family:inherit;font-weight:500;color:var(--suave);font-size:13px}
+.preco-l .antes{grid-column:1 / -1;margin:4px 0 0;font-size:13.5px;color:var(--suave)}
+.dica-preco{margin:6px 2px 0;font-size:14px;color:var(--suave);line-height:1.45;background:#F3F7FD;border-radius:10px;padding:8px 10px}
+.dica-preco b{color:var(--marinho)}
+.dica-preco button{border:0;background:none;color:var(--azul);font-weight:700;text-decoration:underline;padding:4px 2px;font-size:14px}
+html.tm .com-txt,html.tm .link-hist,html.tm .cli-dados,html.tm .dica-preco,html.tm .dica-preco button,html.tm .preco-l small.d{font-size:16.5px}
+html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
 </style>
 </head>
 <body>
@@ -706,7 +739,7 @@ const CHAVE = 'rap-orcamentos-v1';
 const TESTE = false;
 const NUVEM_CONFIG = {"apiKey": "AIzaSyAN7dGMMiING53Pedv1yNhqQwXsjNb-ScQ", "authDomain": "orcamentos-rap.firebaseapp.com", "projectId": "orcamentos-rap", "storageBucket": "orcamentos-rap.firebasestorage.app", "messagingSenderId": "187997430413", "appId": "1:187997430413:web:af40b938bb4ed30d63f8c4"};          // configuração do Firebase (fica null até ser preenchida)
 const NUVEM_PASTA = TESTE ? 'teste-' : '';  // a versão de teste guarda na nuvem separada dos orçamentos reais
-const VERSAO = 5;
+const VERSAO = 6;
 const DIA = 86400000;
 
 /* carrega as fontes na tela a partir das mesmas fontes do PDF */
@@ -787,7 +820,7 @@ function estadoInicial(){
     config:{
       nome:'Ralfe Antonio Pereira', cargo:'Representante comercial',
       whats:'(41) 99245-1717', email:'ralfeapereira@outlook.com', site:'rap-representacoes.onrender.com',
-      pagamento:'', entrega:'', validade:'7 dias', obs:'', seq:{}, fornec:{...CNPJ_FORNECEDORES},
+      pagamento:'', entrega:'', validade:'7 dias', obs:'', seq:{}, fornec:{...CNPJ_FORNECEDORES}, comissao:{},
       ultimaCopia:'', aceite:false, textoMaior:false, dicaIOS:false
     },
     produtos: PRODUTOS_PADRAO.map(([cat,nome,un]) => ({id:uid(),cat,nome,un})),
@@ -841,6 +874,11 @@ function migrar(D){
     if(!Array.isArray(D._apagarNuvem)) D._apagarNuvem = [];
     D.versao = 5;
   }
+  if(D.versao < 6){
+    if(!D.config.comissao) D.config.comissao = {};
+    D.versao = 6;
+  }
+  if(!D.config.comissao) D.config.comissao = {};
   if(!Array.isArray(D.recentes)) D.recentes = [];
   if(!Array.isArray(D._apagarNuvem)) D._apagarNuvem = [];
   return D;
@@ -961,6 +999,13 @@ function pesoInfo(o){
 function diasValidade(o){ const m = String(o.validade||'').trim().match(/^(\d+)\s*(dias?)?$/i); return m ? Number(m[1]) : null; }
 function vencimento(o){ const n = diasValidade(o); return (n==null || !o.data) ? null : somaDias(o.data, n); }
 function dataFechado(o){ return o.fechadoEm ? dataLocal(o.fechadoEm) : (o.data||''); }
+/* comissão do representante: sobre os produtos já com desconto, sem a taxa de entrega. Nunca sai no PDF. */
+function pctPadrao(forn){ const p = (E.config.comissao||{})[forn]; return (forn && p!==undefined && String(p).trim()!=='') ? lerNum(p) : null; }
+function pctComissao(o){ return (o.comissao!==undefined && String(o.comissao).trim()!=='') ? lerNum(o.comissao) : pctPadrao(o.representada); }
+function baseComissao(o){ const t = totais(o); return r2(Math.max(0, t.sub - t.desc)); }
+function valorComissao(o){ const p = pctComissao(o); return p==null ? null : r2(baseComissao(o)*p/100); }
+function somaComissao(l){ let v = 0, sem = 0; l.forEach(o=>{ const c = valorComissao(o); if(c==null) sem++; else v += c; }); return {v:r2(v), sem}; }
+const pctTxt = p => `${num(p)}%`;
 function numPDF(o){ return o.revisao ? `${o.num.replace(/-R\d+$/,'')} · Revisão ${o.revisao}` : o.num; }
 
 /* ================= navegação ================= */
@@ -991,6 +1036,7 @@ function desenhar(){
   else if(tela.nome==='config') telaConfig();
   else if(tela.nome==='produtos') telaProdutos();
   else if(tela.nome==='relatorio') telaRelatorio();
+  else if(tela.nome==='cliente') telaCliente(tela.id);
 }
 
 /* ================= tela: início ================= */
@@ -1167,7 +1213,8 @@ function resumoMes(){
     orcado: soma(doMes), qOrc: doMes.length,
     fechado: soma(fech), qFech: fech.length,
     taxa: doMes.length ? Math.round(doMes.filter(o=>o.status==='fechado').length/doMes.length*100) : null,
-    aberto: soma(abertos), qAb: abertos.length
+    aberto: soma(abertos), qAb: abertos.length,
+    com: somaComissao(fech), temPct: Object.values(E.config.comissao||{}).some(x=>String(x).trim()!=='')
   };
 }
 const qtdTxt = n => `${n} ${n===1?'orçamento':'orçamentos'}`;
@@ -1179,6 +1226,8 @@ function resumoMesHTML(){
     <span class="rm-cel"><small>Fechado</small><strong>${moedaCurta(r.fechado)}</strong><em>${qtdTxt(r.qFech)}</em></span>
     <span class="rm-cel"><small>Taxa de fechamento</small><strong>${r.taxa==null?'—':r.taxa+'%'}</strong><em>dos orçamentos do mês</em></span>
     <span class="rm-cel"><small>Em aberto</small><strong>${moedaCurta(r.aberto)}</strong><em>${qtdTxt(r.qAb)}</em></span>
+    <span class="rm-cel rm-com"><small>Sua comissão no mês</small>${!r.temPct && !r.com.v ? `<strong class="rm-sem">—</strong><em>Cadastre a % de cada fornecedor nas Configurações.</em>`
+      : `<strong>${moeda(r.com.v)}</strong><em>${r.qFech ? `das vendas fechadas em ${r.mes}` : 'Nenhuma venda fechada ainda'}${r.com.sem ? ` · ${r.com.sem} sem % definida` : ''}</em>`}</span>
   </button>`;
 }
 
@@ -1250,6 +1299,7 @@ function telaOrc(id){
   <main>
     <section class="bloco"><h2>Cliente</h2>
       <div class="cartao">
+        ${linkHistoricoHTML(o)}
         <label class="campo"><span>Empresa <small>(opcional)</small></span>
           <input list="dl-cli" data-c="empresa" value="${esc(o.cliente.empresa)}" autocomplete="off" enterkeyhint="next" placeholder="Ex.: Construtora Silva"></label>
         <datalist id="dl-cli">${clientes.map(c=>`<option value="${esc(c.empresa||c.nome)}">`).join('')}</datalist>
@@ -1306,6 +1356,11 @@ function telaOrc(id){
           <select data-o="representada"><option value="" ${!o.representada?'selected':''}>Não informar</option>
           ${[...new Set([...FORNECEDORES, ...(o.representada?[o.representada]:[])])].map(r=>`<option ${o.representada===r?'selected':''}>${esc(r)}</option>`).join('')}</select></label>
         <p id="cnpj-forn" style="margin:8px 2px 0;font-size:15px;color:var(--suave)">${textoCnpjForn(o.representada)}</p>
+        <div class="com-box">
+          <label class="campo"><span>Sua comissão neste orçamento</span>
+            <div class="com-linha"><input id="f-com" inputmode="decimal" value="${esc(paraCampo(pctComissao(o)??''))}" placeholder="Ex.: 3"><b>%</b></div></label>
+          <p class="com-txt" id="com-txt">${textoComissao(o)}</p>
+        </div>
         <label class="campo"><span>Observações <small>(opcional)</small></span>
           <textarea data-o="obs" placeholder="Ex.: preço com IPI incluso">${esc(o.obs)}</textarea></label>
         <div class="duas">
@@ -1356,15 +1411,30 @@ function telaOrc(id){
     const k = el.dataset.o;
     o[k] = el.value;
     if(k==='freteTipo') document.getElementById('campo-frete').hidden = el.value!=='valor';
-    if(k==='representada') document.getElementById('cnpj-forn').innerHTML = textoCnpjForn(el.value);
+    if(k==='representada'){ document.getElementById('cnpj-forn').innerHTML = textoCnpjForn(el.value);
+      if(o.comissao===undefined){ const pd = pctPadrao(el.value); document.getElementById('f-com').value = pd==null ? '' : paraCampo(pd); } }
     if(k==='status') mudouSituacao(o, el.value);
     atualizarTotais(o); mudou(o);
   }));
   ['freteValor','desconto'].forEach(k=> selecionarAoTocar(app.querySelector(`[data-o="${k}"]`)));
+  const fc = document.getElementById('f-com');
+  fc.addEventListener('input', ()=>{
+    const pd = pctPadrao(o.representada);
+    if(fc.value.trim()==='' || (pd!=null && lerNum(fc.value)===pd && o.status!=='fechado')) delete o.comissao; else o.comissao = fc.value.trim();
+    atualizarTotais(o); mudou(o);
+  });
+  selecionarAoTocar(fc);
+}
+function textoComissao(o){
+  const p = pctComissao(o);
+  if(p==null) return o.representada ? `Digite a % que a ${esc(o.representada)} paga. Para não digitar sempre, cadastre nas Configurações. Não aparece no PDF.`
+                                     : 'Escolha o fornecedor ou digite a %. Não aparece no PDF.';
+  return `<b>${moeda(valorComissao(o))}</b> de comissão (${pctTxt(p)} de ${moeda(baseComissao(o))}, valor dos produtos sem a taxa de entrega). Não aparece no PDF.`;
 }
 function aplicarSituacao(o, st){
   o.status = st;
-  if(st==='fechado'){ o.fechadoEm = agora(); delete o.perdidoEm; delete o.motivoPerda; }
+  if(st==='fechado'){ o.fechadoEm = agora(); delete o.perdidoEm; delete o.motivoPerda;
+    if((o.comissao===undefined || String(o.comissao).trim()==='') && pctPadrao(o.representada)!=null) o.comissao = String(pctPadrao(o.representada)); }
   else if(st==='perdido'){ o.perdidoEm = agora(); delete o.fechadoEm; }
   else { delete o.fechadoEm; delete o.perdidoEm; delete o.motivoPerda; }
 }
@@ -1402,8 +1472,8 @@ function situacaoDaLista(oid){
     const st = b.dataset.s;
     if(st===o.status){ fecharFolha(); return; }
     aplicarSituacao(o, st); mudou(o);
-    if(st==='perdido'){ perguntarMotivo(o, ()=>telaInicio()); aviso('Marcado como perdido.'); return; }
-    fecharFolha(()=>telaInicio());
+    if(st==='perdido'){ perguntarMotivo(o, ()=>desenhar()); aviso('Marcado como perdido.'); return; }
+    fecharFolha(()=>desenhar());
     aviso(st==='fechado' ? 'Orçamento marcado como fechado.' : 'Orçamento marcado como em aberto.');
   });
 }
@@ -1420,7 +1490,7 @@ function opcoesHTML(o){
     <button class="btn btn-sec btn-cheio" onclick="novoOrc(acharOrc('${o.id}'))">${ic('copia')} Duplicar orçamento</button>
     ${temCliente ? `<button class="btn btn-sec btn-cheio" onclick="novoParaCliente('${o.id}')">${ic('cliente')} Novo orçamento para este cliente</button>` : ''}
     <button class="btn btn-sec btn-cheio" onclick="criarRevisao('${o.id}')">${ic('revisao')} Criar revisão</button>
-    ${temCliente ? `<button class="btn btn-sec btn-cheio" onclick="verDoCliente('${o.id}')">${ic('busca')} Ver orçamentos deste cliente</button>` : ''}
+    ${temCliente ? `<button class="btn btn-sec btn-cheio" onclick="irComHistorico({nome:'cliente',id:'${o.id}'})">${ic('cliente')} Histórico do cliente</button>` : ''}
     <button class="btn btn-perigo btn-cheio" onclick="excluirOrc('${o.id}')">${ic('lixo')} Excluir orçamento</button>
   </div>`;
 }
@@ -1612,6 +1682,7 @@ function atualizarTotais(o){
   const r=document.getElementById('resumo'); if(r) r.innerHTML=resumoHTML(o);
   const b=document.getElementById('barra-tot'); if(b) b.textContent=moeda(totais(o).total);
   const it=document.getElementById('itens'); if(it) it.innerHTML=itensHTML(o);
+  const ct=document.getElementById('com-txt'); if(ct) ct.innerHTML=textoComissao(o);
 }
 
 /* ================= itens ================= */
@@ -1673,6 +1744,7 @@ function formItem(oid, iid, pid, nomeLivre){
     </div>
     <label class="campo"><span>Preço por <b id="f-unl">${esc(it.un)}</b> (R$)${ult.preco&&!atual?' <small>(último usado)</small>':''}</span>
       <input id="f-preco" inputmode="decimal" value="${esc(paraCampo(it.preco))}" enterkeyhint="next" placeholder="0,00"></label>
+    <p class="dica-preco" id="f-ult" hidden></p>
     <div class="campo"><span>Desconto no produto <small>(opcional)</small></span>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px">
         <input id="f-desc" inputmode="decimal" value="${esc(paraCampo(it.desc))}" enterkeyhint="done" placeholder="0">
@@ -1694,7 +1766,18 @@ function formItem(oid, iid, pid, nomeLivre){
     $('#f-dinfo').textContent = v.d ? `Sem desconto: ${moeda(v.bruto)} · desconto de ${moeda(v.d)}` : ''; };
   ['#f-qtd','#f-preco','#f-desc'].forEach(k=>{ $(k).oninput = conta; selecionarAoTocar($(k)); }); $('#f-desct').onchange = conta; conta();
   $('#f-un').onchange = ()=> $('#f-unl').textContent = $('#f-un').value;
-  $('#f-prod').addEventListener('input', ()=>{ $('#dl-esp').innerHTML = especsDe($('#f-prod').value).map(x=>`<option value="${esc(x)}">`).join(''); });
+  const mostrarUltimo = ()=>{
+    const u = ultimoPrecoCliente(o, $('#f-prod').value.trim(), $('#f-esp').value.trim()), el = $('#f-ult');
+    if(!u){ el.hidden = true; return; }
+    el.hidden = false;
+    el.innerHTML = `Último preço para este cliente: <b>${moedaUnit(lerNum(u.i.preco))} por ${esc(u.i.un)}</b>${valorItem(u.i).d?` com desconto de ${textoDesc(u.i)}`:''}${u.i.espec?` (${esc(u.i.espec)})`:''}, no Nº ${esc(u.o.num)} de ${dataBR(u.o.data)}.`
+      + (r4(lerNum(u.i.preco))!==r4(lerNum($('#f-preco').value)) ? ` <button type="button" id="f-usar">Usar este preço</button>` : '');
+    const b = el.querySelector('#f-usar');
+    if(b) b.onclick = ()=>{ $('#f-preco').value = paraCampo(r4(lerNum(u.i.preco))); if($('#f-un').value!==u.i.un){ $('#f-un').value = u.i.un; $('#f-unl').textContent = u.i.un; } conta(); mostrarUltimo(); };
+  };
+  mostrarUltimo();
+  ['#f-esp','#f-preco'].forEach(k=> $(k).addEventListener('input', mostrarUltimo));
+  $('#f-prod').addEventListener('input', ()=>{ $('#dl-esp').innerHTML = especsDe($('#f-prod').value).map(x=>`<option value="${esc(x)}">`).join(''); mostrarUltimo(); });
   setTimeout(()=> (it.prod ? $('#f-esp') : $('#f-prod')).focus(), 60);
 
   const lerItem = ()=>({ prod:$('#f-prod').value.trim(), espec:$('#f-esp').value.trim(),
@@ -1741,7 +1824,7 @@ async function excluirDaLista(oid){
   const o = acharOrc(oid); if(!o) return;
   if(await confirmar(`Mover o orçamento ${o.num} para a lixeira? Dá para recuperar por 30 dias.`)){
     o.excluidoEm = agora(); o.alterado = o.excluidoEm;
-    salvarJa(); agendarSinc(); telaInicio(); aviso('Orçamento movido para a lixeira.');
+    salvarJa(); agendarSinc(); desenhar(); aviso('Orçamento movido para a lixeira.');
   }
 }
 async function excluirOrc(oid){
@@ -2069,6 +2152,11 @@ function telaConfig(){
       <p style="margin:0 0 4px;color:var(--suave);font-size:15px">Sai no PDF quando o fornecedor é escolhido no orçamento.</p>
       ${FORNECEDORES.map(r=>`<label class="campo"><span>${r}</span><input data-forn="${r}" inputmode="numeric" value="${esc(c.fornec[r]||'')}" placeholder="00.000.000/0000-00"></label>`).join('')}
     </div></section>
+    <section class="bloco"><h2>Sua comissão por fornecedor</h2><div class="cartao">
+      <p style="margin:0 0 4px;color:var(--suave);font-size:15px">Quanto cada fornecedor paga para você, em %. Já vem preenchido em cada orçamento e aparece no resumo do mês. Nunca aparece no PDF.</p>
+      ${FORNECEDORES.map(r=>`<label class="campo"><span>${r}</span><div class="com-linha"><input data-com="${esc(r)}" inputmode="decimal" value="${esc(paraCampo((c.comissao||{})[r]||''))}" placeholder="—" aria-label="Comissão da ${esc(r)} em %"><b>%</b></div></label>`).join('')}
+      <p class="nota">A comissão é calculada sobre o valor dos produtos, já com desconto, sem a taxa de entrega.</p>
+    </div></section>
     <section class="bloco"><h2>Produtos</h2><div class="cartao">
       <p style="margin:0 0 12px;color:var(--suave);font-size:15px">${E.produtos.length} produtos na lista.</p>
       <button class="btn btn-sec btn-cheio" onclick="irComHistorico({nome:'produtos'})">Editar lista de produtos</button>
@@ -2107,6 +2195,7 @@ function telaConfig(){
     <p class="rodape-ver">Versão ${VERSAO}${TESTE?' (teste)':''}</p>
   </main>`;
   ligarEscolhas(app, ()=>c, mudouGeral);
+  app.querySelectorAll('[data-com]').forEach(el=>{ selecionarAoTocar(el); el.addEventListener('input', ()=>{ el.value = el.value.replace(/[^\d,.]/g,''); if(!c.comissao) c.comissao = {}; c.comissao[el.dataset.com] = el.value.trim(); mudouGeral(); }); });
   app.querySelectorAll('[data-forn]').forEach(el=> el.addEventListener('input', ()=>{ el.value = mascaraCNPJ(el.value); c.fornec[el.dataset.forn] = el.value; mudouGeral(); }));
   app.querySelectorAll('[data-k]').forEach(el=> el.addEventListener('input', ()=>{
     if(el.dataset.k==='whats') el.value = mascaraTel(el.value);
@@ -2167,15 +2256,101 @@ function exportarPlanilha(tipo){
     A.forEach(o=>o.itens.forEach(i=>{ const v = valorItem(i);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa||o.cliente.nome, NOME_ST[o.status], i.prod, i.espec, numBRVar(lerNum(i.qtd)), i.un, numBRVar(lerNum(i.preco)), textoDesc(i), numBR(v.d), numBR(v.liq), o.representada]); }));
   } else {
-    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem']];
+    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem','Comissão (%)','Comissão (R$)']];
     A.forEach(o=>{ const t = totais(o);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa, o.cliente.nome, o.cliente.cnpj, o.cliente.tel, o.cliente.cidade, o.representada,
         numBR(t.sub), numBR(t.desc), numBR(t.frete), numBR(t.total), NOME_ST[o.status],
-        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'']); });
+        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o))]); });
   }
   const txt = '﻿' + linhas.map(l=>l.map(celula).join(';')).join('\r\n');
   baixarArquivo(txt, `${tipo==='itens'?'itens-':''}orcamentos-rap-${hojeISO()}.csv`, 'text/csv;charset=utf-8');
   aviso('Planilha baixada.');
+}
+
+/* ================= tela: histórico do cliente ================= */
+function docCliente(c){ const d = limpaDoc(c.cnpj); return (d.length===11 || d.length===14) ? d : ''; }
+function nomeCliente(c){ return norm(String(c.empresa||c.nome||'').trim()); }
+function orcsDoCliente(c){
+  const d = docCliente(c), n = nomeCliente(c);
+  if(!d && !n) return [];
+  return ativos().filter(x => (d && docCliente(x.cliente)===d) || (n && nomeCliente(x.cliente)===n));
+}
+const maisNovoPrimeiro = (a,b) => (b.data||'').localeCompare(a.data||'') || (b.criado||'').localeCompare(a.criado||'');
+function linkHistoricoHTML(o){
+  const n = orcsDoCliente(o.cliente).length;
+  if(n < 2) return '';
+  return `<button class="link-hist" onclick="irComHistorico({nome:'cliente',id:'${o.id}'})">${ic('cliente',20)}<span>Este cliente já tem ${n} orçamentos. <b>Ver histórico e preços ›</b></span></button>`;
+}
+/* último preço passado para o mesmo cliente (de outro orçamento); dá preferência à mesma especificação */
+function ultimoPrecoCliente(o, prod, espec){
+  if(!prod) return null;
+  const l = orcsDoCliente(o.cliente).filter(x=>x.id!==o.id).sort(maisNovoPrimeiro);
+  let soProduto = null;
+  for(const x of l) for(const i of x.itens){
+    if(norm(i.prod)!==norm(prod) || !lerNum(i.preco)) continue;
+    if(espec && norm(i.espec)===norm(espec)) return {i, o:x};
+    if(!soProduto) soProduto = {i, o:x};
+  }
+  return soProduto;
+}
+function precosDoCliente(l){
+  const m = new Map();
+  l.forEach(o=>o.itens.forEach(i=>{
+    if(!i.prod || !lerNum(i.preco)) return;
+    const k = norm(i.prod)+'|'+norm(i.espec)+'|'+i.un;
+    if(!m.has(k)) m.set(k, {i, o, antes:null});
+    else { const x = m.get(k); if(!x.antes && r4(lerNum(i.preco))!==r4(lerNum(x.i.preco))) x.antes = {i, o}; }
+  }));
+  return [...m.values()];
+}
+function chamarNoZap(tel){
+  const t = String(tel||'').replace(/\D/g,''); if(t.length < 10) return;
+  window.open(`https://wa.me/${(t.startsWith('55') && t.length>=12) ? t : '55'+t}`, '_blank');
+}
+function telaCliente(oid){
+  const base = acharOrc(oid); if(!base){ ir({nome:'inicio'}); return; }
+  const l = orcsDoCliente(base.cliente).sort(maisNovoPrimeiro);
+  if(!l.length){ voltar(); return; }
+  const c = l[0].cliente;
+  const soma = x => r2(x.reduce((s,o)=>s+totais(o).total,0));
+  const fech = l.filter(o=>o.status==='fechado'), ab = l.filter(o=>o.status==='aberto'), perd = l.filter(o=>o.status==='perdido');
+  const com = somaComissao(fech);
+  const precos = precosDoCliente(l);
+  const tel = String(c.tel||'').replace(/\D/g,'');
+  const dados = [c.empresa && c.nome ? esc(c.nome) : '', c.tel ? esc(c.tel) : '', c.cnpj ? `${tipoDoc(c.cnpj)} ${esc(c.cnpj)}` : '', c.cidade ? esc(c.cidade) : ''].filter(Boolean);
+  app.innerHTML = `
+  <header class="topo">
+    <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
+    <span class="titulo">Histórico do cliente</span>
+  </header>
+  <main>
+    <section class="bloco"><div class="cartao cli-cab">
+      <h2 class="cli-nome">${esc(c.empresa||c.nome)}</h2>
+      ${dados.length ? `<p class="cli-dados">${dados.join('<br>')}</p>` : ''}
+      <div class="acoes">
+        <button class="btn btn-pri btn-cheio" onclick="novoParaCliente('${l[0].id}')">${ic('mais')} Novo orçamento para este cliente</button>
+        ${tel.length>=10 ? `<button class="btn btn-zap btn-cheio" onclick="chamarNoZap('${tel}')">${ic('zap')} Conversar no WhatsApp</button>` : ''}
+      </div>
+    </div></section>
+    <div class="resumo-mes cli-resumo">
+      <span class="rm-cel"><small>Orçamentos</small><strong>${l.length}</strong><em>${moedaCurta(soma(l))} orçados</em></span>
+      <span class="rm-cel"><small>Fechados</small><strong>${fech.length}</strong><em>${fech.length?moedaCurta(soma(fech))+' vendidos':'nenhum ainda'}</em></span>
+      <span class="rm-cel"><small>Taxa de fechamento</small><strong>${Math.round(fech.length/l.length*100)}%</strong><em>${ab.length} em aberto · ${perd.length} ${perd.length===1?'perdido':'perdidos'}</em></span>
+      <span class="rm-cel"><small>Sua comissão</small><strong>${fech.length && com.sem<fech.length ? moeda(com.v) : '—'}</strong><em>${fech.length ? 'das vendas fechadas' : 'quando fechar uma venda'}</em></span>
+    </div>
+    <section class="bloco"><h2>Últimos preços passados</h2><div class="cartao">
+      ${precos.length ? precos.map(x=>`<div class="preco-l">
+        <div><b>${esc(x.i.prod)}</b>${x.i.espec?`<small class="d">${esc(x.i.espec)}</small>`:''}
+          <small class="d">Nº ${esc(x.o.num)} · ${dataBR(x.o.data)} · <span class="status st-${x.o.status}">${NOME_ST[x.o.status]}</span></small></div>
+        <div class="pv">${moedaUnit(lerNum(x.i.preco))}<small>por ${esc(x.i.un)}</small>${valorItem(x.i).d?`<small class="pd">desconto ${textoDesc(x.i)}</small>`:''}</div>
+        ${x.antes ? `<p class="antes">Antes: ${moedaUnit(lerNum(x.antes.i.preco))} por ${esc(x.antes.i.un)} no Nº ${esc(x.antes.o.num)} (${dataBR(x.antes.o.data)})</p>` : ''}
+      </div>`).join('') : '<p class="txt-suave" style="margin:0">Nenhum item com preço ainda.</p>'}
+      <p class="nota">O preço mais recente de cada produto, para não passar valores diferentes ao mesmo cliente.</p>
+    </div></section>
+    <section class="bloco"><h2>Orçamentos (${l.length})</h2>
+      <div class="lista">${listaHTML(l)}</div>
+    </section>
+  </main>`;
 }
 
 /* ================= tela: relatório ================= */
@@ -2189,7 +2364,7 @@ function telaRelatorio(){
     const fech = A.filter(o=>o.status==='fechado' && dataFechado(o).startsWith(ym));
     const nm = MESES[d.getMonth()];
     meses.push({nome:`${nm[0].toUpperCase()+nm.slice(1)}${d.getFullYear()!==h.getFullYear()?' de '+d.getFullYear():''}`,
-      qOrc:doMes.length, orcado:soma(doMes), qFech:fech.length, fechado:soma(fech),
+      qOrc:doMes.length, orcado:soma(doMes), qFech:fech.length, fechado:soma(fech), com:somaComissao(fech),
       taxa: doMes.length ? Math.round(doMes.filter(o=>o.status==='fechado').length/doMes.length*100) : null});
   }
   const grupos = (chave) => {
@@ -2200,6 +2375,11 @@ function telaRelatorio(){
   const origens = grupos(o=>o.origem||'Não informado');
   const motivos = grupos(o=>o.status==='perdido' ? (o.motivoPerda||'Não informado') : null);
   const todosFech = A.filter(o=>o.status==='fechado');
+  const ini12 = chaveMes(new Date(h.getFullYear(), h.getMonth()-11, 1));
+  const fech12 = todosFech.filter(o=>dataFechado(o).slice(0,7) >= ini12);
+  const porForn = (()=>{ const m = new Map(); fech12.forEach(o=>{ const g = o.representada||'Sem fornecedor'; if(!m.has(g)) m.set(g, []); m.get(g).push(o); });
+    return [...m.entries()].map(([g,l])=>({g, l, v:soma(l), c:somaComissao(l)})).sort((a,b)=>b.c.v-a.c.v || b.v-a.v); })();
+  const com12 = somaComissao(fech12), comTudo = somaComissao(todosFech);
   app.innerHTML = `
   <header class="topo">
     <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
@@ -2214,6 +2394,20 @@ function telaRelatorio(){
         <td class="n">${m.taxa==null?'—':m.taxa+'%'}</td></tr>`).join('')}
       </tbody></table>
       <p class="nota">Taxa: quantos dos orçamentos feitos no mês já foram fechados. “Fechado” conta pela data em que a venda foi marcada como fechada.</p>
+    </div></section>
+    <section class="bloco"><h2>Sua comissão</h2><div class="cartao">
+      ${fech12.length ? `<table class="tabela"><thead><tr><th>Mês</th><th class="n">Vendas fechadas</th><th class="n">Comissão</th></tr></thead><tbody>
+      ${meses.filter((m,k)=>k===0||m.qFech).map(m=>`<tr class="${m.qFech?'':'vazio-l'}"><td>${m.nome}</td>
+        <td class="n">${m.qFech?moedaCurta(m.fechado):'—'}<small>${m.qFech?qtdTxt(m.qFech):''}</small></td>
+        <td class="n">${m.qFech?`<b class="vcom">${moeda(m.com.v)}</b>`:'—'}<small>${m.com.sem?`${m.com.sem} sem %`:''}</small></td></tr>`).join('')}
+      </tbody></table>
+      <h3 class="sub-tab">Por fornecedor, últimos 12 meses</h3>
+      <table class="tabela"><thead><tr><th>Fornecedor</th><th class="n">Vendido</th><th class="n">Comissão</th></tr></thead><tbody>
+      ${porForn.map(x=>`<tr><td>${esc(x.g)}</td><td class="n">${moedaCurta(x.v)}<small>${qtdTxt(x.l.length)}</small></td>
+        <td class="n">${x.c.sem===x.l.length?'—':`<b class="vcom">${moeda(x.c.v)}</b>`}<small>${x.c.sem?`${x.c.sem} sem %`:''}</small></td></tr>`).join('')}
+      <tr class="linha-total"><td>Total</td><td class="n">${moedaCurta(soma(fech12))}</td><td class="n"><b class="vcom">${moeda(com12.v)}</b></td></tr>
+      </tbody></table>` : '<p class="txt-suave" style="margin:0">Nenhuma venda fechada nos últimos 12 meses.</p>'}
+      <p class="nota">Conta só os orçamentos fechados, sobre o valor dos produtos com desconto, sem a taxa de entrega.${com12.sem ? ` Orçamentos “sem %” não têm fornecedor ou a % não foi cadastrada: <a href="#" onclick="irComHistorico({nome:'config'});return false">cadastrar nas Configurações</a>.` : ''}</p>
     </div></section>
     <section class="bloco"><h2>Como os clientes chegaram</h2><div class="cartao">
       ${origens.length ? `<table class="tabela"><thead><tr><th>Origem</th><th class="n">Orçamentos</th><th class="n">Fechados</th><th class="n">Taxa</th></tr></thead><tbody>
@@ -2233,6 +2427,7 @@ function telaRelatorio(){
         <span>Total orçado</span><strong>${moeda(soma(A))}</strong>
         <span>Fechados</span><strong>${todosFech.length}${A.length?` (${Math.round(todosFech.length/A.length*100)}%)`:''}</strong>
         <span>Total fechado</span><strong>${moeda(soma(todosFech))}</strong>
+        <span>Sua comissão</span><strong>${moeda(comTudo.v)}</strong>
       </div>
     </div></section>
   </main>`;
@@ -2467,6 +2662,7 @@ function redesenharSeguro(forcar){
   else if(tela.nome==='relatorio') telaRelatorio();
   else if(tela.nome==='orc') telaOrc(tela.id);
   else if(tela.nome==='config') telaConfig();
+  else if(tela.nome==='cliente') telaCliente(tela.id);
 }
 function textoStatusNuvem(){
   if(!NUVEM) return '';
