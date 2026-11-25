@@ -491,6 +491,72 @@ html.tm .etapas li{font-size:15px} html.tm .et-desc{font-size:17px}
   .cli-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;align-items:start}
   .cli-grid > :not(label){grid-column:1 / -1}
 }
+.tel-aviso{margin:8px 2px 0}
+.tel-conferir{margin:4px 0 14px;padding:12px 14px;border-radius:var(--raio);background:#FFF8E6;border:1px solid #F1DDA8;color:#6B4E0E}
+.tel-conferir b{display:block;font-size:16px}
+.tel-conferir span{display:block;font-size:14.5px;margin:2px 0 8px}
+.tel-conferir button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;margin-top:6px;padding:0 12px;border:1px solid #E6CF8E;border-radius:10px;background:#fff;color:var(--tinta);font-weight:700;text-align:left}
+.tel-conferir button small{color:#8A5A0B;font-weight:600}
+
+/* ===================== modo escuro (só quando a pessoa liga em Ajustes) ===================== */
+html.escuro{color-scheme:dark;
+  --fundo:#0D1424;--branco:#151E31;--tinta:#E7ECF4;--texto:#C8D1DE;--suave:#9AA6B9;--linha:#2A3651;
+  --marinho:#A9C3F7;--azul:#86ADFF;--vermelho:#FF8E80;--ambar:#E7B95E}
+/* superfícies que eram brancas */
+html.escuro :is(.btn-sec,.btn-perigo,.busca input,.filtro,.orc,.campo input,.campo select,.campo textarea,.item,.barra,.folha,.prod,
+  .linha-prod input,.linha-prod select,.faixa-info button,.resumo-mes .rm-cel,.ordenar,.orc-acoes button,.retorno,.rt-abrir,.rt-mais,
+  .bitolas button,.calc-res,.add-colar,.cp-l,.nav,.cli-item,.novo-ped,.np-item,.etapas .bola,.tel-conferir button,.calc-abrir){background:#151E31}
+/* fundos levemente azulados */
+html.escuro :is(.orc:active,.add-item,.conta-ao-vivo,.rs-tot,.resumo-mes .rm-topo,.resumo-mes:active .rm-cel,.orc-acoes,.orc-acoes button:active,
+  .com-box,.link-hist,.dica-preco,.calc-abrir[aria-expanded="true"],.calc,.nav-b:active,.cli-item:active,.faixa-ped,.fora-l,.novo-ped:active,
+  .np-item:active,.conf-env,.prod:active){background:#1B2640}
+html.escuro .orc-acoes,html.escuro .orc-acoes button{background:#131B2D}
+/* bordas */
+html.escuro :is(.campo input,.campo select,.campo textarea,.linha-prod input,.linha-prod select){border-color:#38466A}
+html.escuro :is(.link-hist,.add-colar){border-color:#2E3D5E}
+html.escuro .add-item{border-color:#3A4C72}
+html.escuro :is(.faixa-ped,.conf-env){border-color:#2E4778}
+html.escuro :is(.orc-acoes button,.lixo-item){border-top-color:var(--linha)}
+html.escuro .rs-tot{border-color:#2E3D5E}
+/* botões e destaques azuis continuam azul-escuro com letra branca */
+html.escuro .btn-pri,html.escuro .filtro[aria-pressed=true]{background:#2F5BD3;border-color:#2F5BD3;color:#fff}
+html.escuro .btn-pri:active{background:#244AB4}
+html.escuro .medidor{background:#1E2A44} html.escuro .medidor i{background:#4F7FE8}
+html.escuro .etapas li.feita .bola{background:#2F5BD3;border-color:#2F5BD3;color:#fff}
+html.escuro .etapas li.atual .bola{box-shadow:0 0 0 4px rgba(134,173,255,.22)}
+html.escuro :is(.etapas li.feita:not(:first-child),.etapas li.atual:not(:first-child))::before{background:#4F7FE8}
+html.escuro .np-cont,html.escuro .nav-cont{background:#2F6FE0}
+/* etiquetas de situação */
+html.escuro .st-aberto{background:#1E3157;color:#A4C1FF}
+html.escuro .st-fechado{background:#163524;color:#86DDA8}
+html.escuro .st-perdido{background:#3E2023;color:#FFA095}
+html.escuro .etq-ped,html.escuro .et-chip{background:#1E2A44;color:#A9C3F7}
+html.escuro .etq-vencido{background:#262E3D;color:#B3BCCB}
+html.escuro .c-aberto :is(.orc,.orc-acoes){border-left-color:#5B8CF0}
+html.escuro .c-fechado :is(.orc,.orc-acoes){border-left-color:#3DB56F}
+html.escuro .c-perdido :is(.orc,.orc-acoes){border-left-color:#E07A6E}
+/* avisos amarelos */
+html.escuro :is(.preco-velho b,.tel-conferir small,.dica-preco .velho,.cp-l .cp-aviso,.cp-l em){color:#F2D08A}
+html.escuro .rt-mais{border-top-color:#3A3220}
+/* outros */
+html.escuro .btn.ok{background:#163524;border-color:#2F6B47;color:#9BE3B6}
+html.escuro .toast{background:#2A3651;color:#fff;border:1px solid #3A4866}
+html.escuro .toast-acao button{background:rgba(255,255,255,.14)}
+html.escuro .rs-total b,html.escuro .vcom{color:#A9C3F7}
+html.escuro [style*="#167A3E"]{color:#7FD9A1 !important}
+html.escuro .folha-pe,html.escuro .folha-topo{background:#151E31}
+html.escuro .veu{background:rgba(0,0,0,.6)}
+html.escuro .orc .tot,html.escuro .np-item .tot,html.escuro .ci-vend,html.escuro .preco-l .pv{color:#A9C3F7}
+html.escuro img.logo-pdf{filter:none}
+html.escuro .faixa-ped span{color:var(--texto)}
+/* modo escuro: avisos em amarelo mais discreto */
+html.escuro :is(.aviso,.faixa-info,.preco-velho,.tel-conferir,.cp-duvida){background:#1A2233;color:#E4D5B5;border:1px solid #343B4E;border-left:3px solid #E3AA3E}
+html.escuro .retorno{border-color:var(--linha)}
+html.escuro .retorno h2{background:#1A2233;color:#F2C770;border-bottom:1px solid var(--linha)}
+html.escuro .rt-mais{border-top-color:var(--linha)}
+html.escuro :is(.item .falta,.np-rasc,.et-rascunho,.etq-vence){background:rgba(227,170,62,.16);color:#F2C770}
+html.escuro :is(.preco-velho b,.tel-conferir b,.tel-conferir small,.dica-preco .velho,.cp-l .cp-aviso,.cp-l em){color:#F2C770}
+html.escuro :is(.faixa-info button,.tel-conferir button){border-color:#3A4560;color:var(--tinta)}
 </style>
 </head>
 <body>
@@ -1031,7 +1097,7 @@ function estadoInicial(){
       nome:'Ralfe Antonio Pereira', cargo:'Representante comercial',
       whats:'(41) 99245-1717', email:'ralfeapereira@outlook.com', site:'rap-representacoes.onrender.com',
       pagamento:'', entrega:'', validade:'7 dias', obs:'IPI incluso.', seq:{}, seqPed:{}, fornec:{...CNPJ_FORNECEDORES}, comissao:{},
-      ultimaCopia:'', aceite:false, textoMaior:false, dicaIOS:false
+      ultimaCopia:'', aceite:false, textoMaior:false, escuro:false, dicaIOS:false
     },
     produtos: PRODUTOS_PADRAO.map(([cat,nome,un]) => ({id:uid(),cat,nome,un})),
     precos:{},
@@ -1251,6 +1317,7 @@ const app = document.getElementById('app');
 function desenhar(){
   if(folhaAberta){ removerFolha(); if(pilha.length) pilha.pop(); }
   document.documentElement.classList.toggle('tm', !!E.config.textoMaior);
+  document.documentElement.classList.toggle('escuro', !!E.config.escuro);
   if(tela.nome==='inicio') telaInicio();
   else if(tela.nome==='orc') telaOrc(tela.id);
   else if(tela.nome==='config') telaConfig();
@@ -1544,6 +1611,7 @@ function telaOrc(id){
           <input list="dl-nome" data-c="nome" value="${esc(o.cliente.nome)}" autocomplete="off" enterkeyhint="next" placeholder="Ex.: João"></label>
         <datalist id="dl-nome">${clientes.filter(c=>c.nome).map(c=>`<option value="${esc(rotuloNome(c))}">`).join('')}</datalist>
         <label class="campo"><span>Telefone</span><input data-c="tel" inputmode="tel" value="${esc(o.cliente.tel)}" enterkeyhint="next" placeholder="(41) 99999-9999"></label>
+        <p class="preco-velho tel-aviso" id="tel-aviso" ${telParaConferir(o.cliente.tel)?'':'hidden'}>${TXT_TEL_CONFERIR}</p>
         <label class="campo"><span>E-mail <small>(opcional)</small></span><input data-c="email" type="email" inputmode="email" value="${esc(o.cliente.email)}" enterkeyhint="next" placeholder="cliente@email.com"></label>
         <label class="campo"><span>Endereço <small>(opcional)</small></span><input data-c="endereco" value="${esc(o.cliente.endereco)}" enterkeyhint="done" placeholder="Rua, número, bairro"></label>
         <div class="campo"><span>Cidade</span>${escolha('c','cidade',o.cliente.cidade,CIDADES,'Digite a cidade','Não informar')}</div>
@@ -1622,7 +1690,9 @@ function telaOrc(id){
   app.querySelectorAll('[data-c]').forEach(el => el.addEventListener('input', ()=>{
     const k = el.dataset.c;
     if(k==='cnpj'){ aplicarMascara(el, mascaraDoc); avisoDoc(el.value, false); }
-    if(k==='tel'){ aplicarMascara(el, mascaraTel); }
+    if(k==='tel'){ aplicarMascara(el, mascaraTel);
+      const ta = document.getElementById('tel-aviso'), d = el.value.replace(/\D/g,'');
+      if(ta) ta.hidden = !(d.length >= 10 && telParaConferir(el.value)); }
     o.cliente[k] = el.value;
     if(k==='empresa'){ // preenche com cliente já usado
       const achado = clientes.find(c => norm(c.empresa||c.nome) === norm(el.value.trim()));
@@ -1747,6 +1817,7 @@ function cobrarRetorno(oid){
   const o = acharOrc(oid);
   const tel = (o.cliente.tel||'').replace(/\D/g,'');
   if(tel.length < 10){ aviso('Cadastre o telefone do cliente para cobrar pelo WhatsApp.'); return; }
+  if(telParaConferir(tel)){ aviso('O telefone deste cliente parece errado. Confira no orçamento antes de cobrar.', 5000); irComHistorico({nome:'orc', id:oid}); return; }
   const primeiro = (o.cliente.nome||'').trim().split(/\s+/)[0];
   const quando = dataBR(o.enviadoEm ? dataLocal(o.enviadoEm) : o.data);
   const quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
@@ -1804,6 +1875,14 @@ function textoValidade(o){
   if(m){ const n = Number(m[1]); return `${n} ${n===1?'dia':'dias'} (até ${dataBR(somaDias(o.data,n))})`; }
   return v;
 }
+/* telefone que não fecha: incompleto, 11 números sem o 9 do celular depois do DDD (ex.: colado com +55
+   antes da correção) ou celular antigo de 8 números */
+function telParaConferir(tel){
+  const d = String(tel||'').replace(/\D/g,'');
+  if(!d) return false;
+  return d.length < 10 || (d.length === 11 && d[2] !== '9') || (d.length === 10 && /[6-9]/.test(d[2]));
+}
+const TXT_TEL_CONFERIR = 'Confira este telefone: parece incompleto ou errado. Se foi colado do WhatsApp antes da atualização, digite de novo.';
 function mascaraTel(v){
   let d = String(v||'').replace(/\D/g,'');
   if(d.length >= 12 && d.startsWith('55')) d = d.slice(2);            // "+55 41 99876-5432", como o WhatsApp copia
@@ -1832,6 +1911,10 @@ function mascaraCNPJ(v){
 }
 function limpaDoc(v){ return String(v||'').toUpperCase().replace(/[^0-9A-Z]/g,''); }
 /* aplica a máscara sem jogar o cursor para o fim (corrigir um número no meio funciona) */
+document.addEventListener('focusout', e=>{
+  const el = e.target; if(!el || el.dataset.c!=='tel') return;
+  const ta = document.getElementById('tel-aviso'); if(ta) ta.hidden = !telParaConferir(el.value);
+});
 function aplicarMascara(el, mascara){
   const antes = el.value, pos = el.selectionStart ?? antes.length;
   const noFim = pos >= antes.length;
@@ -2538,6 +2621,7 @@ function telaConfig(){
     </div></section>
     <section class="bloco"><h2>Tela</h2><div class="cartao">
       <label class="opcao"><input type="checkbox" id="op-tm" ${c.textoMaior?'checked':''}><span>Texto maior<small>Aumenta as letras de todo o app.</small></span></label>
+      <label class="opcao" style="margin-top:14px"><input type="checkbox" id="op-esc" ${c.escuro?'checked':''}><span>Modo escuro<small>Vale só neste aparelho. O PDF continua claro.</small></span></label>
     </div></section>
     <p class="rodape-ver">Versão ${VERSAO}${TESTE?' (teste)':''}</p>
   </main>`;
@@ -2552,6 +2636,7 @@ function telaConfig(){
   document.getElementById('seq-ped').addEventListener('input', e=>{ const n=parseInt(e.target.value); if(n>0){ if(!c.seqPed) c.seqPed = {}; c.seqPed[ano]=n-1; mudouGeral(); } });
   document.getElementById('op-aceite').addEventListener('change', e=>{ c.aceite = e.target.checked; mudouGeral(); aviso(c.aceite ? 'O PDF vai sair com o campo de aceite.' : 'Campo de aceite desligado.'); });
   document.getElementById('op-tm').addEventListener('change', e=>{ c.textoMaior = e.target.checked; document.documentElement.classList.toggle('tm', c.textoMaior); salvar(); });
+  document.getElementById('op-esc').addEventListener('change', e=>{ c.escuro = e.target.checked; document.documentElement.classList.toggle('escuro', c.escuro); salvar(); });
 }
 function baixarArquivo(conteudo, nome, tipo){
   const blob = new Blob([conteudo], {type:tipo});
@@ -2617,10 +2702,23 @@ function exportarPlanilha(tipo){
 
 
 /* ================= calculadora de peso (aço: 7,85 kg por dm³) ================= */
-const BITOLAS = [['#26','0,45'],['#24','0,60'],['#22','0,75'],['#20','0,90'],['#18','1,20'],['#16','1,50'],['#14','1,90'],['#13','2,25'],['#12','2,65'],['#11','3,00']];
+const BITOLAS = [['#26','0,45'],['#24','0,60'],['#22','0,75'],['#20','0,90'],['#18','1,20'],['#16','1,50'],['#14','1,90'],['#13','2,25'],['#12','2,65'],['#11','3,00']];   // chapa preta (NBR 11888)
+const BITOLAS_GALV = [['#28','0,43'],['#26','0,50'],['#24','0,65'],['#22','0,80'],['#20','0,95'],['#18','1,25'],['#16','1,55'],['#14','1,95'],['#13','2,30'],['#12','2,70']];   // zincada/galvanizada (NBR 7013); usada também para galvalume
+/* chapa xadrez: o relevo pesa mais que a chapa lisa. Pesos em kg/m² de tabelas de fabricante (Cosiaço; 2,65 mm da Goldoni) */
+const XADREZ_KGM2 = [[2.65,22.9],[3.04,26],[3.42,28],[4.76,40],[5.00,42],[6.35,53],[7.94,65],[9.53,78]];
+const ESP_XADREZ = [['','2,65'],['1/8"','3,04'],['','3,42'],['3/16"','4,76'],['1/4"','6,35'],['5/16"','7,94'],['3/8"','9,53']];
+function pesoXadrez(esp){
+  const T = XADREZ_KGM2;
+  if(esp <= T[0][0]) return esp*7.85 + (T[0][1] - T[0][0]*7.85);
+  if(esp >= T[T.length-1][0]) return esp*7.85 + (T[T.length-1][1] - T[T.length-1][0]*7.85);
+  for(let k=1; k<T.length; k++) if(esp <= T[k][0]){ const [a,pa] = T[k-1], [b,pb] = T[k]; return pa + (pb-pa)*(esp-a)/(b-a); }
+}
+const tabelaDe = prod => /galvaniz|galvalume|zinc/.test(norm(prod||'')) ? 'galv' : '';
 const CALC = {
+  xadrez:    {nome:'Chapa xadrez (piso)', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (m)'],['comp','Comprimento (m)']],
+              cada:v=>v.larg*v.comp*pesoXadrez(v.esp), desc:v=>`${med(v,'esp')} mm${polXadrez(v.esp) ? ' ('+polXadrez(v.esp)+')' : ''} – ${metro(v.larg)} x ${metro(v.comp)} m`},
   chapa:     {nome:'Chapa, blank ou bobina', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (m)'],['comp','Comprimento (m)']],
-              cada:v=>v.esp*v.larg*v.comp*7.85, desc:v=>`${bitolaDe(v.esp) ? bitolaDe(v.esp)+' ('+med(v,'esp')+' mm)' : med(v,'esp')+' mm'} – ${metro(v.larg)} x ${metro(v.comp)} m`},
+              cada:v=>v.esp*v.larg*v.comp*7.85, desc:v=>`${bitolaDe(v.esp, v._tab) ? bitolaDe(v.esp, v._tab)+' ('+med(v,'esp')+' mm)' : med(v,'esp')+' mm'} – ${metro(v.larg)} x ${metro(v.comp)} m`},
   metalon:   {nome:'Metalon, tubo quadrado ou retangular', campos:[['a','Lado A (mm)'],['b','Lado B (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
               kgm:v=>(2*v.esp*(v.a+v.b) - 4*v.esp*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
   tubo:      {nome:'Tubo redondo', campos:[['d','Diâmetro externo (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
@@ -2640,6 +2738,7 @@ const CALC = {
   kgm:       {nome:'Outro (viga, trilho…) pelo kg por metro', campos:[['kgm','Peso por metro (kg/m)'],['comp','Barra de (m)']],
               kgm:v=>v.kgm, desc:v=>`${num(v.kgm)} kg/m – barra ${metro(v.comp)} m`},
 };
+const ehChapa = t => t==='chapa' || t==='xadrez';   // chapas não têm a "barra de 6 m"
 const PECA = t => (CALC[t] && CALC[t].peca) || ['barra','barras'];
 /* medida em mm; aceita polegadas: 1"  1/8"  1 1/4" */
 function lerMedida(x){
@@ -2654,9 +2753,10 @@ function lerMedida(x){
 const ehPol = x => /"|”|\/|pol/i.test(String(x||''));
 const metro = n => (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3});
 function med(v, k){ const r = v._raw[k]; return ehPol(r) ? r.trim() : (k==='esp' ? metro(v[k]) : num(v[k])); }
-function meds(v, ks){ const p = ks.map(k=>med(v,k)); const b = ks.includes('esp') && !ehPol(v._raw.esp) ? bitolaDe(v.esp) : null;
+function meds(v, ks){ const p = ks.map(k=>med(v,k)); const b = ks.includes('esp') && !ehPol(v._raw.esp) ? bitolaDe(v.esp, v._tab) : null;
   return p.join(' x ') + (ks.some(k=>!ehPol(v._raw[k])) ? ' mm' : '') + (b ? ` (${b})` : ''); }
-function bitolaDe(mm){ const x = BITOLAS.find(([b,m])=>Math.abs(lerNum(m)-mm) < 0.001); return x ? x[0] : null; }
+function bitolaDe(mm, tab){ const x = (tab==='galv' ? BITOLAS_GALV : BITOLAS).find(([b,m])=>Math.abs(lerNum(m)-mm) < 0.001); return x ? x[0] : null; }
+function polXadrez(mm){ const x = ESP_XADREZ.find(([p,m])=>p && Math.abs(lerNum(m)-mm) < 0.02); return x ? x[0] : null; }
 function tipoCalc(prod){
   const n = norm(prod);
   if(/enrijecid|perfil z|\bue\b/.test(n)) return 'ue';
@@ -2667,13 +2767,14 @@ function tipoCalc(prod){
   if(/chata/.test(n)) return 'chata';
   if(/redond|vergalh/.test(n)) return 'redonda';
   if(/quadrad/.test(n)) return 'quadrada';
-  if(/chapa|blank|bobina|xadrez/.test(n)) return 'chapa';
+  if(/xadrez/.test(n)) return 'xadrez';
+  if(/chapa|blank|bobina/.test(n)) return 'chapa';
   if(/viga|perfil w|perfil i|trilho/.test(n)) return 'kgm';
   return null;
 }
 function calcular(c){
   const T = CALC[c.tipo]; if(!T) return null;
-  const v = {_raw:{}};
+  const v = {_raw:{}, _tab:c.tab||''};
   T.campos.forEach(([k])=>{ v._raw[k] = c[k]||''; v[k] = (k==='comp'||k==='larg'||k==='kgm') ? lerNum(c[k]) : lerMedida(c[k]); });
   if(T.campos.some(([k])=>!(v[k] > 0))) return null;
   const cada = T.cada ? T.cada(v) : T.kgm(v)*v.comp;
@@ -2684,9 +2785,12 @@ function calcular(c){
 function textoAuto(c, r){ const [um, varios] = PECA(c.tipo); return `${r.desc} · ${num(r.pecas)} ${r.pecas===1?um:varios}`; }
 function calcCamposHTML(c){
   const T = CALC[c.tipo], [um, varios] = PECA(c.tipo);
-  return `<div class="calc-grid">${T.campos.map(([k,t])=>`<label class="campo"><span>${t}</span><input data-calc="${k}" inputmode="${k==='esp'||k==='comp'||k==='larg'||k==='kgm'?'decimal':'text'}" value="${esc(c[k]||'')}" placeholder="${k==='comp'&&c.tipo!=='chapa'?'6':k==='larg'?'1,20':k==='comp'?'3,00':'0'}"></label>`).join('')}
+  return `<div class="calc-grid">${T.campos.map(([k,t])=>`<label class="campo"><span>${t}</span><input data-calc="${k}" inputmode="${k==='esp'||k==='comp'||k==='larg'||k==='kgm'?'decimal':'text'}" value="${esc(c[k]||'')}" placeholder="${k==='comp'&&!ehChapa(c.tipo)?'6':k==='larg'?'1,20':k==='comp'?'3,00':'0'}"></label>`).join('')}
     <label class="campo"><span>Quantas ${varios}?</span><input data-calc="pecas" inputmode="decimal" value="${esc(c.pecas||'')}" placeholder="0"></label></div>
-    ${T.campos.some(([k])=>k==='esp') ? `<div class="bitolas"><small>Bitola:</small>${BITOLAS.map(([b,mm])=>`<button type="button" data-bit="${mm}">${b} <b>${mm}</b></button>`).join('')}</div>` : ''}
+    ${T.campos.some(([k])=>k==='esp') ? (c.tipo==='xadrez'
+        ? `<div class="bitolas"><small>Espessura:</small>${ESP_XADREZ.map(([pl,mm])=>`<button type="button" data-bit="${mm}">${pl ? pl+' ' : ''}<b>${mm}</b></button>`).join('')}</div>
+           <p class="calc-dica">Peso pela tabela de chapa xadrez do fabricante, que já conta o relevo.</p>`
+        : `<div class="bitolas"><small>Bitola${c.tab==='galv' ? ' da galvanizada' : ''}:</small>${(c.tab==='galv' ? BITOLAS_GALV : BITOLAS).map(([b,mm])=>`<button type="button" data-bit="${mm}">${b} <b>${mm}</b></button>`).join('')}</div>`) : ''}
     ${T.campos.some(([k])=>['a','b','c','d'].includes(k)) ? `<p class="calc-dica">Pode digitar em polegadas também, como 1" ou 1/8".</p>` : ''}`;
 }
 /* aproveita o que já está escrito no item (ex.: "30x30 chapa 18", 20 barras) */
@@ -2694,14 +2798,15 @@ function preencherCalc(c, espec, qtd, un){
   const t = String(espec||'');
   if(['barra','peça','un'].includes(un) && lerNum(qtd) && !c.pecas) c.pecas = paraCampo(lerNum(qtd));
   const bit = t.match(/(?:#|chapa\s*|bitola\s*|ch\.?\s*)(\d{2})\b/i);
-  const espBit = bit ? (BITOLAS.find(([b])=>b==='#'+bit[1])||[])[1] : null;
+  const espBit = bit ? ((c.tab==='galv' ? BITOLAS_GALV : BITOLAS).find(([b])=>b==='#'+bit[1])||[])[1] : null;
   const espMm = (t.match(/(\d+[.,]\d+)\s*mm/i)||[])[1];
   const n = t.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?/i);
   const comp = (t.match(/(?:barra\s*(?:de\s*)?)?(\d+(?:[.,]\d+)?)\s*m(?:etros?)?\b(?!m)/i)||[])[1];
   const P = String.raw`(\d+(?:\s*[\s.\-]\s*\d+\/\d+)?|\d+\/\d+)`;
   const pol = t.match(new RegExp(`${P}\\s*["”]\\s*(?:[x×]\\s*${P}\\s*["”])?(?:\\s*[x×]\\s*${P}\\s*["”])?`));
   const p = (k, val) => { if(val && !c[k]) c[k] = String(val).trim(); };
-  if(c.tipo==='chapa'){
+  if(c.tipo==='xadrez' && pol && !c.esp) c.esp = pol[1] + '"';   // "chapa xadrez 3/16"
+  if(c.tipo==='chapa' || c.tipo==='xadrez'){
     if(n && lerNum(n[1]) < 10 && lerNum(n[2]) < 20){ p('larg', n[1]); p('comp', n[2]); }
     p('esp', espBit || espMm);
     return;
@@ -2726,8 +2831,9 @@ function preencherCalc(c, espec, qtd, un){
 function ligarCalculadora(v, it, aoUsar){
   const $ = s => v.querySelector(s);
   const c = it.calc ? {...it.calc} : {tipo: tipoCalc(it.prod)||'chapa'};
-  if(!c.comp && c.tipo!=='chapa') c.comp = '6';
-  const desenhaCampos = ()=>{ $('#c-campos').innerHTML = calcCamposHTML(c); conta(); };
+  if(!c.comp && !ehChapa(c.tipo)) c.comp = '6';
+  const prodAtual = ()=> ($('#f-prod') ? $('#f-prod').value : it.prod) || it.prod;
+  const desenhaCampos = ()=>{ c.tab = tabelaDe(prodAtual()); $('#c-campos').innerHTML = calcCamposHTML(c); conta(); };
   const conta = ()=>{
     const r = calcular(c), [um, varios] = PECA(c.tipo);
     $('#c-res').innerHTML = r ? `<span>Cada ${um}: <b>${num(r.cada)} kg</b></span>${r.pecas>0?`<span class="calc-total">${num(r.pecas)} ${r.pecas===1?um:varios} = <b>${num(r.total)} kg</b></span>`:'<span>Falta a quantidade de '+varios+'.</span>'}`
@@ -2735,14 +2841,14 @@ function ligarCalculadora(v, it, aoUsar){
     $('#c-usar').disabled = !(r && r.total>0);
     $('#c-usar').textContent = r && r.total>0 ? `Usar ${num(r.total)} kg no item` : 'Usar no item';
   };
-  $('#c-tipo').onchange = e=>{ c.tipo = e.target.value; if(!c.comp && c.tipo!=='chapa') c.comp = '6'; if(c.tipo==='chapa' && c.comp==='6') c.comp = ''; desenhaCampos(); };
+  $('#c-tipo').onchange = e=>{ c.tipo = e.target.value; if(!c.comp && !ehChapa(c.tipo)) c.comp = '6'; if(ehChapa(c.tipo) && c.comp==='6') c.comp = ''; desenhaCampos(); };
   $('#c-campos').addEventListener('input', e=>{ const k = e.target.dataset.calc; if(k){ c[k] = e.target.value; conta(); } });
   $('#c-campos').addEventListener('click', e=>{ const b = e.target.closest('[data-bit]'); if(!b) return; c.esp = b.dataset.bit; const i = $('[data-calc="esp"]'); i.value = c.esp; conta(); });
   let preenchido = !!it.calc;
   $('#c-abrir').onclick = ()=>{
     const box = $('#c-box'); box.hidden = !box.hidden; $('#c-abrir').setAttribute('aria-expanded', !box.hidden);
     if(box.hidden) return;
-    if(!preenchido){ preenchido = true; preencherCalc(c, $('#f-esp').value, $('#f-qtd').value, $('#f-un').value); $('#c-tipo').value = c.tipo; }
+    if(!preenchido){ preenchido = true; c.tab = tabelaDe(prodAtual()); preencherCalc(c, $('#f-esp').value, $('#f-qtd').value, $('#f-un').value); $('#c-tipo').value = c.tipo; }
     desenhaCampos();
     const f = [...box.querySelectorAll('[data-calc]')].find(x=>!x.value); if(f && !matchMedia('(pointer:coarse)').matches) f.focus();
   };
@@ -2875,7 +2981,17 @@ function faltaNoItem(i){ const f = []; if(!lerNum(i.qtd)) f.push('quantidade'); 
 
 /* ================= pedido para a representada ================= */
 /* o pedido é uma cópia dos itens do orçamento fechado: dá para tirar itens sem mexer no orçamento */
-function orcDoPedido(o){ const P = o.pedido; return {...o, itens: P.itens, obs: P.obs, representada: P.representada, data: P.data}; }
+function orcDoPedido(o){
+  const P = o.pedido, v = {...o, itens: P.itens, obs: P.obs, representada: P.representada, data: P.data};
+  // desconto em R$ no orçamento inteiro: no pedido, diminui na mesma proporção dos itens que ficaram (nunca aumenta)
+  const dv = lerNum(o.desconto);
+  if((o.descontoTipo||'R$') !== '%' && dv > 0){
+    const base = l => l.reduce((t,i)=> t + valorItem(i).liq, 0);
+    const bo = base(o.itens), bp = base(P.itens);
+    if(bo > 0) v.desconto = r2(Math.min(dv, dv * bp / bo));
+  }
+  return v;
+}
 function proximoPedido(anoFixo){
   const ano = anoFixo || new Date().getFullYear();
   let maior = (E.config.seqPed||{})[ano] || 0;
@@ -3016,6 +3132,8 @@ function telaPedido(oid){
       <div class="cartao p-tot">
         ${peso ? linha(peso.rotulo, peso.valor) : ''}${linha('Subtotal', moeda(t.sub))}${o.freteTipo==='valor'?linha('Taxa de entrega', moeda(t.frete)):''}${t.desc?linha('Descontos','– '+moeda(t.desc)):''}
         <div class="rs-l rs-total"><span>Total do pedido</span><b>${moeda(t.total)}</b></div>
+        ${(o.descontoTipo||'R$')!=='%' && lerNum(o.desconto)>0 && Math.abs(lerNum(o.desconto)-lerNum(ov.desconto))>=0.01
+          ? `<p class="nota">O desconto de ${moeda(lerNum(o.desconto))} do orçamento ficou ${moeda(lerNum(ov.desconto))} no pedido, na mesma proporção dos itens que ficaram.</p>` : ''}
       </div>
     </section>
     <section class="bloco"><h2>Cliente</h2><div class="cartao">
@@ -3178,6 +3296,7 @@ function precosDoCliente(l){
 }
 function chamarNoZap(tel){
   const t = String(tel||'').replace(/\D/g,''); if(t.length < 10) return;
+  if(telParaConferir(t)){ aviso('Este telefone parece errado. Confira no orçamento mais recente do cliente.', 5000); return; }
   window.open(`https://wa.me/${(t.startsWith('55') && t.length>=12) ? t : '55'+t}`, '_blank');
 }
 function telaCliente(oid){
@@ -3398,7 +3517,7 @@ const marcaMaior = (a,b) => !!a && (!b || a.s > b.s || (a.s === b.s && a.n > b.n
 /* só os dados do orçamento, sem os campos deste aparelho (os que começam com "_") */
 function paraNuvem(o){ const x = JSON.parse(JSON.stringify(o)); Object.keys(x).forEach(k=>{ if(k[0]==='_') delete x[k]; }); return x; }
 function geralParaNuvem(){
-  const c = {...E.config}; delete c.ultimaCopia; delete c.textoMaior; delete c.dicaIOS;   // preferências de cada aparelho
+  const c = {...E.config}; delete c.ultimaCopia; delete c.textoMaior; delete c.escuro; delete c.dicaIOS;   // preferências de cada aparelho
   return JSON.parse(JSON.stringify({config:c, produtos:E.produtos, precos:E.precos, recentes:E.recentes||[], alterado:E.geralAlterado}));
 }
 function substituirObjeto(alvo, novo){ Object.keys(alvo).forEach(k=>{ if(!(k in novo)) delete alvo[k]; }); Object.assign(alvo, novo); }
@@ -3507,7 +3626,7 @@ function aplicarGeral(g){
   if(!E.config.seqPed) E.config.seqPed = {};
   Object.entries((g.config && g.config.seqPed) || {}).forEach(([ano,n])=>{ if((E.config.seqPed[ano]||0) < n){ E.config.seqPed[ano] = n; mud = true; } });
   if((g.alterado||'') > (E.geralAlterado||'')){
-    const doAparelho = {ultimaCopia:E.config.ultimaCopia, textoMaior:E.config.textoMaior, dicaIOS:E.config.dicaIOS, seq:E.config.seq, seqPed:E.config.seqPed};
+    const doAparelho = {ultimaCopia:E.config.ultimaCopia, textoMaior:E.config.textoMaior, escuro:E.config.escuro, dicaIOS:E.config.dicaIOS, seq:E.config.seq, seqPed:E.config.seqPed};
     E.config = {...E.config, ...(g.config||{}), ...doAparelho};
     if(Array.isArray(g.produtos) && g.produtos.length) E.produtos = garantirDegraus(g.produtos);
     E.precos = {...(E.precos||{}), ...(g.precos||{})};
@@ -3781,6 +3900,10 @@ function telaClientes(){
     <div class="busca">${ic('busca')}<label class="sr" for="qc">Buscar cliente</label>
       <input id="qc" type="search" placeholder="Buscar nome, empresa, CNPJ ou telefone" value="${esc(buscaCli)}" oninput="buscaCli=this.value;listarClientes()">
     </div>
+    ${(()=>{ const ruins = todos.filter(g=>telParaConferir(g.c.tel));
+      return ruins.length ? `<div class="tel-conferir"><b>${ruins.length===1 ? '1 cliente com telefone para conferir' : ruins.length+' clientes com telefone para conferir'}</b>
+        <span>Parecem incompletos ou errados. Toque para abrir o orçamento mais recente e corrigir.</span>
+        ${ruins.map(g=>`<button onclick="irComHistorico({nome:'orc',id:'${g.id}'})">${esc(g.c.empresa||g.c.nome)} <small>${esc(g.c.tel)}</small></button>`).join('')}</div>` : ''; })()}
     <div class="linha-lista"><span id="cli-info"></span>
       <label class="sr" for="ordem-cli">Ordenar</label>
       <select id="ordem-cli" class="ordenar" onchange="ordemCli=this.value;listarClientes()">
