@@ -888,7 +888,7 @@ const CHAVE = 'rap-orcamentos-v1';
 const TESTE = false;
 const NUVEM_CONFIG = {"apiKey": "AIzaSyAN7dGMMiING53Pedv1yNhqQwXsjNb-ScQ", "authDomain": "orcamentos-rap.firebaseapp.com", "projectId": "orcamentos-rap", "storageBucket": "orcamentos-rap.firebasestorage.app", "messagingSenderId": "187997430413", "appId": "1:187997430413:web:af40b938bb4ed30d63f8c4"};          // configuração do Firebase (fica null até ser preenchida)
 const NUVEM_PASTA = TESTE ? 'teste-' : '';  // a versão de teste guarda na nuvem separada dos orçamentos reais
-const VERSAO = 7;
+const VERSAO = 8;
 const DIA = 86400000;
 
 /* carrega as fontes na tela a partir das mesmas fontes do PDF */
@@ -927,6 +927,8 @@ const PRODUTOS_PADRAO = [
   ['Telhas','Telha termoacústica com telha forro','m²'],
   ['Telhas','Cumeeira trapezoidal','peça'],
   ['Telhas','Cumeeira ondulada','peça'],
+  ['Degraus','Degrau reto','peça'],
+  ['Degraus','Degrau cônico','peça'],
   ['Corte','Corte a laser','peça'],
   ['Corte','Corte plasma','peça'],
   ['Corte','Oxicorte','peça'],
@@ -936,8 +938,20 @@ const DICAS = {
   'Perfis estruturais dobrados':'Ex.: 100 x 50 x 2,65 mm – barra 6 m',
   'Tubos':'Ex.: 50 x 50 x 1,50 mm – barra 6 m',
   'Telhas':'Ex.: trapezoidal 0,43 mm – 6,00 m',
+  'Degraus':'Ex.: 1,00 x 0,30 m – conforme desenho',
   'Corte':'Ex.: conforme desenho enviado',
 };
+/* categoria nova Degraus: entra antes de Corte, também para quem já usa o app */
+function garantirDegraus(lista){
+  PRODUTOS_PADRAO.filter(p=>p[0]==='Degraus').forEach(([cat,nome,un])=>{
+    if(lista.some(x=>norm(x.nome)===norm(nome))) return;
+    const k = lista.findIndex(x=>x.cat==='Corte');
+    const novo = {id:uid(), cat, nome, un};
+    const ult = lista.map(x=>x.cat).lastIndexOf('Degraus');
+    if(ult>=0) lista.splice(ult+1, 0, novo); else if(k>=0) lista.splice(k, 0, novo); else lista.push(novo);
+  });
+  return lista;
+}
 
 const CIDADES = ['Curitiba','Adrianópolis','Agudos do Sul','Almirante Tamandaré','Araucária','Balsa Nova','Bocaiúva do Sul','Campina Grande do Sul','Campo do Tenente','Campo Largo','Campo Magro','Cerro Azul','Colombo','Contenda','Doutor Ulysses','Fazenda Rio Grande','Itaperuçu','Lapa','Mandirituba','Piên','Pinhais','Piraquara','Quatro Barras','Quitandinha','Rio Branco do Sul','Rio Negro','São José dos Pinhais','Tijucas do Sul','Tunas do Paraná'];
 const PAGAMENTOS = ['À vista','14 dias','28 dias','35 dias','45 dias','30/45/60 dias','28/42/56 dias','30/60/90 dias'];
@@ -1033,6 +1047,7 @@ function migrar(D){
     D.versao = 7;
   }
   if(!D.config.seqPed) D.config.seqPed = {};
+  if(D.versao < 8){ garantirDegraus(D.produtos); D.versao = 8; }
   if(!Array.isArray(D.recentes)) D.recentes = [];
   if(!Array.isArray(D._apagarNuvem)) D._apagarNuvem = [];
   return D;
@@ -2670,7 +2685,7 @@ function ligarCalculadora(v, it, aoUsar){
 }
 function calcHTML(it){
   const cat = (E.produtos.find(x=>x.nome===it.prod)||{}).cat;
-  if(cat==='Telhas' || cat==='Corte') return '';
+  if(cat==='Telhas' || cat==='Corte' || cat==='Degraus') return '';
   const r = it.calc ? calcular(it.calc) : null;
   return `<button type="button" class="calc-abrir" id="c-abrir" aria-expanded="false" aria-controls="c-box">${ic('peso',20)} Calcular o peso (kg) pelas medidas</button>
     <p class="calc-feito" id="c-feito" ${r?'':'hidden'}>${r?`Calculado: ${esc(textoAuto(it.calc, r))} = <b>${num(r.total)} kg</b>`:''}</p>
@@ -3403,7 +3418,7 @@ function aplicarGeral(g){
   if((g.alterado||'') > (E.geralAlterado||'')){
     const doAparelho = {ultimaCopia:E.config.ultimaCopia, textoMaior:E.config.textoMaior, dicaIOS:E.config.dicaIOS, seq:E.config.seq, seqPed:E.config.seqPed};
     E.config = {...E.config, ...(g.config||{}), ...doAparelho};
-    if(Array.isArray(g.produtos) && g.produtos.length) E.produtos = g.produtos;
+    if(Array.isArray(g.produtos) && g.produtos.length) E.produtos = garantirDegraus(g.produtos);
     E.precos = {...(E.precos||{}), ...(g.precos||{})};
     if(Array.isArray(g.recentes)) E.recentes = g.recentes;
     E.geralAlterado = g.alterado; E._geralSinc = g.alterado; mud = true;
