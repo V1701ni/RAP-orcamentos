@@ -1475,8 +1475,8 @@ function telaOrc(id){
   const preencher = achado => { Object.assign(o.cliente, {...achado}); if(!achado.empresa) o.cliente.empresa = ''; mudou(o); salvarJa(); telaOrc(o.id); };
   app.querySelectorAll('[data-c]').forEach(el => el.addEventListener('input', ()=>{
     const k = el.dataset.c;
-    if(k==='cnpj'){ el.value = mascaraDoc(el.value); avisoDoc(el.value, false); }
-    if(k==='tel'){ el.value = mascaraTel(el.value); }
+    if(k==='cnpj'){ aplicarMascara(el, mascaraDoc); avisoDoc(el.value, false); }
+    if(k==='tel'){ aplicarMascara(el, mascaraTel); }
     o.cliente[k] = el.value;
     if(k==='empresa'){ // preenche com cliente já usado
       const achado = clientes.find(c => norm(c.empresa||c.nome) === norm(el.value.trim()));
@@ -1661,7 +1661,9 @@ function mascaraTel(v){
 }
 /* CPF (só números) ou CNPJ (números ou letras nas 12 primeiras posições, desde jul/2026) */
 function mascaraDoc(v){
-  const s = String(v).toUpperCase().replace(/[^0-9A-Z]/g,'').slice(0,14);
+  let s = String(v).toUpperCase().replace(/[^0-9A-Z]/g,'');
+  while(s.length > 14 && s[0]==='0') s = s.slice(1);   // alguns sistemas mostram o CNPJ com 15 dígitos (006.121.692/0001-02)
+  s = s.slice(0,14);
   if(/^\d{0,11}$/.test(s)) return s.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1-$2');
   return mascaraCNPJ(s);
 }
@@ -1672,6 +1674,18 @@ function mascaraCNPJ(v){
   return out;
 }
 function limpaDoc(v){ return String(v||'').toUpperCase().replace(/[^0-9A-Z]/g,''); }
+/* aplica a máscara sem jogar o cursor para o fim (corrigir um número no meio funciona) */
+function aplicarMascara(el, mascara){
+  const antes = el.value, pos = el.selectionStart ?? antes.length;
+  const noFim = pos >= antes.length;
+  const n = antes.slice(0, pos).replace(/[^0-9A-Za-z]/g,'').length;
+  const depois = mascara(antes);
+  if(depois === antes) return;
+  el.value = depois;
+  if(noFim || document.activeElement !== el) return;
+  let i = 0, c = 0; while(i < depois.length && c < n){ if(/[0-9A-Za-z]/.test(depois[i])) c++; i++; }
+  try{ el.setSelectionRange(i, i); }catch(e){}
+}
 function tipoDoc(v){ const s = limpaDoc(v); return (s.length===11 && /^\d+$/.test(s)) ? 'CPF' : s.length===14 ? 'CNPJ' : 'CNPJ/CPF'; }
 function cpfValido(d){
   if(!/^\d{11}$/.test(d) || /^(\d)\1{10}$/.test(d)) return false;
