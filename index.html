@@ -251,6 +251,21 @@ html.tm .link-simples{font-size:17px}
 @media (max-width:370px){.barra .tt strong{font-size:17px}}
 .orc-acoes button:active{background:#F7F9FC}
 html.tm .orc-acoes button{font-size:17px;min-height:50px}
+
+/* quadro Precisa de retorno */
+.retorno{margin-top:14px;background:#fff;border:1px solid #F1DDA8;border-radius:var(--raio);overflow:hidden}
+.retorno h2{margin:0;padding:10px 14px;background:#FFF8E6;color:#6B4E0E;font-size:16px}
+.rt-linha{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid #F3EAD3}
+.rt-info{flex:1;min-width:0;border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:2px}
+.rt-info b{color:var(--tinta);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-info small{color:var(--suave);font-size:14px}
+.rt-info .etq{align-self:flex-start;margin-top:2px}
+.rt-zap,.rt-abrir{flex:none;border:0;border-radius:10px;min-height:44px;padding:0 14px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.rt-zap{background:var(--verde);color:#fff}
+.rt-abrir{background:#fff;color:var(--azul);border:1.5px solid var(--azul)}
+.rt-feito{flex:none;color:#167A3E;font-weight:700;font-size:14px}
+.rt-mais{width:100%;border:0;border-top:1px solid #F3EAD3;background:#fff;color:var(--azul);font-weight:700;min-height:44px}
+html.tm .rt-info b{font-size:18px} html.tm .rt-info small,html.tm .rt-zap,html.tm .rt-abrir{font-size:16px} html.tm .retorno h2{font-size:18px}
 </style>
 </head>
 <body>
@@ -1021,6 +1036,7 @@ function telaInicio(){
   <main>
     ${faixasInicio()}
     <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
+    ${retornoHTML()}
     ${A.length ? resumoMesHTML() : ''}
     <div class="busca">${ic('busca')}<label class="sr" for="q">Buscar</label>
       <input id="q" type="search" placeholder="Buscar cliente, empresa ou número" value="${esc(busca)}" oninput="busca=this.value;atualizarLista()">
@@ -1105,6 +1121,39 @@ function faixasInicio(){
   return h;
 }
 function dispensarDicaIOS(){ E.config.dicaIOS = true; salvarJa(); telaInicio(); }
+
+/* quadro "Precisa de retorno": em aberto que vencem em até 3 dias ou venceram há até 15 dias */
+function precisamRetorno(){
+  return ativos().filter(o=>o.status==='aberto').map(o=>{ const v = vencimento(o); return v ? {o, d:diasAte(v)} : null; })
+    .filter(x=> x && x.d <= 3 && x.d >= -15)
+    .sort((a,b)=> a.d - b.d);
+}
+function textoPrazo(d){
+  if(d < -1) return `Venceu há ${-d} dias`;
+  if(d === -1) return 'Venceu ontem';
+  if(d === 0) return 'Vence hoje';
+  if(d === 1) return 'Vence amanhã';
+  return `Vence em ${d} dias`;
+}
+function retornoHTML(){
+  const l = precisamRetorno(); if(!l.length) return '';
+  const hoje = hojeISO();
+  const linhas = l.slice(0,5).map(({o,d})=>{
+    const quem = o.cliente.empresa || o.cliente.nome || 'Sem cliente';
+    const tel = (o.cliente.tel||'').replace(/\D/g,'');
+    const cobradoHoje = o.retornoEm && dataLocal(o.retornoEm) === hoje;
+    const acao = cobradoHoje ? `<span class="rt-feito">✓ Cobrado hoje</span>`
+      : tel.length >= 10 ? `<button class="rt-zap" onclick="cobrarRetorno('${o.id}')" aria-label="Cobrar ${esc(quem)} no WhatsApp">${ic('zap',18)} Cobrar</button>`
+      : `<button class="rt-abrir" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">Abrir</button>`;
+    return `<div class="rt-linha">
+      <button class="rt-info" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
+        <b>${esc(quem)}</b><small>Nº ${esc(o.num)} · ${moeda(totais(o).total)}</small>
+        <span class="etq ${d<0?'etq-vencido':'etq-vence'}">${textoPrazo(d)}</span>
+      </button>${acao}</div>`;
+  }).join('');
+  const mais = l.length > 5 ? `<button class="rt-mais" onclick="filtro='aberto';ordem='vencendo';periodo='tudo';telaInicio();document.getElementById('lista').scrollIntoView({behavior:'smooth'})">Ver todos (${l.length})</button>` : '';
+  return `<section class="retorno"><h2>Precisa de retorno</h2>${linhas}${mais}</section>`;
+}
 
 /* resumo do mês */
 function resumoMes(){
@@ -1392,6 +1441,7 @@ function cobrarRetorno(oid){
   const numero = (tel.startsWith('55') && tel.length >= 12) ? tel : '55' + tel;
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
   o.retornoEm = agora(); mudou(o);
+  if(tela.nome==='inicio') telaInicio();
 }
 
 /* campos: lista com opção “Outro” para digitar */
