@@ -335,7 +335,7 @@ html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
 html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
 
 /* menu fixo */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
 .nav-logo,.nav-novo,.nav-ped,.nav-rodape,.topo .so-pc{display:none}
 .nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;border:0;background:none;color:var(--suave);font-weight:600;font-size:13.5px;position:relative}
 .nav-b[aria-current="page"]{color:var(--azul)}
@@ -414,6 +414,36 @@ html.tm .faixa-ped span,html.tm .fora-l small{font-size:16px}
 html.tm .np-item .meta{font-size:16px}
 .np-item .np-rasc{grid-column:1 / -1;margin-top:4px;justify-self:start;background:#FFF1D6;color:#6B4E0E;border-radius:8px;padding:3px 8px;font-size:14px;font-weight:600}
 html.tm .np-item .np-rasc{font-size:15.5px}
+
+/* etapas do pedido */
+.etapas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.etapas li{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;position:relative;color:var(--suave);font-size:13.5px}
+.etapas li:not(:first-child)::before{content:"";position:absolute;top:15px;right:50%;width:100%;height:2px;background:var(--linha);z-index:0}
+.etapas li.feita:not(:first-child)::before,.etapas li.atual:not(:first-child)::before{background:var(--azul)}
+.etapas .bola{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid var(--linha);font-weight:700;color:var(--suave)}
+.etapas li.feita .bola{background:var(--azul);border-color:var(--azul);color:#fff}
+.etapas li.atual .bola{border-color:var(--azul);color:var(--azul);box-shadow:0 0 0 4px #DCE8FB}
+.etapas li.atual .et-t{color:var(--marinho);font-weight:700}
+.etapas small{font-size:12px;min-height:15px}
+.et-desc{margin:12px 2px 12px;text-align:center;color:var(--tinta);font-weight:600}
+.et-chip{display:inline-block;vertical-align:2px;margin-left:6px;font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:#E8EEF8;color:var(--marinho)}
+.et-rascunho{background:#FFF1D6;color:#6B4E0E}
+.conf-env{margin-top:16px;padding:14px;border-radius:12px;background:#EAF1FD;border:1px solid #BFD3F5;text-align:center}
+.conf-env p{margin:0 0 10px;font-weight:700;color:var(--marinho);font-size:16.5px}
+.ped-filtros{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:visible}
+.ped-filtros .filtro{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 10px}
+@media (min-width:700px){ .ped-filtros{grid-template-columns:repeat(4,1fr)} }
+.f-n{min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:rgba(19,41,92,.1);font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+.filtro[aria-pressed="true"] .f-n{background:rgba(255,255,255,.25)}
+.ped-ajuda{margin:4px 2px 10px}
+.lista .np-item{margin-top:0}
+.lista .np-item + .np-item{margin-top:10px}
+.nav-b{position:relative}
+.nav-cont{position:absolute;top:6px;left:calc(50% + 6px);min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--azul-vivo);color:#fff;font-style:normal;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.nav-cont[hidden]{display:none}
+.nav-b{font-size:12.5px}
+@media (min-width:1000px){ .nav-cont{position:static;margin-left:auto} .nav-b{font-size:16px} }
+html.tm .etapas li{font-size:15px} html.tm .et-desc{font-size:17px}
 </style>
 </head>
 <body>
@@ -433,6 +463,7 @@ html.tm .np-item .np-rasc{font-size:15.5px}
   <symbol id="i-peso" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M4.5 6.5h15"/><path d="M4.5 6.5 2 13a2.6 2.6 0 0 0 5 0zM19.5 6.5 17 13a2.6 2.6 0 0 0 5 0z"/></g></symbol>
   <symbol id="i-doc" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></g></symbol>
   <symbol id="i-grafico" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-7"/></g></symbol>
+  <symbol id="i-caixa" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12.5l2.6 2.6L16 9.7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-cima" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
@@ -1162,6 +1193,7 @@ function desenhar(){
   else if(tela.nome==='cliente') telaCliente(tela.id);
   else if(tela.nome==='clientes') telaClientes();
   else if(tela.nome==='pedido') telaPedido(tela.id);
+  else if(tela.nome==='pedidos') telaPedidos();
 }
 
 /* ================= tela: início ================= */
@@ -1267,7 +1299,7 @@ function listaHTML(lista){
     const etq = etiquetaValidade(o);
     return `<div class="orc-card"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
       <span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span>
-      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido && o.pedido.num ? ` · Pedido ${esc(o.pedido.num)}` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
+      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido && o.pedido.num ? ` · Pedido ${esc(o.pedido.num)} (${NOME_ETAPA[etapa(o.pedido)].toLowerCase()})` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
       ${data||etq ? `<span class="extra">${data?`<span>${data}</span>`:''}${etq}</span>` : ''}
     </button>
     <div class="orc-acoes">
@@ -2486,11 +2518,11 @@ function exportarPlanilha(tipo){
     A.forEach(o=>o.itens.forEach(i=>{ const v = valorItem(i);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa||o.cliente.nome, NOME_ST[o.status], i.prod, i.espec, numBRVar(lerNum(i.qtd)), i.un, numBRVar(lerNum(i.preco)), textoDesc(i), numBR(v.d), numBR(v.liq), o.representada]); }));
   } else {
-    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem','Comissão (%)','Comissão (R$)','Pedido nº','Total do pedido']];
+    linhas = [['Número','Data','Empresa','Contato','CNPJ/CPF','Telefone','Cidade','Fornecedor','Subtotal','Descontos','Taxa de entrega','Total','Situação','Enviado em','Fechado em','Motivo da perda','Origem','Comissão (%)','Comissão (R$)','Pedido nº','Total do pedido','Situação do pedido']];
     A.forEach(o=>{ const t = totais(o);
       linhas.push([o.num, dataBR(o.data), o.cliente.empresa, o.cliente.nome, o.cliente.cnpj, o.cliente.tel, o.cliente.cidade, o.representada,
         numBR(t.sub), numBR(t.desc), numBR(t.frete), numBR(t.total), NOME_ST[o.status],
-        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o)), o.pedido && o.pedido.num ? o.pedido.num : '', o.pedido && o.pedido.num ? numBR(totais(orcDoPedido(o)).total) : '']); });
+        o.enviadoEm ? dataBR(dataLocal(o.enviadoEm)) : '', o.status==='fechado' ? dataBR(dataFechado(o)) : '', o.motivoPerda||'', o.origem||'', pctComissao(o)==null?'':numBRVar(pctComissao(o)), valorComissao(o)==null?'':numBR(valorComissao(o)), o.pedido && o.pedido.num ? o.pedido.num : '', o.pedido && o.pedido.num ? numBR(totais(orcDoPedido(o)).total) : '', o.pedido ? NOME_ETAPA[etapa(o.pedido)] : '']); });
   }
   const txt = '﻿' + linhas.map(l=>l.map(celula).join(';')).join('\r\n');
   baixarArquivo(txt, `${tipo==='itens'?'itens-':''}orcamentos-rap-${hojeISO()}.csv`, 'text/csv;charset=utf-8');
@@ -2766,13 +2798,40 @@ function proximoPedido(anoFixo){
   return {ano, n, txt: `${ano}-${String(n).padStart(3,'0')}`};
 }
 function faixaPedidoHTML(o){
-  if(o.pedido) return `<div class="faixa-ped tem"><div><b>${o.pedido.num ? 'Pedido Nº '+esc(o.pedido.num) : 'Pedido começado'}</b><span>${o.pedido.emitidoEm ? 'Enviado em '+dataBR(dataLocal(o.pedido.emitidoEm)) : 'Ainda não enviado'} · ${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
-    <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('doc',20)} ${o.pedido.emitidoEm ? 'Abrir pedido' : 'Continuar pedido'}</button></div>`;
+  if(o.pedido){ const st = etapa(o.pedido);
+    return `<div class="faixa-ped tem"><div><b>${o.pedido.num ? 'Pedido Nº '+esc(o.pedido.num) : 'Pedido começado'} <span class="et-chip et-${st}">${NOME_ETAPA[st]}</span></b><span>${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
+    <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('caixa',20)} ${st==='rascunho' ? 'Continuar pedido' : 'Abrir pedido'}</button></div>`; }
   return '';
 }
-const pedidoFeito = o => !!(o.pedido && o.pedido.emitidoEm);   // só conta como feito depois que o PDF foi enviado ou baixado
+/* etapas do pedido: a fazer → enviado → confirmado pela representada → entregue */
+const ETAPAS = [['rascunho','A fazer','Em preparação, ainda não enviado'],['enviado','Enviado','Enviado à representada'],
+                ['confirmado','Confirmado','Confirmado pela representada'],['entregue','Entregue','Entregue ao cliente']];
+const NOME_ETAPA = Object.fromEntries(ETAPAS.map(([k,t])=>[k,t]));
+const DATA_ETAPA = {enviado:'enviadoEm', confirmado:'confirmadoEm', entregue:'entregueEm'};
+const etapa = P => P ? (P.status || (P.emitidoEm ? 'enviado' : 'rascunho')) : null;   // pedidos antigos: PDF já enviado = enviado
+const dataEtapa = (P, st) => P[DATA_ETAPA[st]] || (st==='enviado' ? P.emitidoEm : null);
+const pedidoFeito = o => !!(o.pedido && etapa(o.pedido)!=='rascunho');   // só sai de "A fazer" quando ele confirma que enviou
+function darNumeroPedido(o){
+  const P = o.pedido; if(P.num) return;
+  const pn = proximoPedido();
+  if(!E.config.seqPed) E.config.seqPed = {};
+  E.config.seqPed[pn.ano] = pn.n; mudouGeral();
+  P.num = pn.txt; P.data = hojeISO();
+}
+function mudarEtapa(oid, st){
+  const o = acharOrc(oid), P = o.pedido; if(!P) return;
+  if(st!=='rascunho') darNumeroPedido(o);
+  const ordem = ETAPAS.map(e=>e[0]), k = ordem.indexOf(st);
+  P.status = st;
+  ordem.forEach((e,n)=>{ const d = DATA_ETAPA[e]; if(!d) return; if(n <= k){ if(!P[d]) P[d] = (e==='enviado' && P.emitidoEm) ? P.emitidoEm : agora(); } else delete P[d]; });
+  if(st==='rascunho') delete P.emitidoEm;
+  mudou(o); salvarJa(); agendarSinc();
+  const msg = {rascunho:'Pedido voltou para “A fazer”.', enviado:`Pedido ${P.num} marcado como enviado.`, confirmado:`Pedido ${P.num}: a representada confirmou.`, entregue:`Pedido ${P.num} entregue ao cliente.`}[st];
+  aviso(msg, 3500);
+}
 function semPedido(){ return ativos().filter(o=>o.status==='fechado' && !pedidoFeito(o)).sort((a,b)=> dataFechado(b).localeCompare(dataFechado(a))); }
-function escolherParaPedido(){
+function escolherParaPedido(){ filtroPed = 'fazer'; irAba('pedidos'); }
+function escolherParaPedidoFolha(){
   const l = semPedido();
   const corpo = l.length
     ? `<p class="txt-suave">${l.length===1 ? '1 orçamento fechado está' : l.length+' orçamentos fechados estão'} esperando o pedido. Toque no que vai virar pedido.</p>
@@ -2816,30 +2875,41 @@ async function apagarPedido(oid){
 }
 function telaPedido(oid){
   const o = acharOrc(oid); if(!o || !o.pedido){ voltar(); return; }
-  const P = o.pedido, ov = orcDoPedido(o), t = totais(ov), peso = pesoInfo(ov), c = o.cliente;
+  const P = o.pedido, ov = orcDoPedido(o), t = totais(ov), peso = pesoInfo(ov), c = o.cliente, st = etapa(P);
   const cf = (E.config.fornec||{})[P.representada];
   const linha = (k,v) => v ? `<div class="rs-l"><span>${k}</span><b>${esc(v)}</b></div>` : '';
   const faltaCli = [!c.cnpj && 'CNPJ/CPF', !c.endereco && 'endereço', !c.cidade && 'cidade'].filter(Boolean);
   const frete = o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : `Taxa de entrega de ${moeda(t.frete)}`;
+  const k = ETAPAS.findIndex(e=>e[0]===st);
+  const prox = {rascunho:['enviado','Marcar como enviado'], enviado:['confirmado','A representada confirmou'], confirmado:['entregue','Marcar como entregue']}[st];
   app.innerHTML = `
   <header class="topo">
     <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
     <span class="titulo">${P.num ? 'Pedido '+esc(P.num) : 'Novo pedido'}</span>
+    <span class="salvo" id="salvo">✓ Salvo</span>
   </header>
   <main>
     <p class="ref-orc">Do orçamento Nº ${esc(o.num)} · ${esc(c.empresa||c.nome||'')}${P.num ? '' : ' · o número do pedido sai junto com o PDF'}</p>
+    <section class="bloco"><h2>Situação do pedido</h2><div class="cartao">
+      <ol class="etapas">${ETAPAS.map(([e,tn,tl],n)=>`<li class="${n<k?'feita':n===k?'atual':''}"><span class="bola">${n<k?ic('check',16):n+1}</span><span class="et-t">${tn}</span><small>${n<=k && dataEtapa(P,e) ? dataBR(dataLocal(dataEtapa(P,e))) : ''}</small></li>`).join('')}</ol>
+      <p class="et-desc">${ETAPAS[k][2]}</p>
+      ${prox ? `<button class="btn btn-pri btn-cheio" onclick="confirmarEtapa('${o.id}','${prox[0]}')">${ic('check')} ${prox[1]}</button>` : ''}
+      ${k>0 ? `<button class="link-simples" onclick="confirmarEtapa('${o.id}','${ETAPAS[k-1][0]}')">Voltar para “${ETAPAS[k-1][1]}”</button>` : ''}
+    </div></section>
+    ${st!=='rascunho' ? `<p class="preco-velho" style="margin:0 0 18px">Este pedido já foi enviado. Se alterar alguma coisa, gere o PDF de novo e mande para a ${esc(P.representada||'representada')}.</p>` : ''}
     <section class="bloco"><h2>Representada</h2><div class="cartao">
       <label class="campo" style="margin-top:0"><span>Para qual representada vai o pedido</span>
         <select id="p-rep"><option value="">Escolha</option>${[...new Set([...FORNECEDORES, ...(P.representada?[P.representada]:[])])].map(r=>`<option ${P.representada===r?'selected':''}>${esc(r)}</option>`).join('')}</select></label>
       <p class="txt-suave" style="margin:8px 2px 0">${cf ? 'CNPJ '+esc(cf) : P.representada ? 'CNPJ não cadastrado (Ajustes).' : ''}</p>
     </div></section>
     <section class="bloco"><h2>Itens do pedido <small class="h-sub">${P.itens.length} de ${P.itens.length+P.fora.length}</small></h2>
-      <p class="txt-suave" style="margin:-4px 2px 10px">Tire os itens que o cliente não quis. O peso e o total mudam na hora, e o orçamento continua igual.</p>
-      <div id="p-itens">${P.itens.map((i,k)=>`<div class="item-card">
-        <div class="item item-fixo"><span class="nome">${k+1}. ${esc(i.prod)}</span><span class="val">${moeda(valorItem(i).liq)}</span>
+      <p class="txt-suave" style="margin:-4px 2px 10px">Altere ou tire os itens que o cliente não quis. O orçamento continua igual.</p>
+      <div id="p-itens">${P.itens.map((i,n)=>`<div class="item-card">
+        <button class="item" onclick="alterarItemPedido('${o.id}','${i.id}')"><span class="nome">${n+1}. ${esc(i.prod)}</span><span class="val">${moeda(valorItem(i).liq)}</span>
           ${i.espec?`<span class="esp">${esc(i.espec)}</span>`:''}<span class="conta">${num(lerNum(i.qtd))} ${esc(i.un)} × ${moedaUnit(lerNum(i.preco))}</span>
-          ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}</div>
-        <div class="orc-acoes um"><button class="exc" onclick="tirarDoPedido('${o.id}','${i.id}')">${ic('lixo',18)} Tirar do pedido</button></div></div>`).join('')}</div>
+          ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}</button>
+        <div class="orc-acoes"><button onclick="alterarItemPedido('${o.id}','${i.id}')">${ic('revisao',18)} Alterar</button>
+          <button class="exc" onclick="tirarDoPedido('${o.id}','${i.id}')">${ic('lixo',18)} Tirar do pedido</button></div></div>`).join('')}</div>
       ${P.fora.length ? `<h3 class="sub-tab">Fora do pedido (${P.fora.length})</h3>${P.fora.map(i=>`<div class="fora-l"><span><b>${esc(i.prod)}</b><small>${num(lerNum(i.qtd))} ${esc(i.un)}${i.espec?' · '+esc(i.espec):''} · ${moeda(valorItem(i).liq)}</small></span>
         <button class="btn btn-sec" onclick="voltarAoPedido('${o.id}','${i.id}')">Recolocar</button></div>`).join('')}` : ''}
       <div class="cartao p-tot">
@@ -2850,7 +2920,7 @@ function telaPedido(oid){
     <section class="bloco"><h2>Cliente</h2><div class="cartao">
       ${linha('Empresa',c.empresa)}${linha(tipoDoc(c.cnpj),c.cnpj)}${linha('Contato',c.nome)}${linha('Telefone',c.tel)}${linha('E-mail',c.email)}${linha('Endereço',c.endereco)}${linha('Cidade',c.cidade)}
       ${faltaCli.length ? `<p class="preco-velho" style="margin-top:10px">Falta ${faltaCli.join(', ')}. A representada costuma precisar para faturar e entregar. Complete no orçamento.</p>` : ''}
-      <button class="link-simples" onclick="voltar()">Alterar dados do cliente no orçamento</button>
+      <button class="link-simples" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">Alterar dados do cliente no orçamento</button>
     </div></section>
     <section class="bloco"><h2>Condições</h2><div class="cartao">
       ${linha('Pagamento', o.pagamento||'A combinar')}${linha('Prazo de entrega', o.entrega||'A combinar')}${linha('Frete', frete)}
@@ -2862,10 +2932,54 @@ function telaPedido(oid){
   </main>
   <div class="barra"><div class="in">
     <div class="tt"><small>Total do pedido</small><strong>${moeda(t.total)}</strong></div>
-    <button class="btn btn-pri" onclick="pdfPedido('${o.id}')">${ic('pdf')} Gerar PDF do pedido</button>
+    <button class="btn btn-sec" id="b-salvar" onclick="salvarPedido()">Salvar</button>
+    <button class="btn btn-pri" onclick="pdfPedido('${o.id}')">${ic('pdf')} Gerar PDF</button>
   </div></div>`;
   document.getElementById('p-rep').onchange = e=>{ P.representada = e.target.value; mudou(o); telaPedido(oid); };
   document.getElementById('p-obs').addEventListener('input', e=>{ P.obs = e.target.value; mudou(o); });
+}
+function salvarPedido(){ salvarOrc(); const t = document.querySelector('.toast'); if(t) t.textContent = 'Pedido salvo.'; }
+async function confirmarEtapa(oid, st){
+  const o = acharOrc(oid), P = o.pedido, atual = etapa(P);
+  const pergunta = {enviado:`Confirma que o pedido já foi enviado para a ${P.representada||'representada'}?`, confirmado:`A ${P.representada||'representada'} confirmou o pedido?`,
+    entregue:'O material já foi entregue ao cliente?', rascunho:'Voltar o pedido para “A fazer”? Ele volta a aparecer como pendente.'}[st];
+  const volta = ETAPAS.findIndex(e=>e[0]===st) < ETAPAS.findIndex(e=>e[0]===atual);
+  if(volta && st!=='rascunho'){ mudarEtapa(oid, st); telaPedido(oid); return; }
+  if(await confirmar(pergunta, st==='rascunho' ? 'Voltar' : 'Sim, confirmar', 'Ainda não')){ mudarEtapa(oid, st); telaPedido(oid); }
+}
+/* alterar um item só no pedido */
+function alterarItemPedido(oid, iid){
+  const o = acharOrc(oid), P = o.pedido, it = P.itens.find(i=>i.id===iid); if(!it) return;
+  const corpo = `
+    <p class="txt-suave">Muda só no pedido. O orçamento continua igual.</p>
+    <label class="campo"><span>Produto</span><input id="ip-prod" value="${esc(it.prod)}"></label>
+    <label class="campo"><span>Especificação / medidas</span><input id="ip-esp" value="${esc(it.espec||'')}"></label>
+    <div class="duas">
+      <label class="campo"><span>Quantidade</span><input id="ip-qtd" inputmode="decimal" value="${esc(paraCampo(it.qtd))}"></label>
+      <label class="campo"><span>Unidade</span><select id="ip-un">${[...new Set([...UNIDADES,it.un])].map(u=>`<option ${u===it.un?'selected':''}>${esc(u)}</option>`).join('')}</select></label>
+    </div>
+    <label class="campo"><span>Preço por <b id="ip-unl">${esc(it.un)}</b> (R$)</span><input id="ip-preco" inputmode="decimal" value="${esc(paraCampo(it.preco))}"></label>
+    <div class="duas">
+      <label class="campo"><span>Desconto no produto</span><input id="ip-desc" inputmode="decimal" value="${esc(paraCampo(it.desc||''))}" placeholder="0"></label>
+      <label class="campo"><span>Tipo</span><select id="ip-dt"><option ${it.descTipo!=='R$'?'selected':''}>%</option><option ${it.descTipo==='R$'?'selected':''}>R$</option></select></label>
+    </div>
+    <div class="conta-ao-vivo"><span>Total do item</span><strong id="ip-tot"></strong></div>`;
+  const v = abrirFolha('Alterar item do pedido', corpo, `<button class="btn btn-sec" id="ip-cancelar">Cancelar</button><button class="btn btn-pri" id="ip-ok">Salvar item</button>`);
+  const $ = q => v.querySelector(q);
+  const ler = ()=>({prod:$('#ip-prod').value.trim(), espec:$('#ip-esp').value.trim(), qtd:lerNum($('#ip-qtd').value), un:$('#ip-un').value,
+    preco:lerNum($('#ip-preco').value), desc:lerNum($('#ip-desc').value), descTipo:$('#ip-dt').value});
+  const conta = ()=>{ $('#ip-tot').textContent = moeda(valorItem(ler()).liq); $('#ip-unl').textContent = $('#ip-un').value; };
+  v.addEventListener('input', conta); v.addEventListener('change', conta); conta();
+  ['#ip-qtd','#ip-preco','#ip-desc'].forEach(q=> selecionarAoTocar($(q)));
+  $('#ip-cancelar').onclick = ()=> fecharFolha();
+  $('#ip-ok').onclick = ()=>{
+    const n = ler();
+    if(!n.prod){ aviso('Escreva o produto.'); $('#ip-prod').focus(); return; }
+    if(!(n.qtd > 0)){ aviso('Coloque a quantidade.'); $('#ip-qtd').focus(); return; }
+    if(!(n.preco > 0)){ aviso('Coloque o preço.'); $('#ip-preco').focus(); return; }
+    Object.assign(it, n); mudou(o); salvarJa();
+    fecharFolha(()=> telaPedido(oid)); aviso('Item do pedido alterado.');
+  };
 }
 function mensagemPedido(o){
   const P = o.pedido, c = o.cliente, quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
@@ -2876,13 +2990,7 @@ function pdfPedido(oid){
   if(!P.representada){ aviso('Escolha para qual representada vai o pedido.'); document.getElementById('p-rep').focus(); return; }
   const inc = P.itens.findIndex(i=>faltaNoItem(i).length);
   if(inc>=0){ aviso(`O item ${P.itens[inc].prod} está sem ${faltaNoItem(P.itens[inc]).join(' e ')}. Corrija no orçamento.`, 4500); return; }
-  if(!P.num){   // o número do pedido é dado aqui, no primeiro PDF
-    const pn = proximoPedido();
-    if(!E.config.seqPed) E.config.seqPed = {};
-    E.config.seqPed[pn.ano] = pn.n; mudouGeral();
-    P.num = pn.txt; P.data = hojeISO(); mudou(o); salvarJa();
-    telaPedido(oid);
-  }
+  if(!P.num){ darNumeroPedido(o); mudou(o); salvarJa(); telaPedido(oid); }   // o número do pedido é dado aqui, no primeiro PDF
   let blob; try{ blob = gerarPDF(o, true).output('blob'); }catch(e){ console.error(e); aviso('Não foi possível gerar o PDF.'); return; }
   const quem = (o.cliente.empresa||o.cliente.nome||'cliente').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
   const nome = `Pedido-RAP-${P.num}-${quem}.pdf`;
@@ -2897,10 +3005,18 @@ function pdfPedido(oid){
       <button class="btn btn-pri btn-cheio" id="a-baixar">${ic('baixar')} Baixar PDF</button>
       <button class="btn btn-sec btn-cheio" id="a-email">${ic('email')} Enviar por e-mail</button>
       <button class="btn btn-sec btn-cheio" id="a-ver">${ic('olho')} Ver PDF</button>
-    </div>`;
+    </div>
+    ${etapa(P)==='rascunho' ? `<div class="conf-env" id="a-conf" hidden><p>Já mandou o pedido para a ${esc(P.representada)}?</p>
+      <button class="btn btn-pri btn-cheio" id="a-enviado">${ic('check')} Sim, marcar como enviado</button>
+      <button class="link-simples" id="a-depois">Ainda não</button></div>` : ''}`;
   const v = abrirFolha('PDF do pedido pronto', corpo);
   const msg = ()=> v.querySelector('#a-msg').value.trim();
-  const marcar = ()=>{ P.emitidoEm = agora(); mudou(o); salvarJa(); };
+  const marcar = ()=>{ P.pdfEm = agora(); mudou(o); salvarJa();   // gerar o PDF não é enviar: ele confirma
+    const cf = v.querySelector('#a-conf'); if(cf){ cf.hidden = false; setTimeout(()=> cf.scrollIntoView({behavior:'smooth', block:'nearest'}), 300); } };
+  if(v.querySelector('#a-enviado')){
+    v.querySelector('#a-enviado').onclick = ()=>{ mudarEtapa(oid,'enviado'); fecharFolha(()=> telaPedido(oid)); };
+    v.querySelector('#a-depois').onclick = ()=> fecharFolha();
+  }
   const baixar = ()=>{ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); marcar(); };
   v.querySelector('#a-share').onclick = async ()=>{
     if(podeCompartilhar){ try{ await navigator.share({files:[arq], text:msg()}); marcar(); }catch(e){} return; }
@@ -3325,6 +3441,7 @@ function redesenharSeguro(forcar){
   else if(tela.nome==='cliente') telaCliente(tela.id);
   else if(tela.nome==='clientes') telaClientes();
   else if(tela.nome==='pedido') telaPedido(tela.id);
+  else if(tela.nome==='pedidos') telaPedidos();
 }
 function textoStatusNuvem(){
   if(!NUVEM) return '';
@@ -3432,8 +3549,8 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
 
 
 /* ================= menu fixo: barra embaixo no celular, coluna à esquerda no computador ================= */
-const ABAS = [['inicio','Orçamentos','doc'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
-const ABA_DA_TELA = {inicio:'inicio', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
+const ABAS = [['inicio','Orçamentos','doc'],['pedidos','Pedidos','caixa'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
+const ABA_DA_TELA = {inicio:'inicio', pedidos:'pedidos', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
 function irAba(n){
   if(folhaAberta) return;
   if(ABA_DA_TELA[tela.nome]===n && tela.nome===n){ window.scrollTo({top:0, behavior:'smooth'}); return; }
@@ -3454,7 +3571,7 @@ function atualizarNav(){
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
       <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Novo pedido <span class="np-cont" id="nav-np" hidden></span></button>
-      ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span></button>`).join('')}
+      ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':''}</button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
   }
@@ -3463,13 +3580,44 @@ function atualizarNav(){
   document.body.classList.toggle('com-nav', !!aba);
   nav.querySelectorAll('[data-aba]').forEach(b=>{ if(b.dataset.aba===aba) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   const r = document.getElementById('nav-rodape'); if(r) r.textContent = rodapeNuvem();
-  const np = document.getElementById('nav-np'); if(np){ const n = semPedido().length; np.hidden = !n; np.textContent = n; }
+  const n = semPedido().length;
+  ['nav-np','nav-cont-ped'].forEach(id=>{ const e = document.getElementById(id); if(e){ e.hidden = !n; e.textContent = n; } });
 }
 /* toda tela desenhada atualiza o menu */
-['telaInicio','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes'].forEach(nome=>{
+['telaInicio','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes','telaPedidos','telaPedido'].forEach(nome=>{
   const f = window[nome]; if(typeof f!=='function') return;
   window[nome] = function(){ const r = f.apply(this, arguments); atualizarNav(); return r; };
 });
+
+/* ================= tela: pedidos ================= */
+let filtroPed = 'fazer';
+function listaPedidos(){
+  const A = ativos(), com = A.filter(o=>o.pedido && etapa(o.pedido)!=='rascunho');
+  const quando = o => dataEtapa(o.pedido, etapa(o.pedido)) || o.pedido.criado || '';
+  const por = st => com.filter(o=>etapa(o.pedido)===st).sort((a,b)=> quando(b).localeCompare(quando(a)));
+  return {fazer: semPedido(), enviado: por('enviado'), confirmado: por('confirmado'), entregue: por('entregue')};
+}
+function telaPedidos(){
+  const L = listaPedidos(), l = L[filtroPed] || [];
+  const abas = [['fazer','A fazer'],['enviado','Enviados'],['confirmado','Confirmados'],['entregue','Entregues']];
+  const vazio = {fazer:['Nada para fazer','Quando você marcar um orçamento como “Fechado”, ele aparece aqui para virar pedido.'],
+    enviado:['Nenhum pedido enviado','Depois de mandar o PDF, toque em “Marcar como enviado” e o pedido vem para cá.'],
+    confirmado:['Nenhum confirmado','Quando a representada confirmar, marque no pedido.'], entregue:['Nenhum entregue ainda','Quando o material chegar no cliente, marque como entregue.']}[filtroPed];
+  app.innerHTML = `
+  <header class="topo"><span class="titulo">Pedidos</span></header>
+  <main>
+    <div class="filtros ped-filtros" role="group" aria-label="Etapa do pedido">${abas.map(([k,t])=>`<button class="filtro" aria-pressed="${filtroPed===k}" onclick="filtroPed='${k}';telaPedidos()">${t}<span class="f-n">${L[k].length}</span></button>`).join('')}</div>
+    <p class="txt-suave ped-ajuda">${{fazer:'Orçamentos fechados esperando o pedido. Toque para montar e enviar.', enviado:'Pedidos já mandados para a representada.', confirmado:'Pedidos que a representada confirmou.', entregue:'Material entregue ao cliente.'}[filtroPed]}</p>
+    <div class="lista">${l.length ? l.map(o => filtroPed==='fazer' ? `<button class="np-item" onclick="emitirPedido('${o.id}')">
+        <span class="cli">${esc(o.cliente.empresa||o.cliente.nome||'Sem cliente')}</span><span class="tot">${moeda(totais(o.pedido?orcDoPedido(o):o).total)}</span>
+        <span class="meta">Orçamento Nº ${esc(o.num)} · fechado em ${dataBR(dataFechado(o))}${o.representada ? ' · '+esc(o.representada) : ''}</span>
+        ${o.pedido ? `<span class="np-rasc">Pedido começado, ainda não enviado. Toque para continuar.</span>` : ''}</button>`
+      : `<button class="np-item" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">
+        <span class="cli">${esc(o.cliente.empresa||o.cliente.nome||'Sem cliente')}</span><span class="tot">${moeda(totais(orcDoPedido(o)).total)}</span>
+        <span class="meta">Pedido Nº ${esc(o.pedido.num)} · ${esc(o.pedido.representada||'')} · ${NOME_ETAPA[etapa(o.pedido)].toLowerCase()} em ${dataBR(dataLocal(dataEtapa(o.pedido, etapa(o.pedido))))}</span></button>`).join('')
+      : `<div class="vazio"><strong>${vazio[0]}</strong>${vazio[1]}</div>`}</div>
+  </main>`;
+}
 
 /* ================= tela: clientes ================= */
 let buscaCli = '', ordemCli = 'recentes';
