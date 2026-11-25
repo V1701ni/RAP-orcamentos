@@ -61,12 +61,17 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 140px}
 .filtro{flex:none;border:1px solid var(--linha);background:#fff;border-radius:999px;height:40px;padding:0 16px;font-weight:600;color:var(--texto)}
 .filtro[aria-pressed=true]{background:var(--marinho);border-color:var(--marinho);color:#fff}
 .lista{margin-top:10px;display:flex;flex-direction:column;gap:10px}
-.orc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;background:#fff;border:1px solid var(--linha);border-radius:var(--raio);padding:14px 16px;text-align:left;width:100%}
+.orc{display:flex;flex-direction:column;align-items:stretch;gap:5px;background:#fff;border:1px solid var(--linha);border-radius:var(--raio);padding:14px 16px;text-align:left;width:100%}
+.o-topo{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0}
+.o-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:3px}
+.o-info{color:var(--suave);font-size:14px}
 .orc:active{background:#F7F9FC}
 .orc .cli{font-weight:700;color:var(--tinta);font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.orc .tot{font-weight:700;color:var(--marinho);font-size:18px;text-align:right;white-space:nowrap}
+.orc .cli{min-width:0;flex:1}
+.orc .tot{flex:none;font-family:Plex,sans-serif;font-weight:700;color:var(--marinho);font-size:17px;text-align:right;white-space:nowrap}
 .orc .meta{color:var(--suave);font-size:15px}
-.status{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:2px 10px;justify-self:end}
+.status{display:inline-flex;align-items:center;gap:6px;height:26px;font-size:13.5px;font-weight:700;border-radius:8px;padding:0 10px;white-space:nowrap;align-self:flex-start;flex:none}
+.status i{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
 .st-aberto{background:#E8EEFA;color:var(--azul)}
 .st-fechado{background:#E3F5EA;color:#167A3E}
 .st-perdido{background:#F6E7E5;color:var(--vermelho)}
@@ -177,8 +182,9 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 140px}
 .ordenar{flex:none;border:1px solid var(--linha);background:#fff;border-radius:10px;height:40px;padding:0 10px;font-size:15px;color:var(--texto)}
 
 /* card: linha extra */
-.orc .extra{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;color:var(--suave);font-size:14px}
-.etq{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 9px}
+.etq{display:inline-flex;align-items:center;gap:5px;height:26px;font-size:13px;font-weight:700;border-radius:8px;padding:0 9px;white-space:nowrap}
+.etq-ped{background:#EEF2F8;color:var(--marinho)}
+.etq-ped svg{flex:none}
 .etq-vence{background:#FFF1D6;color:#8A5A0B}
 .etq-vencido{background:#ECEEF2;color:#5B6472}
 
@@ -226,7 +232,7 @@ html.tm .orc .cli,html.tm .orc .tot{font-size:20px}
 html.tm .orc .meta,html.tm .item .esp,html.tm .item .conta,html.tm .prod span,html.tm .rs-l,html.tm .rs-item,html.tm .orc .extra,html.tm .txt-suave,html.tm .faixa-info,html.tm .texto-motivo,html.tm .tabela{font-size:17px}
 html.tm .topo .titulo{font-size:21px}
 html.tm .bloco h2{font-size:20px}
-html.tm .status,html.tm .etq{font-size:14.5px}
+html.tm .status,html.tm .etq{font-size:14.5px;height:30px} html.tm .o-info{font-size:16px}
 html.tm .filtro{font-size:18px;height:44px}
 html.tm .filtros-per .filtro{font-size:16px;height:40px}
 html.tm .barra .tt strong{font-size:25px}
@@ -246,7 +252,14 @@ html.tm .link-simples{font-size:17px}
 .orc-acoes{display:grid;grid-template-columns:1fr 1fr 1fr;background:#fff;border:1px solid var(--linha);border-radius:0 0 var(--raio) var(--raio);overflow:hidden}
 .orc-acoes button{border:0;border-top:1px solid #EEF1F5;background:#fff;min-height:44px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--azul)}
 .orc-acoes button + button{border-left:1px solid #EEF1F5}
-.orc-acoes .sit{color:#167A3E}
+.orc-acoes .sit{color:var(--marinho)}
+/* faixinha da situação à esquerda do cartão */
+.orc-card .orc,.orc-card .orc-acoes{border-left-width:4px}
+.c-aberto .orc,.c-aberto .orc-acoes{border-left-color:#4C7FD9}
+.c-fechado .orc,.c-fechado .orc-acoes{border-left-color:#2E9B5B}
+.c-perdido .orc,.c-perdido .orc-acoes{border-left-color:#D46A5E}
+.orc-acoes{background:#FBFCFE}
+.orc-acoes button{background:transparent;min-height:44px}
 .orc-acoes .exc{color:var(--vermelho)}
 @media (max-width:400px){.barra .in{gap:8px}.barra .btn{padding:0 13px}.barra .btn svg{display:none}.barra .tt strong{font-size:19px}}
 @media (max-width:370px){.barra .tt strong{font-size:17px}}
@@ -295,7 +308,7 @@ html.tm .rt-info b{font-size:18px} html.tm .rt-info small,html.tm .rt-zap,html.t
 .preco-l:first-child{border-top:0;padding-top:0}
 .preco-l b{color:var(--tinta);font-size:16px}
 .preco-l small.d{display:block;color:var(--suave);font-size:14px;margin-top:2px}
-.preco-l .status{font-size:12px;padding:0 8px}
+.preco-l .status{font-size:12px;padding:0 8px;height:22px}
 .preco-l .pv{text-align:right;font-family:Plex,sans-serif;font-weight:700;color:var(--marinho);font-size:17px;white-space:nowrap}
 .preco-l .pv small{display:block;font-family:inherit;font-weight:500;color:var(--suave);font-size:13px}
 .preco-l .antes{grid-column:1 / -1;margin:4px 0 0;font-size:13.5px;color:var(--suave)}
@@ -1306,16 +1319,14 @@ function listaHTML(lista){
   if(!lista.length) return `<div class="vazio"><strong>Nada encontrado</strong>Tente outro nome ou filtro.</div>`;
   return lista.map(o=>{
     const quem = o.cliente.empresa || o.cliente.nome || 'Sem cliente';
-    const sub = o.cliente.empresa && o.cliente.nome ? o.cliente.nome + ' · ' : '';
-    let data = '';
-    if(o.status==='fechado' && o.fechadoEm) data = `Fechado em ${diaMes(dataLocal(o.fechadoEm))}`;
-    else if(o.status==='perdido' && o.perdidoEm) data = `Perdido em ${diaMes(dataLocal(o.perdidoEm))}`;
-    else if(o.status==='aberto' && o.enviadoEm) data = `Enviado em ${diaMes(dataLocal(o.enviadoEm))}`;
-    const etq = etiquetaValidade(o);
-    return `<div class="orc-card"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
-      <span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span>
-      <span class="meta">${esc(sub)}Nº ${esc(o.num)} · ${dataBR(o.data)}${o.pedido && o.pedido.num ? ` · Pedido ${esc(o.pedido.num)} (${NOME_ETAPA[etapa(o.pedido)].toLowerCase()})` : ''}</span><span class="status st-${o.status}">${NOME_ST[o.status]}</span>
-      ${data||etq ? `<span class="extra">${data?`<span>${data}</span>`:''}${etq}</span>` : ''}
+    const meta = [o.cliente.empresa && o.cliente.nome ? esc(o.cliente.nome) : '', `Nº ${esc(o.num)}`, dataBR(o.data)].filter(Boolean).join(' · ');
+    const quando = o.status==='fechado' && o.fechadoEm ? diaMes(dataLocal(o.fechadoEm)) : o.status==='perdido' && o.perdidoEm ? diaMes(dataLocal(o.perdidoEm)) : '';
+    const enviado = o.status==='aberto' && o.enviadoEm ? `<span class="o-info">Enviado em ${diaMes(dataLocal(o.enviadoEm))}</span>` : '';
+    const ped = o.pedido && o.pedido.num ? `<span class="etq etq-ped">${ic('caixa',13)} Pedido ${esc(o.pedido.num)} · ${NOME_ETAPA[etapa(o.pedido)]}</span>` : '';
+    return `<div class="orc-card c-${o.status}"><button class="orc" onclick="irComHistorico({nome:'orc',id:'${o.id}'})">
+      <span class="o-topo"><span class="cli">${esc(quem)}</span><span class="tot">${moeda(totais(o).total)}</span></span>
+      <span class="meta">${meta}</span>
+      <span class="o-tags"><span class="status st-${o.status}"><i aria-hidden="true"></i>${NOME_ST[o.status]}${quando ? ` em ${quando}` : ''}</span>${ped}${etiquetaValidade(o)}${enviado}</span>
     </button>
     <div class="orc-acoes">
       <button onclick="irComHistorico({nome:'orc',id:'${o.id}'})" aria-label="Alterar orçamento ${esc(o.num)}">${ic('revisao',18)} Alterar</button>
