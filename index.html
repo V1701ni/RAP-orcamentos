@@ -2179,7 +2179,7 @@ function gerarPDF(o0, comoPedido){
   const cor = (a)=> doc.setTextColor(...a);
   const f = (fam, est, tam)=>{ doc.setFont(fam, est); doc.setFontSize(tam); };
   const numero = P ? P.num : numPDF(o);
-  const TIPO = P ? 'Pedido' : 'Orçamento';
+  const TIPO = P ? 'Emissão de pedido' : 'Orçamento';
 
   function cabecalho(primeira){
     if(primeira){
@@ -2998,7 +2998,7 @@ function alterarItemPedido(oid, iid){
 }
 function mensagemPedido(o){
   const P = o.pedido, c = o.cliente, quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
-  return `Olá! Tudo bem?\nSegue o pedido nº ${P.num} do cliente ${c.empresa||c.nome}${c.cnpj?` (${tipoDoc(c.cnpj)} ${c.cnpj})`:''}, referente ao orçamento nº ${numPDF(o)}, no valor total de ${moeda(totais(orcDoPedido(o)).total)}.\nQualquer dúvida, estou à disposição.\n\n${quem} – RAP Representações`;
+  return `Olá! Tudo bem?\nSegue a emissão de pedido nº ${P.num} do cliente ${c.empresa||c.nome}${c.cnpj?` (${tipoDoc(c.cnpj)} ${c.cnpj})`:''}, referente ao orçamento nº ${numPDF(o)}, no valor total de ${moeda(totais(orcDoPedido(o)).total)}.\nQualquer dúvida, estou à disposição.\n\n${quem} – RAP Representações`;
 }
 function pdfPedido(oid){
   const o = acharOrc(oid), P = o.pedido;
@@ -3008,7 +3008,7 @@ function pdfPedido(oid){
   if(!P.num){ darNumeroPedido(o); mudou(o); salvarJa(); telaPedido(oid); }   // o número do pedido é dado aqui, no primeiro PDF
   let blob; try{ blob = gerarPDF(o, true).output('blob'); }catch(e){ console.error(e); aviso('Não foi possível gerar o PDF.'); return; }
   const quem = (o.cliente.empresa||o.cliente.nome||'cliente').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'');
-  const nome = `Pedido-RAP-${P.num}-${quem}.pdf`;
+  const nome = `Emissao-de-pedido-RAP-${P.num}-${quem}.pdf`;
   const arq = new File([blob], nome, {type:'application/pdf'});
   const podeCompartilhar = !!(navigator.canShare && navigator.canShare({files:[arq]}));
   const corpo = `
@@ -3041,7 +3041,7 @@ function pdfPedido(oid){
   v.querySelector('#a-baixar').onclick = baixar;
   v.querySelector('#a-ver').onclick = ()=>{ window.open(URL.createObjectURL(blob),'_blank'); };
   v.querySelector('#a-email').onclick = ()=>{
-    const assunto = `Pedido ${P.num} – ${o.cliente.empresa||o.cliente.nome} – RAP Representações`;
+    const assunto = `Emissão de pedido ${P.num} – ${o.cliente.empresa||o.cliente.nome} – RAP Representações`;
     const c = E.config, texto = msg() + `\n${c.cargo||''}\n${c.whats||''}\n${c.email||''}`;
     if(podeCompartilhar){ navigator.share({files:[arq], title:assunto, text:texto}).then(marcar).catch(()=>{}); return; }
     baixar(); location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(texto)}`;
