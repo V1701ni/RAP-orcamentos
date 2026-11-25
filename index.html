@@ -1279,7 +1279,7 @@ function telaInicio(){
   <main>
     ${faixasInicio()}
     <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
-    <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Novo pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
+    <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Emitir pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
     ${retornoHTML()}
     ${A.length ? resumoMesHTML() : ''}
     <div class="busca">${ic('busca')}<label class="sr" for="q">Buscar</label>
@@ -1645,7 +1645,7 @@ function mudouSituacao(o, st){
   aplicarSituacao(o, st);
   atualizarMotivo(o);
   const fp = document.getElementById('faixa-ped'); if(fp) fp.innerHTML = faixaPedidoHTML(o);
-  if(st==='fechado' && !o.pedido) aviso('Venda fechada. O pedido sai pelo botão “Novo pedido” na tela inicial.', 4500);
+  if(st==='fechado' && !o.pedido) aviso('Venda fechada. O pedido sai pelo botão “Emitir pedido” na tela inicial.', 4500);
   if(st!=='fechado' && o.pedido) aviso(`Este orçamento tem ${o.pedido.num ? 'o pedido Nº '+o.pedido.num : 'um pedido começado'}. O pedido não foi apagado.`, 5000);
   document.getElementById('opcoes').innerHTML = opcoesHTML(o);
   if(st==='perdido') perguntarMotivo(o);
@@ -1680,7 +1680,7 @@ function situacaoDaLista(oid){
     aplicarSituacao(o, st); mudou(o);
     if(st==='perdido'){ perguntarMotivo(o, ()=>desenhar()); aviso('Marcado como perdido.'); return; }
     fecharFolha(()=>desenhar());
-    aviso(st==='fechado' ? (o.pedido ? 'Orçamento marcado como fechado.' : 'Fechado. O pedido sai pelo botão “Novo pedido”.') : 'Orçamento marcado como em aberto.', 3500);
+    aviso(st==='fechado' ? (o.pedido ? 'Orçamento marcado como fechado.' : 'Fechado. O pedido sai pelo botão “Emitir pedido”.') : 'Orçamento marcado como em aberto.', 3500);
   });
 }
 /* botão Salvar: grava e volta para a lista */
@@ -2886,7 +2886,7 @@ function escolherParaPedidoFolha(){
          <span class="meta">Orçamento Nº ${esc(o.num)} · fechado em ${dataBR(dataFechado(o))}${o.representada ? ' · '+esc(o.representada) : ''}</span>
          ${o.pedido ? `<span class="np-rasc">Pedido começado, ainda não enviado. Toque para continuar.</span>` : ''}</button>`).join('')}</div>`
     : `<div class="vazio" style="margin:6px 0 10px"><strong>Nenhum orçamento esperando pedido</strong>Quando você marcar um orçamento como “Fechado”, ele aparece aqui.</div>`;
-  const v = abrirFolha('Novo pedido', corpo);
+  const v = abrirFolha('Emitir pedido', corpo);
   const lista = v.querySelector('#np-lista');
   if(lista) lista.addEventListener('click', e=>{ const b = e.target.closest('[data-o]'); if(b) fecharFolha(()=> emitirPedido(b.dataset.o)); });
 }
@@ -2931,7 +2931,7 @@ function telaPedido(oid){
   app.innerHTML = `
   <header class="topo">
     <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
-    <span class="titulo">${P.num ? 'Pedido '+esc(P.num) : 'Novo pedido'}</span>
+    <span class="titulo">${P.num ? 'Pedido '+esc(P.num) : 'Emitir pedido'}</span>
     <span class="salvo" id="salvo">✓ Salvo</span>
   </header>
   <main>
@@ -3623,7 +3623,7 @@ function atualizarNav(){
     const logo = LOGO_TOPO.replace(/id="([^"]+)"/g,'id="nav-$1"').replace(/url\(#([^)]+)\)/g,'url(#nav-$1)').replace(/href="#([^"]+)"/g,'href="#nav-$1"');   // ids próprios: o logo do topo usa os mesmos nomes
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
-      <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Novo pedido <span class="np-cont" id="nav-np" hidden></span></button>
+      <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Emitir pedido <span class="np-cont" id="nav-np" hidden></span></button>
       ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':''}</button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
