@@ -130,6 +130,19 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 140px}
 .ico-btn{border:0;background:var(--fundo);border-radius:10px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--vermelho)}
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 18px;border-radius:12px;z-index:60;font-weight:600;max-width:90vw;text-align:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.rs-bloco{border:1px solid var(--linha);border-radius:12px;padding:12px 14px}
+.rs-bloco + .rs-bloco{margin-top:10px}
+.rs-bloco h4{margin:0 0 8px;font-family:Plex,sans-serif;font-size:16px;color:var(--marinho)}
+.rs-l{display:flex;justify-content:space-between;gap:14px;padding:3px 0;font-size:15px}
+.rs-l span{color:var(--suave);flex:none}
+.rs-l b{color:var(--tinta);text-align:right;font-weight:600}
+.rs-item{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid #EEF1F5;font-size:15px}
+.rs-item:first-of-type{border-top:0}
+.rs-item small{display:block;color:var(--suave)}
+.rs-item > b{color:var(--marinho);white-space:nowrap}
+.rs-tot{background:#F2F6FD;border-color:#DCE6F7}
+.rs-final{margin-top:6px;padding-top:8px;border-top:1px solid #D5E0F3}
+.rs-final span,.rs-final b{font-family:Plex,sans-serif;font-size:20px;color:var(--marinho)!important;font-weight:700}
 .rodape-ver{margin-top:28px;text-align:center;color:var(--suave);font-size:14px}
 </style>
 </head>
@@ -595,6 +608,8 @@ const PRODUTOS_PADRAO = [
   ['Telhas','Telha simples','m²'],
   ['Telhas','Telha termoacústica sanduíche','m²'],
   ['Telhas','Telha termoacústica com telha forro','m²'],
+  ['Telhas','Cumeeira trapezoidal','peça'],
+  ['Telhas','Cumeeira ondulada','peça'],
   ['Corte','Corte a laser','peça'],
   ['Corte','Corte plasma','peça'],
   ['Corte','Oxicorte','peça'],
@@ -608,7 +623,8 @@ const DICAS = {
 };
 
 const CIDADES = ['Curitiba','Adrianópolis','Agudos do Sul','Almirante Tamandaré','Araucária','Balsa Nova','Bocaiúva do Sul','Campina Grande do Sul','Campo do Tenente','Campo Largo','Campo Magro','Cerro Azul','Colombo','Contenda','Doutor Ulysses','Fazenda Rio Grande','Itaperuçu','Lapa','Mandirituba','Piên','Pinhais','Piraquara','Quatro Barras','Quitandinha','Rio Branco do Sul','Rio Negro','São José dos Pinhais','Tijucas do Sul','Tunas do Paraná'];
-const PAGAMENTOS = ['14 dias','28 dias','35 dias','45 dias','30/45/60 dias','28/42/56 dias','30/60/90 dias'];
+const PAGAMENTOS = ['À vista','14 dias','28 dias','35 dias','45 dias','30/45/60 dias','28/42/56 dias','30/60/90 dias'];
+const VALIDADES = ['3 dias','5 dias','7 dias','10 dias','15 dias','30 dias'];
 const PRAZOS = ['3 dias','5 dias','7 dias','10 dias','15 dias'];
 const CNPJ_FORNECEDORES = {
   'Sanfer – GIG Comércio de Ferragens Limitada':'26.226.133/0001-74',
@@ -626,11 +642,11 @@ function uid(){ return Date.now().toString(36) + Math.random().toString(36).slic
 
 function estadoInicial(){
   return {
-    versao:2,
+    versao:3,
     config:{
       nome:'Ralfe Antonio Pereira', cargo:'Representante comercial',
       whats:'(41) 99245-1717', email:'ralfeapereira@outlook.com', site:'rap-representacoes.onrender.com',
-      pagamento:'', entrega:'', validade:7, obs:'', seq:{}, fornec:{...CNPJ_FORNECEDORES}
+      pagamento:'', entrega:'', validade:'7 dias', obs:'', seq:{}, fornec:{...CNPJ_FORNECEDORES}
     },
     produtos: PRODUTOS_PADRAO.map(([cat,nome,un]) => ({id:uid(),cat,nome,un})),
     precos:{},
@@ -649,6 +665,13 @@ function carregar(){
     E.produtos = E.produtos.filter(p => p.cat !== 'Telhas');
     PRODUTOS_PADRAO.filter(p => p[0]==='Telhas').forEach(([cat,nome,un]) => E.produtos.push({id:uid(),cat,nome,un}));
     E.versao = 2; salvar();
+  }
+  if(E.versao < 3){
+    ['Cumeeira trapezoidal','Cumeeira ondulada'].forEach(n=>{ if(!E.produtos.some(p=>p.nome===n)) E.produtos.push({id:uid(),cat:'Telhas',nome:n,un:'peça'}); });
+    const v = x => (x===''||x==null) ? '' : (/^\d+$/.test(String(x).trim()) ? `${String(x).trim()} dias` : String(x));
+    E.config.validade = v(E.config.validade);
+    E.orcs.forEach(o=>{ o.validade = v(o.validade); });
+    E.versao = 3; salvar();
   }
 }
 let tSalvar;
@@ -680,11 +703,22 @@ function somaDias(iso,n){ const [a,m,d]=iso.split('-').map(Number); const x=new 
 function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const ic = (n,t=22) => `<svg width="${t}" height="${t}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 
+function valorItem(i){
+  const bruto = lerNum(i.qtd)*lerNum(i.preco);
+  const dv = lerNum(i.desc);
+  const d = Math.min(bruto, Math.max(0, i.descTipo==='R$' ? dv : bruto*dv/100));
+  return {bruto, d, liq: bruto - d};
+}
+function textoDesc(i){ const dv = lerNum(i.desc); if(!dv) return ''; return i.descTipo==='R$' ? moeda(dv) : `${num(dv)}%`; }
 function totais(o){
-  const sub = o.itens.reduce((s,i)=> s + lerNum(i.qtd)*lerNum(i.preco), 0);
+  const sub = o.itens.reduce((s,i)=> s + valorItem(i).bruto, 0);
+  const descItens = o.itens.reduce((s,i)=> s + valorItem(i).d, 0);
   const frete = o.freteTipo === 'valor' ? lerNum(o.freteValor) : 0;
-  const desc = lerNum(o.desconto);
-  return {sub, frete, desc, total: Math.max(0, sub + frete - desc)};
+  const base = sub - descItens;
+  const dv = lerNum(o.desconto);
+  const descPed = Math.min(base, Math.max(0, (o.descontoTipo||'R$')==='%' ? base*dv/100 : dv));
+  const desc = descItens + descPed;
+  return {sub, frete, descItens, descPed, desc, total: Math.max(0, sub + frete - desc)};
 }
 
 /* ================= navegação ================= */
@@ -765,7 +799,7 @@ function novoOrc(base){
     representada: base ? base.representada : '',
     itens: base ? base.itens.map(i=>({...i,id:uid()})) : [],
     freteTipo: base ? base.freteTipo : 'cif', freteValor: base ? base.freteValor : '',
-    desconto: base ? base.desconto : '',
+    desconto: base ? base.desconto : '', descontoTipo: base ? (base.descontoTipo||'R$') : '%',
     pagamento: base ? base.pagamento : c.pagamento, entrega: base ? base.entrega : c.entrega,
     validade: base ? base.validade : c.validade, obs: base ? base.obs : c.obs
   };
@@ -791,11 +825,11 @@ function telaOrc(id){
         <label class="campo"><span>Empresa <small>(opcional)</small></span>
           <input list="dl-cli" data-c="empresa" value="${esc(o.cliente.empresa)}" autocomplete="off" placeholder="Ex.: Construtora Silva"></label>
         <datalist id="dl-cli">${clientes.map(c=>`<option value="${esc(c.empresa||c.nome)}">`).join('')}</datalist>
-        <label class="campo"><span>CNPJ <small>(opcional)</small></span>
-          <input data-c="cnpj" inputmode="numeric" value="${esc(o.cliente.cnpj)}" placeholder="00.000.000/0000-00"></label>
+        <label class="campo"><span>CNPJ / CPF <small>(opcional)</small></span>
+          <input data-c="cnpj" inputmode="numeric" value="${esc(o.cliente.cnpj)}" placeholder="Só os números"></label>
         <label class="campo"><span>Nome do contato</span>
           <input data-c="nome" value="${esc(o.cliente.nome)}" autocomplete="off" placeholder="Ex.: João"></label>
-        <label class="campo"><span>Telefone</span><input data-c="tel" inputmode="tel" value="${esc(o.cliente.tel)}" placeholder="(41) 9...."></label>
+        <label class="campo"><span>Telefone</span><input data-c="tel" inputmode="tel" value="${esc(o.cliente.tel)}" placeholder="(41) 99999-9999"></label>
         <label class="campo"><span>E-mail <small>(opcional)</small></span><input data-c="email" type="email" inputmode="email" value="${esc(o.cliente.email)}" placeholder="cliente@email.com"></label>
         <label class="campo"><span>Endereço <small>(opcional)</small></span><input data-c="endereco" value="${esc(o.cliente.endereco)}" placeholder="Rua, número, bairro"></label>
         <div class="campo"><span>Cidade</span>${escolha('c','cidade',o.cliente.cidade,CIDADES,'Digite a cidade','Não informar')}</div>
@@ -815,12 +849,15 @@ function telaOrc(id){
           <select data-o="freteTipo">
             <option value="cif" ${o.freteTipo==='cif'?'selected':''}>Incluso no preço (CIF)</option>
             <option value="fob" ${o.freteTipo==='fob'?'selected':''}>Por conta do cliente (FOB)</option>
-            <option value="valor" ${o.freteTipo==='valor'?'selected':''}>Cobrar valor à parte</option>
+            <option value="valor" ${o.freteTipo==='valor'?'selected':''}>Cobrar taxa de entrega</option>
           </select></label>
-        <label class="campo" id="campo-frete" ${o.freteTipo==='valor'?'':'hidden'}><span>Valor do frete (R$)</span>
+        <label class="campo" id="campo-frete" ${o.freteTipo==='valor'?'':'hidden'}><span>Valor da taxa de entrega (R$)</span>
           <input data-o="freteValor" inputmode="decimal" value="${esc(paraCampo(o.freteValor))}" placeholder="0,00"></label>
-        <label class="campo"><span>Desconto (R$) <small>(opcional)</small></span>
-          <input data-o="desconto" inputmode="decimal" value="${esc(paraCampo(o.desconto))}" placeholder="0,00"></label>
+        <div class="campo"><span>Desconto no pedido inteiro <small>(opcional)</small></span>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px">
+            <input data-o="desconto" inputmode="decimal" value="${esc(paraCampo(o.desconto))}" placeholder="0">
+            <select data-o="descontoTipo" aria-label="Tipo de desconto"><option value="%" ${(o.descontoTipo||'R$')==='%'?'selected':''}>%</option><option value="R$" ${(o.descontoTipo||'R$')==='R$'?'selected':''}>R$</option></select>
+          </div></div>
         <div class="resumo" id="resumo" style="margin-top:18px">${resumoHTML(o)}</div>
       </div>
     </section>
@@ -830,8 +867,8 @@ function telaOrc(id){
         <div class="campo"><span>Condição de pagamento</span>${escolha('o','pagamento',o.pagamento,PAGAMENTOS,'Ex.: à vista','Não informar')}</div>
         <div class="duas">
           <div class="campo"><span>Prazo de entrega</span>${escolha('o','entrega',o.entrega,PRAZOS,'Ex.: 20 dias','Não informar')}</div>
-          <label class="campo"><span>Validade <small>(dias)</small></span><input data-o="validade" inputmode="numeric" value="${esc(o.validade)}"></label>
         </div>
+        <div class="campo"><span>Validade da proposta</span>${escolha('o','validade',o.validade,VALIDADES,'Ex.: 15 dias úteis após confirmação','Não informar')}</div>
         <label class="campo"><span>Empresa fornecedora</span>
           <select data-o="representada"><option value="" ${!o.representada?'selected':''}>Não informar</option>
           ${[...new Set([...FORNECEDORES, ...(o.representada?[o.representada]:[])])].map(r=>`<option ${o.representada===r?'selected':''}>${esc(r)}</option>`).join('')}</select></label>
@@ -859,7 +896,8 @@ function telaOrc(id){
 
   ligarEscolhas(app, sc => sc==='c' ? o.cliente : o, ()=>atualizarTotais(o));
   app.querySelectorAll('[data-c]').forEach(el => el.addEventListener('input', ()=>{
-    if(el.dataset.c==='cnpj'){ el.value = mascaraCNPJ(el.value); }
+    if(el.dataset.c==='cnpj'){ el.value = mascaraDoc(el.value); }
+    if(el.dataset.c==='tel'){ el.value = mascaraTel(el.value); }
     o.cliente[el.dataset.c] = el.value;
     if(el.dataset.c==='empresa'){ // preenche com cliente já usado
       const achado = clientes.find(c => (c.empresa||c.nome).toLowerCase() === el.value.trim().toLowerCase());
@@ -901,6 +939,28 @@ function ligarEscolhas(raiz, alvo, depois){
     inp.addEventListener('input', ()=>{ obj[k]=inp.value; salvar(); depois && depois(); });
   });
 }
+function textoValidade(o){
+  const v = String(o.validade||'').trim();
+  if(!v) return '';
+  const m = v.match(/^(\d+)\s*(dias?)?$/i);
+  if(m){ const n = Number(m[1]); return `${n} ${n===1?'dia':'dias'} (até ${dataBR(somaDias(o.data,n))})`; }
+  return v;
+}
+function mascaraTel(v){
+  const d = v.replace(/\D/g,'').slice(0,11);
+  if(!d) return '';
+  if(d.length<=2) return `(${d}`;
+  const ddd = d.slice(0,2), r = d.slice(2);
+  if(r.length<=4) return `(${ddd}) ${r}`;
+  if(d.length<=10) return `(${ddd}) ${r.slice(0,4)}-${r.slice(4)}`;
+  return `(${ddd}) ${r.slice(0,5)}-${r.slice(5)}`;
+}
+function mascaraDoc(v){
+  const d = v.replace(/\D/g,'').slice(0,14);
+  if(d.length<=11) return d.replace(/^(\d{3})(\d)/,'$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1-$2');
+  return mascaraCNPJ(d);
+}
+function tipoDoc(v){ const n = String(v||'').replace(/\D/g,'').length; return n===11 ? 'CPF' : n===14 ? 'CNPJ' : 'CNPJ/CPF'; }
 function mascaraCNPJ(v){
   const d = v.replace(/\D/g,'').slice(0,14);
   return d.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2');
@@ -928,16 +988,18 @@ function itensHTML(o){
   return o.itens.map((i,k)=>`
     <button class="item" onclick="editarItem('${o.id}','${i.id}')">
       <span class="nome">${k+1}. ${esc(i.prod)}</span>
-      <span class="val">${moeda(lerNum(i.qtd)*lerNum(i.preco))}</span>
+      <span class="val">${moeda(valorItem(i).liq)}</span>
       ${i.espec?`<span class="esp">${esc(i.espec)}</span>`:''}
       <span class="conta">${num(lerNum(i.qtd))} ${esc(i.un)} × ${moeda(lerNum(i.preco))}</span>
+      ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}
     </button>`).join('');
 }
 function resumoHTML(o){
   const t = totais(o);
   let h = `<span>Subtotal dos itens</span><strong>${moeda(t.sub)}</strong>`;
-  if(o.freteTipo==='valor') h += `<span>Frete</span><strong>${moeda(t.frete)}</strong>`;
-  if(t.desc) h += `<span>Desconto</span><strong>– ${moeda(t.desc)}</strong>`;
+  if(o.freteTipo==='valor') h += `<span>Taxa de entrega</span><strong>${moeda(t.frete)}</strong>`;
+  if(t.descItens) h += `<span>Desconto nos produtos</span><strong>– ${moeda(t.descItens)}</strong>`;
+  if(t.descPed) h += `<span>Desconto no pedido${(o.descontoTipo||'R$')==='%'?' ('+num(lerNum(o.desconto))+'%)':''}</span><strong>– ${moeda(t.descPed)}</strong>`;
   h += `<span class="r-tot">Total</span><span class="r-tot">${moeda(t.total)}</span>`;
   return h;
 }
@@ -998,18 +1060,28 @@ function formItem(oid, iid, pid){
     </div>
     <label class="campo"><span>Preço por <b id="f-unl">${esc(it.un)}</b> (R$)${ult.preco&&!atual?' <small>(último usado)</small>':''}</span>
       <input id="f-preco" inputmode="decimal" value="${esc(paraCampo(it.preco))}" placeholder="0,00"></label>
-    <div class="conta-ao-vivo"><span>Total do item</span><strong id="f-tot">${moeda(lerNum(it.qtd)*lerNum(it.preco))}</strong></div>`;
+    <div class="campo"><span>Desconto no produto <small>(opcional)</small></span>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px">
+        <input id="f-desc" inputmode="decimal" value="${esc(paraCampo(it.desc))}" placeholder="0">
+        <select id="f-desct" aria-label="Tipo de desconto"><option value="%" ${it.descTipo!=='R$'?'selected':''}>%</option><option value="R$" ${it.descTipo==='R$'?'selected':''}>R$</option></select>
+      </div></div>
+    <div class="conta-ao-vivo"><span>Total do item</span><strong id="f-tot">${moeda(valorItem(it).liq)}</strong></div>
+    <p id="f-dinfo" style="margin:6px 2px 0;font-size:14px;color:#167A3E;font-weight:600"></p>`;
   const pe = (atual?`<button class="btn btn-perigo" id="f-del">${ic('lixo')} Remover</button>`:'') +
     `<button class="btn btn-pri" id="f-ok">${atual?'Salvar item':'Adicionar'}</button>`;
   const v = abrirFolha(atual?'Editar item':'Novo item', corpo, pe);
   const $ = s => v.querySelector(s);
-  const conta = ()=> $('#f-tot').textContent = moeda(lerNum($('#f-qtd').value)*lerNum($('#f-preco').value));
-  $('#f-qtd').oninput = conta; $('#f-preco').oninput = conta;
+  const lerForm = ()=>({qtd:$('#f-qtd').value, preco:$('#f-preco').value, desc:$('#f-desc').value, descTipo:$('#f-desct').value});
+  const conta = ()=>{ const v = valorItem(lerForm()); $('#f-tot').textContent = moeda(v.liq);
+    $('#f-dinfo').textContent = v.d ? `Sem desconto: ${moeda(v.bruto)} · desconto de ${moeda(v.d)}` : ''; };
+  ['#f-qtd','#f-preco','#f-desc'].forEach(k=> $(k).oninput = conta); $('#f-desct').onchange = conta; conta();
   $('#f-un').onchange = ()=> $('#f-unl').textContent = $('#f-un').value;
   setTimeout(()=> (it.prod ? $('#f-esp') : $('#f-prod')).focus(), 60);
   $('#f-ok').onclick = ()=>{
     const novo = {id: atual?atual.id:uid(), prod:$('#f-prod').value.trim(), espec:$('#f-esp').value.trim(),
-      qtd: lerNum($('#f-qtd').value), un:$('#f-un').value, preco: lerNum($('#f-preco').value)};
+      qtd: lerNum($('#f-qtd').value), un:$('#f-un').value, preco: lerNum($('#f-preco').value),
+      desc: lerNum($('#f-desc').value), descTipo: $('#f-desct').value};
+    if(novo.descTipo==='%' && novo.desc>100){ $('#f-desc').focus(); aviso('O desconto não pode passar de 100%.'); return; }
     if(!novo.prod){ $('#f-prod').focus(); aviso('Escreva o nome do produto.'); return; }
     if(!novo.qtd){ $('#f-qtd').focus(); aviso('Informe a quantidade.'); return; }
     if(atual) Object.assign(atual, novo); else o.itens.push(novo);
@@ -1038,6 +1110,30 @@ function acoesPDF(oid){
   const o = acharOrc(oid);
   if(!o.itens.length){ aviso('Adicione pelo menos um item.'); return; }
   if(!o.cliente.nome && !o.cliente.empresa){ aviso('Preencha o nome do cliente ou a empresa.'); app.querySelector('[data-c="empresa"]').focus(); return; }
+  const t = totais(o);
+  const lin = (k,v) => v ? `<div class="rs-l"><span>${k}</span><b>${esc(v)}</b></div>` : '';
+  const c = o.cliente;
+  const frete = o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : `Taxa de entrega de ${moeda(t.frete)}`;
+  const corpo = `
+    <div class="rs-bloco"><h4>Cliente</h4>
+      ${lin('Empresa',c.empresa)}${lin(tipoDoc(c.cnpj),c.cnpj)}${lin('Contato',c.nome)}${lin('Telefone',c.tel)}${lin('E-mail',c.email)}${lin('Endereço',c.endereco)}${lin('Cidade',c.cidade)}
+    </div>
+    <div class="rs-bloco"><h4>Itens (${o.itens.length})</h4>
+      ${o.itens.map((i,k)=>`<div class="rs-item"><div><b>${k+1}. ${esc(i.prod)}</b>${i.espec?`<small>${esc(i.espec)}</small>`:''}<small>${num(lerNum(i.qtd))} ${esc(i.un)} × ${moeda(lerNum(i.preco))}</small>${valorItem(i).d?`<small style="color:#167A3E">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</small>`:''}</div><b>${moeda(valorItem(i).liq)}</b></div>`).join('')}
+    </div>
+    <div class="rs-bloco"><h4>Condições comerciais</h4>
+      ${lin('Pagamento',o.pagamento||'A combinar')}${lin('Prazo de entrega',o.entrega||'A combinar')}${lin('Frete',frete)}${lin('Validade',textoValidade(o))}${lin('Fornecedor',o.representada)}${lin('Observações',o.obs)}
+    </div>
+    <div class="rs-bloco rs-tot">
+      ${lin('Subtotal',moeda(t.sub))}${o.freteTipo==='valor'?lin('Taxa de entrega',moeda(t.frete)):''}${t.descItens?lin('Desconto nos produtos','– '+moeda(t.descItens)):''}${t.descPed?lin('Desconto no pedido'+((o.descontoTipo||'R$')==='%'?' ('+num(lerNum(o.desconto))+'%)':''),'– '+moeda(t.descPed)):''}
+      <div class="rs-l rs-final"><span>Total</span><b>${moeda(t.total)}</b></div>
+    </div>`;
+  const v = abrirFolha('Confira antes de gerar', corpo,
+    `<button class="btn btn-sec" id="rs-corrigir">Corrigir</button><button class="btn btn-pri" id="rs-ok">${ic('pdf')} Gerar PDF</button>`);
+  v.querySelector('#rs-corrigir').onclick = fecharFolha;
+  v.querySelector('#rs-ok').onclick = ()=> pdfPronto(o);
+}
+function pdfPronto(o){
   let blob;
   try{ blob = gerarPDF(o).output('blob'); }catch(e){ console.error(e); aviso('Não foi possível gerar o PDF.'); return; }
   const nome = nomeArquivo(o);
@@ -1136,7 +1232,7 @@ function gerarPDF(o){
   y += 3;
   const esq = [], dirC = [];
   if(o.cliente.empresa) esq.push(['Empresa', o.cliente.empresa, true]);
-  if(o.cliente.cnpj) esq.push(['CNPJ', o.cliente.cnpj]);
+  if(o.cliente.cnpj) esq.push([tipoDoc(o.cliente.cnpj), o.cliente.cnpj]);
   if(o.cliente.endereco) esq.push(['Endereço', o.cliente.endereco]);
   if(o.cliente.cidade) esq.push(['Cidade', o.cliente.cidade + (CIDADES.includes(o.cliente.cidade) ? ' – PR' : '')]);
   if(o.cliente.nome) dirC.push(['Contato', o.cliente.nome, !o.cliente.empresa]);
@@ -1151,8 +1247,13 @@ function gerarPDF(o){
   y += hC + 8 + 10;
 
   /* tabela */
-  const cols = [ {k:'n',t:'Item',w:11,a:'left'}, {k:'d',t:'Produto',w:79,a:'left'}, {k:'q',t:'Qtd.',w:20,a:'right'},
-                 {k:'u',t:'Un.',w:14,a:'left'}, {k:'p',t:'Preço un.',w:27,a:'right'}, {k:'t',t:'Total',w:27,a:'right'} ];
+  const temDesc = o.itens.some(i=>valorItem(i).d);
+  const cols = temDesc
+    ? [ {t:'Item',w:10,a:'left'}, {t:'Produto',w:62,a:'left'}, {t:'Qtd.',w:18,a:'right'}, {t:'Un.',w:13,a:'left'},
+        {t:'Preço un.',w:25,a:'right'}, {t:'Desconto',w:22,a:'right'}, {t:'Total',w:28,a:'right'} ]
+    : [ {t:'Item',w:11,a:'left'}, {t:'Produto',w:79,a:'left'}, {t:'Qtd.',w:20,a:'right'}, {t:'Un.',w:14,a:'left'},
+        {t:'Preço un.',w:27,a:'right'}, {t:'Total',w:27,a:'right'} ];
+  const cT = cols.length-1;
   let xs=[], x=M; cols.forEach(cl=>{ xs.push(x); x+=cl.w; });
   const pad = 2.4;
   function cabTabela(){
@@ -1166,7 +1267,7 @@ function gerarPDF(o){
   o.itens.forEach((it,k)=>{
     f('Barlow','bold',10); const ln = doc.splitTextToSize(it.prod, cols[1].w - pad*2);
     f('Barlow','normal',9); const le = it.espec ? doc.splitTextToSize(it.espec, cols[1].w - pad*2) : [];
-    const h = Math.max(9, 3.4 + ln.length*4.4 + le.length*4 + 1.6);
+    const h = Math.max(valorItem(it).d && temDesc ? 11 : 9, 3.4 + ln.length*4.4 + le.length*4 + 1.6);
     if(y + h > LIM){ doc.addPage(); y = cabecalho(false); cabTabela(); }
     if(k%2===1){ doc.setFillColor(245,247,251); doc.rect(M, y, R-M, h, 'F'); }
     let yy = y + 5.6;
@@ -1177,8 +1278,13 @@ function gerarPDF(o){
     doc.text(num(lerNum(it.qtd)), xs[2]+cols[2].w-pad, yy, {align:'right'});
     doc.text(it.un, xs[3]+pad, yy);
     doc.text(moeda(lerNum(it.preco)), xs[4]+cols[4].w-pad, yy, {align:'right'});
+    const vi = valorItem(it);
+    if(temDesc && vi.d){
+      cor([22,122,62]); f('Barlow','normal',10); doc.text(textoDesc(it), xs[5]+cols[5].w-pad, yy, {align:'right'});
+      f('Barlow','normal',8.5); doc.text('– '+moeda(vi.d), xs[5]+cols[5].w-pad, yy+4.2, {align:'right'});
+    }
     cor(TINTA); f('BarlowSB','normal',10);
-    doc.text(moeda(lerNum(it.qtd)*lerNum(it.preco)), xs[5]+cols[5].w-pad, yy, {align:'right'});
+    doc.text(moeda(vi.liq), xs[cT]+cols[cT].w-pad, yy, {align:'right'});
     y += h;
     doc.setDrawColor(...LIN); doc.setLineWidth(.2); doc.line(M, y, R, y);
   });
@@ -1187,18 +1293,19 @@ function gerarPDF(o){
   const cond = [];
   cond.push(['Pagamento', o.pagamento || 'A combinar']);
   cond.push(['Prazo de entrega', o.entrega || 'A combinar']);
-  cond.push(['Frete', o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : 'Cobrado à parte']);
-  cond.push(['Validade', o.validade ? `${o.validade} dias (até ${dataBR(somaDias(o.data,o.validade))})` : '—']);
+  cond.push(['Frete', o.freteTipo==='cif' ? 'Incluso (CIF)' : o.freteTipo==='fob' ? 'Por conta do cliente (FOB)' : `Taxa de entrega de ${moeda(t.frete)}`]);
+  if(o.validade) cond.push(['Validade da proposta', textoValidade(o)]);
   if(o.representada){
     cond.push(['Fornecedor', o.representada]);
     const cf = (E.config.fornec||{})[o.representada];
     if(cf) cond.push(['CNPJ fornecedor', cf]);
   }
   const cw = 100, bx = 122;
-  const hCond = pares(cond, M+5, 0, cw-10, 31, false) + 8;
+  const hCond = pares(cond, M+5, 0, cw-10, 37, false) + 8;
   const linhasTot = [['Subtotal', moeda(t.sub)]];
-  if(o.freteTipo==='valor') linhasTot.push(['Frete', moeda(t.frete)]);
-  if(t.desc) linhasTot.push(['Desconto', '– ' + moeda(t.desc)]);
+  if(o.freteTipo==='valor') linhasTot.push(['Taxa de entrega', moeda(t.frete)]);
+  if(t.descItens) linhasTot.push(['Desconto nos produtos', '– ' + moeda(t.descItens)]);
+  if(t.descPed) linhasTot.push(['Desconto no pedido' + ((o.descontoTipo||'R$')==='%' ? ` (${num(lerNum(o.desconto))}%)` : ''), '– ' + moeda(t.descPed)]);
   const hTot = linhasTot.length*5.6 + 16;
   if(y + 13 + Math.max(hCond, hTot) > LIM){ doc.addPage(); y = cabecalho(false); }
   y += 11;
@@ -1206,7 +1313,7 @@ function gerarPDF(o){
   const yb = y + 3;
   doc.setFillColor(246,248,252); doc.setDrawColor(...LIN); doc.setLineWidth(.3);
   doc.roundedRect(M, yb, cw, hCond, 2, 2, 'FD');
-  pares(cond, M+5, yb+6.6, cw-10, 31, true);
+  pares(cond, M+5, yb+6.6, cw-10, 37, true);
   let yt = yb + 6.6;
   linhasTot.forEach(([k,v])=>{
     cor(SUAVE); f('Barlow','normal',10); doc.text(k, bx+4, yt);
@@ -1251,7 +1358,8 @@ function telaConfig(){
     <section class="bloco"><h2>Preenchimento automático</h2><div class="cartao">
       <p style="margin:0 0 4px;color:var(--suave);font-size:15px">Já aparece em todo orçamento novo. Dá para mudar em cada um.</p>
       <div class="campo"><span>Condição de pagamento</span>${escolha('k','pagamento',c.pagamento,PAGAMENTOS,'Ex.: à vista','Deixar em branco')}</div>
-      <div class="duas"><div class="campo"><span>Prazo de entrega</span>${escolha('k','entrega',c.entrega,PRAZOS,'Ex.: 20 dias','Deixar em branco')}</div>${campo('validade','Validade (dias)','7','inputmode="numeric"')}</div>
+      <div class="duas"><div class="campo"><span>Prazo de entrega</span>${escolha('k','entrega',c.entrega,PRAZOS,'Ex.: 20 dias','Deixar em branco')}</div></div>
+      <div class="campo"><span>Validade da proposta</span>${escolha('k','validade',c.validade,VALIDADES,'Ex.: 15 dias úteis','Deixar em branco')}</div>
       <label class="campo"><span>Observação padrão</span><textarea data-k="obs" placeholder="Ex.: preço com impostos inclusos">${esc(c.obs)}</textarea></label>
       <label class="campo"><span>Próximo número de ${ano}</span><input id="seq" inputmode="numeric" value="${(c.seq[ano]||0)+1}"></label>
     </div></section>
@@ -1275,7 +1383,8 @@ function telaConfig(){
   ligarEscolhas(app, ()=>c);
   app.querySelectorAll('[data-forn]').forEach(el=> el.addEventListener('input', ()=>{ el.value = mascaraCNPJ(el.value); c.fornec[el.dataset.forn] = el.value; salvar(); }));
   app.querySelectorAll('[data-k]').forEach(el=> el.addEventListener('input', ()=>{
-    c[el.dataset.k] = el.dataset.k==='validade' ? (parseInt(el.value)||'') : el.value; salvar();
+    if(el.dataset.k==='whats') el.value = mascaraTel(el.value);
+    c[el.dataset.k] = el.value; salvar();
   }));
   document.getElementById('seq').addEventListener('input', e=>{ const n=parseInt(e.target.value); if(n>0){ c.seq[ano]=n-1; salvar(); } });
 }
