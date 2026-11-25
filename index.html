@@ -336,7 +336,7 @@ html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.t
 
 /* menu fixo */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
-.nav-logo,.nav-novo,.nav-rodape,.topo .so-pc{display:none}
+.nav-logo,.nav-novo,.nav-ped,.nav-rodape,.topo .so-pc{display:none}
 .nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;border:0;background:none;color:var(--suave);font-weight:600;font-size:13.5px;position:relative}
 .nav-b[aria-current="page"]{color:var(--azul)}
 .nav-b[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--azul)}
@@ -397,6 +397,21 @@ html.tm .dica-envio,html.tm .preco-velho{font-size:16px}
 .rs-total b{font-family:Plex,sans-serif;color:var(--marinho);font-size:18px}
 .exc-txt{color:#B42318 !important;border-color:#F1C7C2 !important}
 html.tm .faixa-ped span,html.tm .fora-l small{font-size:16px}
+
+/* novo pedido */
+.novo-ped{width:100%;min-height:56px;margin-top:10px;font-size:18px;border-radius:16px;background:#fff;color:var(--marinho);border:1.5px solid var(--marinho);font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;position:relative}
+.novo-ped:active{background:#F3F6FB}
+.np-cont{min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:var(--azul-vivo);color:#fff;font-size:15px;display:inline-flex;align-items:center;justify-content:center}
+.np-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;width:100%;text-align:left;background:#fff;border:1px solid var(--linha);border-radius:12px;padding:13px 14px;margin-top:8px}
+.np-item:active{background:#F3F6FB}
+.np-item .cli{font-weight:700;color:var(--tinta);font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.np-item .tot{font-family:Plex,sans-serif;font-weight:700;color:var(--marinho);font-size:16px}
+.np-item .meta{grid-column:1 / -1;color:var(--suave);font-size:14.5px}
+@media (min-width:1000px){
+  .nav-ped{display:flex;align-items:center;justify-content:center;gap:8px;margin:-6px 0 14px;min-height:44px;border:1px solid rgba(255,255,255,.35);border-radius:12px;background:transparent;color:#fff;font-weight:700;font-size:15.5px}
+  .nav-ped:hover{background:rgba(255,255,255,.08)}
+}
+html.tm .np-item .meta{font-size:16px}
 </style>
 </head>
 <body>
@@ -1196,6 +1211,7 @@ function telaInicio(){
   <main>
     ${faixasInicio()}
     <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
+    <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Novo pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
     ${retornoHTML()}
     ${A.length ? resumoMesHTML() : ''}
     <div class="busca">${ic('busca')}<label class="sr" for="q">Buscar</label>
@@ -1562,7 +1578,7 @@ function mudouSituacao(o, st){
   aplicarSituacao(o, st);
   atualizarMotivo(o);
   const fp = document.getElementById('faixa-ped'); if(fp) fp.innerHTML = faixaPedidoHTML(o);
-  if(st==='fechado' && !o.pedido){ aviso('Venda fechada! Já dá para emitir o pedido lá em cima.', 4000); window.scrollTo({top:0, behavior:'smooth'}); }
+  if(st==='fechado' && !o.pedido) aviso('Venda fechada. O pedido sai pelo botão “Novo pedido” na tela inicial.', 4500);
   document.getElementById('opcoes').innerHTML = opcoesHTML(o);
   if(st==='perdido') perguntarMotivo(o);
 }
@@ -1595,12 +1611,8 @@ function situacaoDaLista(oid){
     if(st===o.status){ fecharFolha(); return; }
     aplicarSituacao(o, st); mudou(o);
     if(st==='perdido'){ perguntarMotivo(o, ()=>desenhar()); aviso('Marcado como perdido.'); return; }
-    if(st==='fechado' && !o.pedido){
-      fecharFolha(async ()=>{ desenhar(); if(await confirmar(`Venda fechada! Quer emitir agora o pedido para a ${o.representada || 'representada'}?`, 'Emitir pedido', 'Depois')) emitirPedido(o.id); });
-      return;
-    }
     fecharFolha(()=>desenhar());
-    aviso(st==='fechado' ? 'Orçamento marcado como fechado.' : 'Orçamento marcado como em aberto.');
+    aviso(st==='fechado' ? (o.pedido ? 'Orçamento marcado como fechado.' : 'Fechado. O pedido sai pelo botão “Novo pedido”.') : 'Orçamento marcado como em aberto.', 3500);
   });
 }
 /* botão Salvar: grava e volta para a lista */
@@ -1948,8 +1960,7 @@ function formItem(oid, iid, pid, nomeLivre){
   setTimeout(()=> (it.prod ? $('#f-esp') : $('#f-prod')).focus(), 60);
   let calcUsado = it.calc || null;
   if($('#c-abrir')) ligarCalculadora(v, it, (c, r)=>{
-    $('#f-esp').value = textoAuto(c, r);   // medidas organizadas + quantidade de peças (sai assim no PDF)
-    $('#f-qtd').value = paraCampo(r.total);
+    $('#f-qtd').value = paraCampo(r.total);   // só os kg: a especificação fica como ele escreveu
     if($('#f-un').value!=='kg'){ $('#f-un').value = 'kg'; $('#f-unl').textContent = 'kg'; }
     calcUsado = c; conta(); if(typeof mostrarUltimo==='function') mostrarUltimo();
     aviso(`${num(r.total)} kg colocados no item. Agora é só o preço por kg.`);
@@ -2755,9 +2766,20 @@ function proximoPedido(anoFixo){
 function faixaPedidoHTML(o){
   if(o.pedido) return `<div class="faixa-ped tem"><div><b>Pedido Nº ${esc(o.pedido.num)}</b><span>${o.pedido.emitidoEm ? 'Enviado em '+dataBR(dataLocal(o.pedido.emitidoEm)) : 'Criado em '+dataBR(o.pedido.data)} · ${esc(o.pedido.representada||'sem representada')} · ${moeda(totais(orcDoPedido(o)).total)}</span></div>
     <button class="btn btn-pri" onclick="irComHistorico({nome:'pedido',id:'${o.id}'})">${ic('doc',20)} Abrir pedido</button></div>`;
-  if(o.status!=='fechado') return '';
-  return `<div class="faixa-ped"><div><b>Venda fechada</b><span>Emita o pedido para a ${esc(o.representada||'representada')}. Dá para tirar itens que o cliente não quis.</span></div>
-    <button class="btn btn-pri" onclick="emitirPedido('${o.id}')">${ic('doc',20)} Emitir pedido</button></div>`;
+  return '';
+}
+function semPedido(){ return ativos().filter(o=>o.status==='fechado' && !o.pedido).sort((a,b)=> dataFechado(b).localeCompare(dataFechado(a))); }
+function escolherParaPedido(){
+  const l = semPedido();
+  const corpo = l.length
+    ? `<p class="txt-suave">Orçamentos fechados que ainda não têm pedido. Toque no que vai virar pedido.</p>
+       <div id="np-lista">${l.map(o=>`<button class="np-item" data-o="${o.id}">
+         <span class="cli">${esc(o.cliente.empresa||o.cliente.nome||'Sem cliente')}</span><span class="tot">${moeda(totais(o).total)}</span>
+         <span class="meta">Orçamento Nº ${esc(o.num)} · fechado em ${dataBR(dataFechado(o))}${o.representada ? ' · '+esc(o.representada) : ''}</span></button>`).join('')}</div>`
+    : `<div class="vazio" style="margin:6px 0 10px"><strong>Nenhum orçamento esperando pedido</strong>Quando você marcar um orçamento como “Fechado”, ele aparece aqui.</div>`;
+  const v = abrirFolha('Novo pedido', corpo);
+  const lista = v.querySelector('#np-lista');
+  if(lista) lista.addEventListener('click', e=>{ const b = e.target.closest('[data-o]'); if(b) fecharFolha(()=> emitirPedido(b.dataset.o)); });
 }
 function emitirPedido(oid){
   const o = acharOrc(oid); if(!o) return;
@@ -2769,7 +2791,7 @@ function emitirPedido(oid){
     o.pedido = {num: pn.txt, data: hojeISO(), criado: agora(), representada: o.representada || '',
       itens: JSON.parse(JSON.stringify(o.itens)), fora: [], obs: o.obs || ''};
     mudou(o); salvarJa();
-    aviso(`Pedido Nº ${pn.txt} criado. Tire os itens que o cliente não quis e gere o PDF.`, 4500);
+    aviso(`Pedido Nº ${pn.txt} criado.`, 3000);
   }
   if(tela.nome==='pedido') desenhar(); else irComHistorico({nome:'pedido', id:oid});
 }
@@ -3424,6 +3446,7 @@ function atualizarNav(){
     const logo = LOGO_TOPO.replace(/id="([^"]+)"/g,'id="nav-$1"').replace(/url\(#([^)]+)\)/g,'url(#nav-$1)').replace(/href="#([^"]+)"/g,'href="#nav-$1"');   // ids próprios: o logo do topo usa os mesmos nomes
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
+      <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Novo pedido</button>
       ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span></button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
