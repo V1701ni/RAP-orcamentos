@@ -57,7 +57,9 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 140px}
 .busca{margin-top:18px;position:relative}
 .busca input{width:100%;height:52px;border-radius:12px;border:1px solid var(--linha);background:#fff;padding:0 16px 0 46px}
 .busca svg{position:absolute;left:15px;top:15px;color:var(--suave)}
-.filtros{display:flex;gap:8px;margin:14px 0 6px;overflow-x:auto;padding-bottom:4px}
+.filtros{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px;padding-bottom:4px}
+.filtros-per{margin-top:6px}
+.filtros-per .filtro{height:36px;padding:0 13px;font-size:14.5px}
 .filtro{flex:none;border:1px solid var(--linha);background:#fff;border-radius:999px;height:40px;padding:0 16px;font-weight:600;color:var(--texto)}
 .filtro[aria-pressed=true]{background:var(--marinho);border-color:var(--marinho);color:#fff}
 .lista{margin-top:10px;display:flex;flex-direction:column;gap:10px}
@@ -1183,8 +1185,12 @@ function vencimento(o){ const n = diasValidade(o); return (n==null || !o.data) ?
 function dataFechado(o){ return o.fechadoEm ? dataLocal(o.fechadoEm) : (o.data||''); }
 /* comissão do representante: sobre os produtos já com desconto, sem a taxa de entrega. Nunca sai no PDF. */
 function pctPadrao(forn){ const p = (E.config.comissao||{})[forn]; return (forn && p!==undefined && String(p).trim()!=='') ? lerNum(p) : null; }
-function pctComissao(o){ return (o.comissao!==undefined && String(o.comissao).trim()!=='') ? lerNum(o.comissao) : pctPadrao(o.representada); }
-function baseComissao(o){ const t = totais(o); return r2(Math.max(0, t.sub - t.desc)); }
+function pctComissao(o){ return (o.comissao!==undefined && String(o.comissao).trim()!=='') ? lerNum(o.comissao) : pctPadrao(orcVendido(o).representada); }
+/* o que de fato foi vendido: com o pedido já enviado, vale o pedido (pode ter itens a menos ou alterados) */
+function orcVendido(o){ return (o.status==='fechado' && pedidoFeito(o)) ? orcDoPedido(o) : o; }
+function valorVendido(o){ return totais(orcVendido(o)).total; }
+const somaVendido = l => r2(l.reduce((s,o)=>s+valorVendido(o),0));
+function baseComissao(o){ const t = totais(orcVendido(o)); return r2(Math.max(0, t.sub - t.desc)); }
 function valorComissao(o){ const p = pctComissao(o); return p==null ? null : r2(baseComissao(o)*p/100); }
 function somaComissao(l){ let v = 0, sem = 0; l.forEach(o=>{ const c = valorComissao(o); if(c==null) sem++; else v += c; }); return {v:r2(v), sem}; }
 const pctTxt = p => `${num(p)}%`;
@@ -1254,7 +1260,7 @@ function filtrarLista(){
   const q = norm(busca.trim()), qd = busca.replace(/\D/g,'');
   let l = ativos().filter(noPeriodo).filter(o => filtro==='todos' || o.status===filtro);
   if(q) l = l.filter(o=>{
-    const txt = norm([o.num,o.cliente.nome,o.cliente.empresa,o.cliente.cidade,o.cliente.cnpj,o.representada,...o.itens.map(i=>i.prod)].join(' '));
+    const txt = norm([o.num,o.cliente.nome,o.cliente.empresa,o.cliente.cidade,o.cliente.cnpj,o.representada,o.pedido&&o.pedido.num?'pedido '+o.pedido.num:'',...o.itens.map(i=>i.prod)].join(' '));
     if(txt.includes(q)) return true;
     return qd.length >= 4 && ((o.cliente.tel||'').replace(/\D/g,'').includes(qd) || (o.cliente.cnpj||'').replace(/\D/g,'').includes(qd));
   });
@@ -1401,7 +1407,7 @@ function resumoMes(){
   return {
     mes: MESES[h.getMonth()],
     orcado: soma(doMes), qOrc: doMes.length,
-    fechado: soma(fech), qFech: fech.length,
+    fechado: somaVendido(fech), qFech: fech.length,
     taxa: doMes.length ? Math.round(doMes.filter(o=>o.status==='fechado').length/doMes.length*100) : null,
     aberto: soma(abertos), qAb: abertos.length,
     com: somaComissao(fech), temPct: Object.values(E.config.comissao||{}).some(x=>String(x).trim()!=='')
@@ -1625,7 +1631,8 @@ function textoComissao(o){
   const p = pctComissao(o);
   if(p==null) return o.representada ? `Digite a % que a ${esc(o.representada)} paga. Para não digitar sempre, cadastre nas Configurações. Não aparece no PDF.`
                                      : 'Escolha o fornecedor ou digite a %. Não aparece no PDF.';
-  return `<b>${moeda(valorComissao(o))}</b> de comissão (${pctTxt(p)} de ${moeda(baseComissao(o))}, valor dos produtos sem a taxa de entrega). Não aparece no PDF.`;
+  const pelo = orcVendido(o)!==o ? ` Conta pelo pedido Nº ${esc(o.pedido.num)}.` : '';
+  return `<b>${moeda(valorComissao(o))}</b> de comissão (${pctTxt(p)} de ${moeda(baseComissao(o))}, valor dos produtos sem a taxa de entrega).${pelo} Não aparece no PDF.`;
 }
 function aplicarSituacao(o, st){
   o.status = st;
@@ -1639,6 +1646,7 @@ function mudouSituacao(o, st){
   atualizarMotivo(o);
   const fp = document.getElementById('faixa-ped'); if(fp) fp.innerHTML = faixaPedidoHTML(o);
   if(st==='fechado' && !o.pedido) aviso('Venda fechada. O pedido sai pelo botão “Novo pedido” na tela inicial.', 4500);
+  if(st!=='fechado' && o.pedido) aviso(`Este orçamento tem ${o.pedido.num ? 'o pedido Nº '+o.pedido.num : 'um pedido começado'}. O pedido não foi apagado.`, 5000);
   document.getElementById('opcoes').innerHTML = opcoesHTML(o);
   if(st==='perdido') perguntarMotivo(o);
 }
@@ -2123,7 +2131,8 @@ function acoesPDF(oid){
 }
 function mensagemEnvio(o){
   const primeiro = (o.cliente.nome||'').trim().split(/\s+/)[0];
-  const venc = vencimento(o);
+  let venc = vencimento(o);
+  if(venc && diasAte(venc) < 0) venc = null;   // vencido: não escreve "válido até" uma data que já passou
   const quem = ((E.config.nome||'').trim().split(/\s+/)[0]) || 'Ralfe';
   return `${primeiro ? `Olá, ${primeiro}!` : 'Olá!'} Tudo bem?\nSegue o orçamento nº ${numPDF(o)}, no valor total de ${moeda(totais(o).total)}${venc ? `, válido até ${dataBR(venc)}` : ''}.\nQualquer dúvida, estou à disposição.\n\n${quem} – RAP Representações`;
 }
@@ -2855,6 +2864,17 @@ function mudarEtapa(oid, st){
   const msg = {rascunho:'Pedido voltou para “A fazer”.', enviado:`Pedido ${P.num} marcado como enviado.`, confirmado:`Pedido ${P.num}: a representada confirmou.`, entregue:`Pedido ${P.num} entregue ao cliente.`}[st];
   aviso(msg, 3500);
 }
+/* marca dos itens do orçamento: mostra quando o orçamento mudou depois que o pedido foi montado */
+function assinaturaItens(l){ return JSON.stringify(l.map(i=>[i.id,i.prod,i.espec,i.qtd,i.un,i.preco,i.desc,i.descTipo])); }
+function trazerDoOrcamento(oid){
+  const o = acharOrc(oid), P = o.pedido;
+  const foraIds = new Set(P.fora.map(i=>i.id));
+  P.itens = JSON.parse(JSON.stringify(o.itens.filter(i=>!foraIds.has(i.id))));
+  P.fora = JSON.parse(JSON.stringify(o.itens.filter(i=>foraIds.has(i.id))));
+  P.base = assinaturaItens(o.itens); mudou(o); salvarJa(); telaPedido(oid);
+  aviso('Itens do pedido atualizados com o orçamento.');
+}
+function ignorarMudanca(oid){ const o = acharOrc(oid); o.pedido.base = assinaturaItens(o.itens); mudou(o); salvarJa(); telaPedido(oid); }
 function semPedido(){ return ativos().filter(o=>o.status==='fechado' && !pedidoFeito(o)).sort((a,b)=> dataFechado(b).localeCompare(dataFechado(a))); }
 function escolherParaPedido(){ filtroPed = 'fazer'; irAba('pedidos'); }
 function escolherParaPedidoFolha(){
@@ -2875,7 +2895,7 @@ function emitirPedido(oid){
   if(!o.pedido){
     if(!o.itens.length){ aviso('O orçamento não tem itens.'); return; }
     o.pedido = {num: '', data: hojeISO(), criado: agora(), representada: o.representada || '',
-      itens: JSON.parse(JSON.stringify(o.itens)), fora: [], obs: o.obs || ''};
+      itens: JSON.parse(JSON.stringify(o.itens)), fora: [], obs: o.obs || '', base: assinaturaItens(o.itens)};
     mudou(o); salvarJa();
   }
   if(tela.nome==='pedido') desenhar(); else irComHistorico({nome:'pedido', id:oid});
@@ -2922,6 +2942,8 @@ function telaPedido(oid){
       ${prox ? `<button class="btn btn-pri btn-cheio" onclick="confirmarEtapa('${o.id}','${prox[0]}')">${ic('check')} ${prox[1]}</button>` : ''}
       ${k>0 ? `<button class="link-simples" onclick="confirmarEtapa('${o.id}','${ETAPAS[k-1][0]}')">Voltar para “${ETAPAS[k-1][1]}”</button>` : ''}
     </div></section>
+    ${P.base && P.base !== assinaturaItens(o.itens) ? `<div class="preco-velho" style="margin:0 0 18px"><b>O orçamento foi alterado depois que este pedido foi montado.</b> Quer trazer as mudanças para o pedido? Os itens que você tirou continuam fora, mas o que você alterou só no pedido volta a ficar igual ao orçamento.
+      <div class="duas" style="margin-top:8px"><button class="btn btn-pri" onclick="trazerDoOrcamento('${o.id}')">Trazer mudanças</button><button class="btn btn-sec" onclick="ignorarMudanca('${o.id}')">Manter o pedido</button></div></div>` : ''}
     ${st!=='rascunho' ? `<p class="preco-velho" style="margin:0 0 18px">Este pedido já foi enviado. Se alterar alguma coisa, gere o PDF de novo e mande para a ${esc(P.representada||'representada')}.</p>` : ''}
     <section class="bloco"><h2>Representada</h2><div class="cartao">
       <label class="campo" style="margin-top:0"><span>Para qual representada vai o pedido</span>
@@ -2961,7 +2983,12 @@ function telaPedido(oid){
     <button class="btn btn-sec" id="b-salvar" onclick="salvarPedido()">Salvar</button>
     <button class="btn btn-pri" onclick="pdfPedido('${o.id}')">${ic('pdf')} Gerar PDF</button>
   </div></div>`;
-  document.getElementById('p-rep').onchange = e=>{ P.representada = e.target.value; mudou(o); telaPedido(oid); };
+  document.getElementById('p-rep').onchange = e=>{
+    const antes = pctPadrao(P.representada), novo = pctPadrao(e.target.value);
+    // a % congelada ao fechar era a da representada antiga: acompanha a troca (se ele não tinha mudado à mão)
+    if(o.comissao!==undefined && antes!=null && lerNum(o.comissao)===antes) { if(novo!=null) o.comissao = String(novo); else delete o.comissao; }
+    P.representada = e.target.value; mudou(o); telaPedido(oid);
+  };
   document.getElementById('p-obs').addEventListener('input', e=>{ P.obs = e.target.value; mudou(o); });
 }
 function salvarPedido(){ salvarOrc(); const t = document.querySelector('.toast'); if(t) t.textContent = 'Pedido salvo.'; }
@@ -3127,7 +3154,7 @@ function telaCliente(oid){
     </div></section>
     <div class="resumo-mes cli-resumo">
       <span class="rm-cel"><small>Orçamentos</small><strong>${l.length}</strong><em>${moedaCurta(soma(l))} orçados</em></span>
-      <span class="rm-cel"><small>Fechados</small><strong>${fech.length}</strong><em>${fech.length?moedaCurta(soma(fech))+' vendidos':'nenhum ainda'}</em></span>
+      <span class="rm-cel"><small>Fechados</small><strong>${fech.length}</strong><em>${fech.length?moedaCurta(somaVendido(fech))+' vendidos':'nenhum ainda'}</em></span>
       <span class="rm-cel"><small>Taxa de fechamento</small><strong>${Math.round(fech.length/l.length*100)}%</strong><em>${ab.length} em aberto · ${perd.length} ${perd.length===1?'perdido':'perdidos'}</em></span>
       <span class="rm-cel"><small>Sua comissão</small><strong>${fech.length && com.sem<fech.length ? moeda(com.v) : '—'}</strong><em>${fech.length ? 'das vendas fechadas' : 'quando fechar uma venda'}</em></span>
     </div>
@@ -3157,7 +3184,7 @@ function telaRelatorio(){
     const fech = A.filter(o=>o.status==='fechado' && dataFechado(o).startsWith(ym));
     const nm = MESES[d.getMonth()];
     meses.push({nome:`${nm[0].toUpperCase()+nm.slice(1)}${d.getFullYear()!==h.getFullYear()?' de '+d.getFullYear():''}`,
-      qOrc:doMes.length, orcado:soma(doMes), qFech:fech.length, fechado:soma(fech), com:somaComissao(fech),
+      qOrc:doMes.length, orcado:soma(doMes), qFech:fech.length, fechado:somaVendido(fech), com:somaComissao(fech),
       taxa: doMes.length ? Math.round(doMes.filter(o=>o.status==='fechado').length/doMes.length*100) : null});
   }
   const grupos = (chave) => {
@@ -3170,8 +3197,8 @@ function telaRelatorio(){
   const todosFech = A.filter(o=>o.status==='fechado');
   const ini12 = chaveMes(new Date(h.getFullYear(), h.getMonth()-11, 1));
   const fech12 = todosFech.filter(o=>dataFechado(o).slice(0,7) >= ini12);
-  const porForn = (()=>{ const m = new Map(); fech12.forEach(o=>{ const g = o.representada||'Sem fornecedor'; if(!m.has(g)) m.set(g, []); m.get(g).push(o); });
-    return [...m.entries()].map(([g,l])=>({g, l, v:soma(l), c:somaComissao(l)})).sort((a,b)=>b.c.v-a.c.v || b.v-a.v); })();
+  const porForn = (()=>{ const m = new Map(); fech12.forEach(o=>{ const g = orcVendido(o).representada||'Sem fornecedor'; if(!m.has(g)) m.set(g, []); m.get(g).push(o); });
+    return [...m.entries()].map(([g,l])=>({g, l, v:somaVendido(l), c:somaComissao(l)})).sort((a,b)=>b.c.v-a.c.v || b.v-a.v); })();
   const com12 = somaComissao(fech12), comTudo = somaComissao(todosFech);
   app.innerHTML = `
   <header class="topo">
@@ -3198,14 +3225,14 @@ function telaRelatorio(){
       <table class="tabela"><thead><tr><th>Fornecedor</th><th class="n">Vendido</th><th class="n">Comissão</th></tr></thead><tbody>
       ${porForn.map(x=>`<tr><td>${esc(x.g)}</td><td class="n">${moedaCurta(x.v)}<small>${qtdTxt(x.l.length)}</small></td>
         <td class="n">${x.c.sem===x.l.length?'—':`<b class="vcom">${moeda(x.c.v)}</b>`}<small>${x.c.sem?`${x.c.sem} sem %`:''}</small></td></tr>`).join('')}
-      <tr class="linha-total"><td>Total</td><td class="n">${moedaCurta(soma(fech12))}</td><td class="n"><b class="vcom">${moeda(com12.v)}</b></td></tr>
+      <tr class="linha-total"><td>Total</td><td class="n">${moedaCurta(somaVendido(fech12))}</td><td class="n"><b class="vcom">${moeda(com12.v)}</b></td></tr>
       </tbody></table>` : '<p class="txt-suave" style="margin:0">Nenhuma venda fechada nos últimos 12 meses.</p>'}
-      <p class="nota">Conta só os orçamentos fechados, sobre o valor dos produtos com desconto, sem a taxa de entrega.${com12.sem ? ` Orçamentos “sem %” não têm fornecedor ou a % não foi cadastrada: <a href="#" onclick="irComHistorico({nome:'config'});return false">cadastrar nas Configurações</a>.` : ''}</p>
+      <p class="nota">Conta só os orçamentos fechados, sobre o valor dos produtos com desconto, sem a taxa de entrega. Quando o pedido já foi enviado, vale o valor do pedido.${com12.sem ? ` Orçamentos “sem %” não têm fornecedor ou a % não foi cadastrada: <a href="#" onclick="irComHistorico({nome:'config'});return false">cadastrar nas Configurações</a>.` : ''}</p>
     </div></section>
     <section class="bloco"><h2>Como os clientes chegaram</h2><div class="cartao">
       ${origens.length ? `<table class="tabela"><thead><tr><th>Origem</th><th class="n">Orçamentos</th><th class="n">Fechados</th><th class="n">Taxa</th></tr></thead><tbody>
       ${origens.map(([g,l])=>{ const fe = l.filter(o=>o.status==='fechado'); return `<tr><td>${esc(g)}</td><td class="n">${l.length}</td>
-        <td class="n">${fe.length}<small>${fe.length?moedaCurta(soma(fe)):''}</small></td><td class="n">${Math.round(fe.length/l.length*100)}%</td></tr>`; }).join('')}
+        <td class="n">${fe.length}<small>${fe.length?moedaCurta(somaVendido(fe)):''}</small></td><td class="n">${Math.round(fe.length/l.length*100)}%</td></tr>`; }).join('')}
       </tbody></table>` : '<p class="txt-suave" style="margin:0">Ainda não há orçamentos.</p>'}
       <p class="nota">Preencha “Como chegou até nós” nos orçamentos para ver se o Google está trazendo vendas.</p>
     </div></section>
@@ -3226,7 +3253,7 @@ function telaRelatorio(){
         <span>Orçamentos feitos</span><strong>${A.length}</strong>
         <span>Total orçado</span><strong>${moeda(soma(A))}</strong>
         <span>Fechados</span><strong>${todosFech.length}${A.length?` (${Math.round(todosFech.length/A.length*100)}%)`:''}</strong>
-        <span>Total fechado</span><strong>${moeda(soma(todosFech))}</strong>
+        <span>Total vendido</span><strong>${moeda(somaVendido(todosFech))}</strong>
         <span>Sua comissão</span><strong>${moeda(comTudo.v)}</strong>
       </div>
     </div></section>
@@ -3660,7 +3687,7 @@ function gruposDeClientes(){
   return grupos.map(g=>{
     const l = g.orcs, c = l[0].cliente, fech = l.filter(o=>o.status==='fechado');
     return {id:l[0].id, c, n:l.length, ab:l.filter(o=>o.status==='aberto').length, nf:fech.length,
-      vendido: r2(fech.reduce((s,o)=>s+totais(o).total,0)), ultima: l[0].data||'',
+      vendido: somaVendido(fech), ultima: l[0].data||'',
       texto: norm([c.empresa, c.nome, c.cnpj, c.tel, c.cidade].join(' ')), dig: [c.cnpj, c.tel].join(' ').replace(/\D/g,'')};
   });
 }
