@@ -333,6 +333,39 @@ html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
 .cp-l .cp-aviso{color:#8A5A0B;font-weight:600}
 .cp-ign{margin:12px 2px 0;font-size:13.5px;color:var(--suave)}
 html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
+
+/* menu fixo */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
+.nav-logo,.nav-novo,.nav-rodape,.topo .so-pc{display:none}
+.nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;border:0;background:none;color:var(--suave);font-weight:600;font-size:13.5px;position:relative}
+.nav-b[aria-current="page"]{color:var(--azul)}
+.nav-b[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--azul)}
+.nav-b:active{background:#F3F6FB}
+body.com-nav .toast{bottom:84px}
+html.tm .nav-b{font-size:15px}
+@media (min-width:1000px){
+  .nav{top:0;right:auto;width:232px;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:0 14px 18px;background:var(--noite);border:0;box-shadow:none}
+  .nav-logo{display:flex;align-items:center;min-height:62px;padding:0 6px}
+  .nav-logo svg{height:30px;width:auto}
+  .nav-novo{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 14px;min-height:48px;border:0;border-radius:12px;background:var(--azul-vivo);color:#fff;font-weight:700;font-size:16px}
+  .nav-b{flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:0 14px;border-radius:10px;color:#C9D4EA;font-size:16px}
+  .nav-b:hover{background:rgba(255,255,255,.07);color:#fff}
+  .nav-b[aria-current="page"]{background:rgba(255,255,255,.13);color:#fff}
+  .nav-b[aria-current="page"]::before{top:10px;bottom:10px;left:0;right:auto;width:3px;height:auto;border-radius:0 3px 3px 0;background:#7FB2FF}
+  .nav-rodape{display:block;margin:auto 6px 0;color:#9FB0CF;font-size:13px;line-height:1.4}
+  body.com-nav #app{padding-left:232px}
+  body.com-nav .logo-topo{display:none !important}
+  .topo .so-pc{display:block}
+  body.com-nav .toast{bottom:30px;left:calc(50% + 116px)}
+}
+/* clientes */
+.cli-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;width:100%;text-align:left;background:#fff;border:1px solid var(--linha);border-radius:var(--raio);padding:13px 16px}
+.cli-item:active{background:#FAFBFD}
+.ci-nome{font-weight:700;color:var(--tinta);font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-vend{grid-row:1 / span 3;grid-column:2;text-align:right;font-family:Plex,sans-serif;font-weight:700;color:var(--marinho);font-size:17px;align-self:center;white-space:nowrap}
+.ci-vend small{display:block;font-family:Barlow,sans-serif;font-weight:500;color:var(--suave);font-size:13px}
+.ci-sub,.ci-meta{color:var(--suave);font-size:15px}
+html.tm .ci-sub,html.tm .ci-meta{font-size:16.5px} html.tm .ci-nome{font-size:19px}
 </style>
 </head>
 <body>
@@ -350,6 +383,8 @@ html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.t
   <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-copia" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
   <symbol id="i-peso" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M4.5 6.5h15"/><path d="M4.5 6.5 2 13a2.6 2.6 0 0 0 5 0zM19.5 6.5 17 13a2.6 2.6 0 0 0 5 0z"/></g></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></g></symbol>
+  <symbol id="i-grafico" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-7"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12.5l2.6 2.6L16 9.7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-cima" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
@@ -1072,14 +1107,21 @@ function desenhar(){
   else if(tela.nome==='produtos') telaProdutos();
   else if(tela.nome==='relatorio') telaRelatorio();
   else if(tela.nome==='cliente') telaCliente(tela.id);
+  else if(tela.nome==='clientes') telaClientes();
 }
 
 /* ================= tela: início ================= */
-const PERIODOS = [['tudo','Tudo'],['mes','Este mês'],['mespassado','Mês passado'],['ano','Este ano']];
+const PERIODOS = [['tudo','Tudo'],['semana','Esta semana'],['mes','Este mês'],['mespassado','Mês passado'],['ano','Este ano']];
 const ORDENS = [['recentes','Mais recentes'],['valor','Maior valor'],['vencendo','Vencendo primeiro']];
 function noPeriodo(o){
   if(periodo==='tudo') return true;
   const d = o.data||'', h = new Date();
+  if(periodo==='semana'){   // de segunda a domingo
+    const iso = x => x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+    const seg = new Date(h.getFullYear(), h.getMonth(), h.getDate() - (h.getDay()+6)%7);
+    const dom = new Date(seg.getFullYear(), seg.getMonth(), seg.getDate()+6);
+    return d >= iso(seg) && d <= iso(dom);
+  }
   if(periodo==='mes') return d.startsWith(chaveMes(h));
   if(periodo==='mespassado') return d.startsWith(chaveMes(new Date(h.getFullYear(), h.getMonth()-1, 1)));
   if(periodo==='ano') return d.startsWith(String(h.getFullYear()));
@@ -1110,9 +1152,9 @@ function telaInicio(){
   const cont = s => doPer.filter(o=>s==='todos'||o.status===s).length;
   app.innerHTML = `
   <header class="topo">
-    <span style="display:inline-flex;align-items:center">${LOGO_TOPO}</span>
+    <span class="logo-topo" style="display:inline-flex;align-items:center">${LOGO_TOPO}</span>
+    <span class="titulo so-pc">Orçamentos</span>
     <span class="espaco"></span>
-    <button onclick="irComHistorico({nome:'config'})" aria-label="Configurações">${ic('engr')}</button>
   </header>
   <main>
     ${faixasInicio()}
@@ -2736,6 +2778,13 @@ function telaRelatorio(){
       ${motivos.map(([g,l])=>`<tr><td>${esc(g)}</td><td class="n">${l.length}</td></tr>`).join('')}</tbody></table>`
       : '<p class="txt-suave" style="margin:0">Nenhum orçamento perdido.</p>'}
     </div></section>
+    <section class="bloco"><h2>Planilha (Excel)</h2><div class="cartao">
+      <p class="txt-suave">Baixa todos os orçamentos num arquivo que abre no Excel.</p>
+      <div class="acoes">
+        <button class="btn btn-sec btn-cheio" onclick="exportarPlanilha('orcs')">${ic('planilha')} Exportar planilha (Excel)</button>
+        <button class="btn btn-sec btn-cheio" onclick="exportarPlanilha('itens')">${ic('planilha')} Exportar itens (um por linha)</button>
+      </div>
+    </div></section>
     <section class="bloco"><h2>Desde o início</h2><div class="cartao">
       <div class="resumo">
         <span>Orçamentos feitos</span><strong>${A.length}</strong>
@@ -2978,6 +3027,7 @@ function redesenharSeguro(forcar){
   else if(tela.nome==='orc') telaOrc(tela.id);
   else if(tela.nome==='config') telaConfig();
   else if(tela.nome==='cliente') telaCliente(tela.id);
+  else if(tela.nome==='clientes') telaClientes();
 }
 function textoStatusNuvem(){
   if(!NUVEM) return '';
@@ -2994,6 +3044,7 @@ function textoStatusNuvem(){
   return 'Conectando…';
 }
 function atualizarStatusNuvem(){
+  { const r = document.getElementById('nav-rodape'); if(r) r.textContent = rodapeNuvem(); }
   const t = textoStatusNuvem();
   document.querySelectorAll('[data-status-nuvem]').forEach(el=>{ el.textContent = t; });
   const r = document.getElementById('rodape-nuvem');
@@ -3080,6 +3131,104 @@ function aviso(msg, ms=2600){
 /* ================= app instalável e sem internet ================= */
 if('serviceWorker' in navigator && location.protocol==='https:'){
   navigator.serviceWorker.register('/sw-orcamentos.js', {scope:'/'}).catch(()=>{});
+}
+
+
+/* ================= menu fixo: barra embaixo no celular, coluna à esquerda no computador ================= */
+const ABAS = [['inicio','Orçamentos','doc'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
+const ABA_DA_TELA = {inicio:'inicio', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
+function irAba(n){
+  if(folhaAberta) return;
+  if(ABA_DA_TELA[tela.nome]===n && tela.nome===n){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+  if(n==='inicio'){   // volta até o início, desfazendo o histórico
+    const k = telasAnt.length;
+    if(k && history.state){ telasAnt.length = 1; history.go(-k); setTimeout(()=>{ if(tela.nome!=='inicio'){ telasAnt.length = 0; ir({nome:'inicio'}); } }, 400); }
+    else { telasAnt.length = 0; ir({nome:'inicio'}); }
+    return;
+  }
+  if(tela.nome==='inicio') irComHistorico({nome:n}); else ir({nome:n});
+}
+function novoDoMenu(){ if(tela.nome!=='inicio'){ telasAnt.length = 0; tela = {nome:'inicio'}; } novoOrc(); }
+function atualizarNav(){
+  let nav = document.getElementById('nav');
+  if(!nav){
+    nav = document.createElement('nav'); nav.id = 'nav'; nav.className = 'nav'; nav.setAttribute('aria-label','Menu');
+    const logo = LOGO_TOPO.replace(/id="([^"]+)"/g,'id="nav-$1"').replace(/url\(#([^)]+)\)/g,'url(#nav-$1)').replace(/href="#([^"]+)"/g,'href="#nav-$1"');   // ids próprios: o logo do topo usa os mesmos nomes
+    nav.innerHTML = `<div class="nav-logo">${logo}</div>
+      <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
+      ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span></button>`).join('')}
+      <p class="nav-rodape" id="nav-rodape"></p>`;
+    document.body.appendChild(nav);
+  }
+  const aba = ABA_DA_TELA[tela.nome];
+  nav.hidden = !aba;
+  document.body.classList.toggle('com-nav', !!aba);
+  nav.querySelectorAll('[data-aba]').forEach(b=>{ if(b.dataset.aba===aba) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  const r = document.getElementById('nav-rodape'); if(r) r.textContent = rodapeNuvem();
+}
+/* toda tela desenhada atualiza o menu */
+['telaInicio','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes'].forEach(nome=>{
+  const f = window[nome]; if(typeof f!=='function') return;
+  window[nome] = function(){ const r = f.apply(this, arguments); atualizarNav(); return r; };
+});
+
+/* ================= tela: clientes ================= */
+let buscaCli = '', ordemCli = 'recentes';
+function gruposDeClientes(){
+  const grupos = [], porDoc = new Map(), porNome = new Map();
+  ativos().slice().sort(maisNovoPrimeiro).forEach(o=>{
+    const d = docCliente(o.cliente), n = nomeCliente(o.cliente);
+    if(!d && !n) return;
+    let g = (d && porDoc.get(d)) || (n && porNome.get(n));
+    if(!g){ g = {orcs:[]}; grupos.push(g); }
+    g.orcs.push(o);
+    if(d) porDoc.set(d, g); if(n) porNome.set(n, g);
+  });
+  return grupos.map(g=>{
+    const l = g.orcs, c = l[0].cliente, fech = l.filter(o=>o.status==='fechado');
+    return {id:l[0].id, c, n:l.length, ab:l.filter(o=>o.status==='aberto').length, nf:fech.length,
+      vendido: r2(fech.reduce((s,o)=>s+totais(o).total,0)), ultima: l[0].data||'',
+      texto: norm([c.empresa, c.nome, c.cnpj, c.tel, c.cidade].join(' ')), dig: [c.cnpj, c.tel].join(' ').replace(/\D/g,'')};
+  });
+}
+function telaClientes(){
+  const todos = gruposDeClientes();
+  app.innerHTML = `
+  <header class="topo">
+    <span class="titulo">Clientes</span>
+  </header>
+  <main>
+    ${todos.length ? `
+    <div class="busca">${ic('busca')}<label class="sr" for="qc">Buscar cliente</label>
+      <input id="qc" type="search" placeholder="Buscar nome, empresa, CNPJ ou telefone" value="${esc(buscaCli)}" oninput="buscaCli=this.value;listarClientes()">
+    </div>
+    <div class="linha-lista"><span id="cli-info"></span>
+      <label class="sr" for="ordem-cli">Ordenar</label>
+      <select id="ordem-cli" class="ordenar" onchange="ordemCli=this.value;listarClientes()">
+        ${[['recentes','Mais recentes'],['compras','Quem mais comprou'],['nome','Nome (A a Z)']].map(([k,t])=>`<option value="${k}" ${ordemCli===k?'selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="lista" id="lista-cli"></div>`
+    : `<div class="vazio"><strong>Nenhum cliente ainda</strong>Os clientes aparecem aqui sozinhos quando você faz um orçamento.</div>`}
+  </main>`;
+  if(todos.length) listarClientes();
+}
+function listarClientes(){
+  const el = document.getElementById('lista-cli'); if(!el) return;
+  const q = norm(buscaCli.trim()), qd = buscaCli.replace(/\D/g,'');
+  let l = gruposDeClientes().filter(g=> !q || g.texto.includes(q) || (qd.length>=4 && g.dig.includes(qd)));
+  if(ordemCli==='compras') l.sort((a,b)=> b.vendido - a.vendido || b.n - a.n);
+  else if(ordemCli==='nome') l.sort((a,b)=> norm(a.c.empresa||a.c.nome).localeCompare(norm(b.c.empresa||b.c.nome)));
+  const info = document.getElementById('cli-info'); if(info) info.textContent = `${l.length} ${l.length===1?'cliente':'clientes'}`;
+  el.innerHTML = l.length ? l.map(g=>{
+    const quem = g.c.empresa || g.c.nome;
+    const sub = [g.c.empresa && g.c.nome ? g.c.nome : '', g.c.cidade].filter(Boolean).join(' · ');
+    return `<button class="cli-item" onclick="irComHistorico({nome:'cliente',id:'${g.id}'})">
+      <span class="ci-nome">${esc(quem)}</span><span class="ci-vend">${g.nf ? moedaCurta(g.vendido) : ''}<small>${g.nf ? 'comprado' : 'ainda não comprou'}</small></span>
+      ${sub ? `<span class="ci-sub">${esc(sub)}</span>` : ''}
+      <span class="ci-meta">${qtdTxt(g.n)}${g.ab ? ` · ${g.ab} em aberto` : ''} · último em ${dataBR(g.ultima)}</span>
+    </button>`; }).join('')
+    : `<div class="vazio"><strong>Nada encontrado</strong>Tente outro nome ou número.</div>`;
 }
 
 carregar(); desenhar(); iniciarNuvem();
