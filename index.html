@@ -74,6 +74,7 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 140px}
 .vazio strong{display:block;color:var(--tinta);font-size:18px;margin-bottom:4px}
 
 /* formulário */
+[hidden]{display:none !important}
 .campo{display:block;margin-top:14px}
 .campo:first-child{margin-top:0}
 .campo > span{display:block;font-weight:600;color:var(--tinta);font-size:15px;margin-bottom:6px}
@@ -251,6 +252,10 @@ html.tm .link-simples{font-size:17px}
 @media (max-width:370px){.barra .tt strong{font-size:17px}}
 .orc-acoes button:active{background:#F7F9FC}
 html.tm .orc-acoes button{font-size:17px;min-height:50px}
+.item-card{display:flex;flex-direction:column}
+.item-card + .item-card{margin-top:10px}
+.item-card .item{border-bottom:0;border-radius:12px 12px 0 0}
+.item-card .orc-acoes{grid-template-columns:1fr 1fr;border-radius:0 0 12px 12px}
 
 /* quadro Precisa de retorno */
 .retorno{margin-top:14px;background:#fff;border:1px solid #F1DDA8;border-radius:var(--raio);overflow:hidden}
@@ -1690,15 +1695,25 @@ function textoCnpjForn(r){
 }
 function itensHTML(o){
   if(!o.itens.length) return `<p style="margin:0;color:var(--suave)">Nenhum item ainda.</p>`;
-  return o.itens.map((i,k)=>`
+  return o.itens.map((i,k)=>`<div class="item-card">
     <button class="item" onclick="editarItem('${o.id}','${i.id}')">
       <span class="nome">${k+1}. ${esc(i.prod)}</span>
       <span class="val">${moeda(valorItem(i).liq)}</span>
       ${i.espec?`<span class="esp">${esc(i.espec)}</span>`:''}
       <span class="conta">${num(lerNum(i.qtd))} ${esc(i.un)} × ${moedaUnit(lerNum(i.preco))}</span>
-      ${faltaNoItem(i).length?`<span class="falta">Falta ${faltaNoItem(i).join(' e ')}. Toque para completar.</span>`:''}
+      ${faltaNoItem(i).length?`<span class="falta">Falta ${faltaNoItem(i).join(' e ')}. Toque em Alterar.</span>`:''}
       ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}
-    </button>`).join('');
+    </button>
+    <div class="orc-acoes">
+      <button onclick="editarItem('${o.id}','${i.id}')" aria-label="Alterar item ${k+1}">${ic('revisao',18)} Alterar</button>
+      <button class="exc" onclick="excluirItem('${o.id}','${i.id}')" aria-label="Excluir item ${k+1}">${ic('lixo',18)} Excluir</button>
+    </div></div>`).join('');
+}
+async function excluirItem(oid, iid){
+  const o = acharOrc(oid), i = o && o.itens.find(x=>x.id===iid); if(!i) return;
+  if(await confirmar(`Excluir o item “${i.prod}” deste orçamento?`, 'Excluir')){
+    o.itens = o.itens.filter(x=>x.id!==iid); mudou(o); salvarJa(); atualizarTotais(o); aviso('Item excluído.');
+  }
 }
 function resumoHTML(o){
   const t = totais(o), peso = pesoInfo(o);
@@ -2338,7 +2353,7 @@ const CALC = {
 const PECA = t => (CALC[t] && CALC[t].peca) || ['barra','barras'];
 /* medida em mm; aceita polegadas: 1"  1/8"  1 1/4" */
 function lerMedida(x){
-  const t = String(x||'').trim().replace(/[”″]/g,'"').replace(/''/g,'"');
+  const t = String(x||'').trim().replace(/[”″]/g,'"').replace(/''/g,'"').replace(/(\d)\s*[.\-]\s*(\d+\/\d+)/,'$1 $2');   // 1.1/2" e 1-1/2" = 1 1/2"
   if(/"|\bpol/i.test(t) || /^\d+\s+\d+\/\d+$/.test(t) || /^\d+\/\d+$/.test(t)){
     const m = t.replace(/"|pol\w*/gi,'').trim().match(/^(?:(\d+(?:[.,]\d+)?)\s*)?(?:(\d+)\/(\d+))?$/);
     if(!m) return 0;
@@ -2393,7 +2408,8 @@ function preencherCalc(c, espec, qtd, un){
   const espMm = (t.match(/(\d+[.,]\d+)\s*mm/i)||[])[1];
   const n = t.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?/i);
   const comp = (t.match(/(?:barra\s*(?:de\s*)?)?(\d+(?:[.,]\d+)?)\s*m(?:etros?)?\b(?!m)/i)||[])[1];
-  const pol = t.match(/(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”]\s*(?:[x×]\s*(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”])?(?:\s*[x×]\s*(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”])?/);
+  const P = String.raw`(\d+(?:\s*[\s.\-]\s*\d+\/\d+)?|\d+\/\d+)`;
+  const pol = t.match(new RegExp(`${P}\\s*["”]\\s*(?:[x×]\\s*${P}\\s*["”])?(?:\\s*[x×]\\s*${P}\\s*["”])?`));
   const p = (k, val) => { if(val && !c[k]) c[k] = String(val).trim(); };
   if(c.tipo==='chapa'){
     if(n && lerNum(n[1]) < 10 && lerNum(n[2]) < 20){ p('larg', n[1]); p('comp', n[2]); }
@@ -2520,6 +2536,9 @@ function lerPedido(texto){
     }
     const temNum = /\d/.test(l);
     if(!pr && (!temNum || !prod || prod.length < 3)){ ignoradas.push(l); return; }
+    // endereço, pagamento, prazo, documentos: não são itens
+    if(!pr && /^(entrega\w*|endere\w*|local|rua|r\.|av\.?|avenida|rod\.?|rodovia|cep|bairro|pagamento|pgto|prazo|cnpj|cpf|fone|telefone|whats\w*|obs\w*|nf|nota|obra)\b/i.test(l)){ ignoradas.push(l); return; }
+    if(!pr && /\b(rua|avenida|cep|bairro|cnpj|cpf)\b/i.test(l)){ ignoradas.push(l); return; }
     const certo = !!pr || !!achou || (!!qtd && /^[a-zà-ú]{3,}/i.test(prod));
     itens.push({prod, espec, qtd, un: un || 'un', certo, linha:l});
   });
