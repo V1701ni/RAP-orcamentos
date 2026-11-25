@@ -299,6 +299,35 @@ html.tm .rt-info b{font-size:18px} html.tm .rt-info small,html.tm .rt-zap,html.t
 .dica-preco button{border:0;background:none;color:var(--azul);font-weight:700;text-decoration:underline;padding:4px 2px;font-size:14px}
 html.tm .com-txt,html.tm .link-hist,html.tm .cli-dados,html.tm .dica-preco,html.tm .dica-preco button,html.tm .preco-l small.d{font-size:16.5px}
 html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
+
+/* calculadora de peso e pedido colado */
+.calc-abrir{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;min-height:48px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);border-radius:12px;font-weight:700;font-size:15.5px}
+.calc-abrir[aria-expanded="true"]{background:#F3F7FD}
+.calc-feito{margin:8px 2px 0;font-size:14.5px;color:var(--suave);line-height:1.45}
+.calc-feito b{color:var(--marinho)}
+.calc{margin-top:10px;padding:14px;background:#F3F6FB;border:1px solid var(--linha);border-radius:12px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.calc-grid .campo{margin-top:0}
+.bitolas{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.bitolas small{color:var(--suave);font-size:14px;margin-right:2px}
+.bitolas button{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:6px 10px;font-size:14px;color:var(--tinta);min-height:36px}
+.bitolas button b{color:var(--marinho)}
+.calc-res{display:flex;flex-direction:column;gap:2px;margin:14px 0 12px;padding:12px 14px;background:#fff;border-radius:10px;border:1px solid var(--linha);font-size:15.5px;color:var(--suave)}
+.calc-res b{color:var(--tinta)}
+.calc-res .calc-total{font-size:18px;color:var(--tinta)}
+.calc-res .calc-total b{color:var(--marinho);font-family:Plex,sans-serif}
+.calc-dica{margin:8px 2px 0;font-size:13.5px;color:var(--suave);line-height:1.4}
+.add-colar{margin-top:8px;width:100%;min-height:48px;border:1px solid #D5E0F2;background:#fff;color:var(--azul);border-radius:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.item .falta{grid-column:1 / -1;color:#8A5A0B;background:#FFF1D6;border-radius:8px;padding:3px 8px;font-size:14px;font-weight:600;margin-top:4px;justify-self:start}
+.cp-l{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border:1px solid var(--linha);border-radius:10px;background:#fff;margin-top:6px;cursor:pointer}
+.cp-l input{width:22px;height:22px;margin-top:1px;flex:none;accent-color:var(--azul)}
+.cp-l span{color:var(--tinta);font-size:15.5px;line-height:1.35}
+.cp-l small{display:block;color:var(--suave);font-size:14px}
+.cp-l em{font-style:normal;color:#8A5A0B}
+.cp-duvida{border-color:#F1DDA8;background:#FFFBF0}
+.cp-l .cp-aviso{color:#8A5A0B;font-weight:600}
+.cp-ign{margin:12px 2px 0;font-size:13.5px;color:var(--suave)}
+html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
 </style>
 </head>
 <body>
@@ -315,6 +344,7 @@ html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
   <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
   <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-copia" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2h3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-peso" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v17M7 20h10M4.5 6.5h15"/><path d="M4.5 6.5 2 13a2.6 2.6 0 0 0 5 0zM19.5 6.5 17 13a2.6 2.6 0 0 0 5 0z"/></g></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 12.5l2.6 2.6L16 9.7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-cima" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
@@ -1323,6 +1353,7 @@ function telaOrc(id){
       <div class="cartao">
         <div id="itens">${itensHTML(o)}</div>
         <button class="add-item" onclick="escolherProduto('${o.id}')">${ic('mais')} Adicionar item</button>
+        <button class="add-colar" onclick="colarPedido('${o.id}')">${ic('copia',20)} Colar pedido do cliente</button>
       </div>
     </section>
 
@@ -1665,6 +1696,7 @@ function itensHTML(o){
       <span class="val">${moeda(valorItem(i).liq)}</span>
       ${i.espec?`<span class="esp">${esc(i.espec)}</span>`:''}
       <span class="conta">${num(lerNum(i.qtd))} ${esc(i.un)} × ${moedaUnit(lerNum(i.preco))}</span>
+      ${faltaNoItem(i).length?`<span class="falta">Falta ${faltaNoItem(i).join(' e ')}. Toque para completar.</span>`:''}
       ${valorItem(i).d?`<span class="conta" style="color:#167A3E;font-weight:600">Desconto ${textoDesc(i)} (– ${moeda(valorItem(i).d)})</span>`:''}
     </button>`).join('');
 }
@@ -1742,6 +1774,7 @@ function formItem(oid, iid, pid, nomeLivre){
       <label class="campo"><span>Quantidade</span><input id="f-qtd" inputmode="decimal" value="${esc(paraCampo(it.qtd))}" enterkeyhint="next" placeholder="0"></label>
       <label class="campo"><span>Unidade</span><select id="f-un">${[...new Set([...UNIDADES,it.un])].map(u=>`<option ${u===it.un?'selected':''}>${esc(u)}</option>`).join('')}</select></label>
     </div>
+    ${calcHTML(it)}
     <label class="campo"><span>Preço por <b id="f-unl">${esc(it.un)}</b> (R$)${ult.preco&&!atual?' <small>(último usado)</small>':''}</span>
       <input id="f-preco" inputmode="decimal" value="${esc(paraCampo(it.preco))}" enterkeyhint="next" placeholder="0,00"></label>
     <p class="dica-preco" id="f-ult" hidden></p>
@@ -1779,10 +1812,18 @@ function formItem(oid, iid, pid, nomeLivre){
   ['#f-esp','#f-preco'].forEach(k=> $(k).addEventListener('input', mostrarUltimo));
   $('#f-prod').addEventListener('input', ()=>{ $('#dl-esp').innerHTML = especsDe($('#f-prod').value).map(x=>`<option value="${esc(x)}">`).join(''); mostrarUltimo(); });
   setTimeout(()=> (it.prod ? $('#f-esp') : $('#f-prod')).focus(), 60);
+  let calcUsado = it.calc || null;
+  if($('#c-abrir')) ligarCalculadora(v, it, (c, r)=>{
+    $('#f-esp').value = textoAuto(c, r);   // medidas organizadas + quantidade de peças (sai assim no PDF)
+    $('#f-qtd').value = paraCampo(r.total);
+    if($('#f-un').value!=='kg'){ $('#f-un').value = 'kg'; $('#f-unl').textContent = 'kg'; }
+    calcUsado = c; conta(); if(typeof mostrarUltimo==='function') mostrarUltimo();
+    aviso(`${num(r.total)} kg colocados no item. Agora é só o preço por kg.`);
+  });
 
   const lerItem = ()=>({ prod:$('#f-prod').value.trim(), espec:$('#f-esp').value.trim(),
     qtd: lerNum($('#f-qtd').value), un:$('#f-un').value, preco: r4(lerNum($('#f-preco').value)),
-    desc: lerNum($('#f-desc').value), descTipo: $('#f-desct').value });
+    desc: lerNum($('#f-desc').value), descTipo: $('#f-desct').value, ...(calcUsado ? {calc:calcUsado} : {}) });
   const valido = n=>{
     if(n.descTipo==='%' && n.desc>100){ $('#f-desc').focus(); aviso('O desconto não pode passar de 100%.'); return false; }
     if(!n.prod){ $('#f-prod').focus(); aviso('Escreva o nome do produto.'); return false; }
@@ -1848,6 +1889,8 @@ function nomeArquivo(o){
 function acoesPDF(oid){
   const o = acharOrc(oid);
   if(!o.itens.length){ aviso('Adicione pelo menos um item.'); return; }
+  const inc = o.itens.findIndex(i=>faltaNoItem(i).length);
+  if(inc>=0){ aviso(`O item ${inc+1} (${o.itens[inc].prod}) está sem ${faltaNoItem(o.itens[inc]).join(' e ')}. Toque nele para completar.`, 4500); const el = document.querySelectorAll('#itens .item')[inc]; if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
   if(!o.cliente.nome && !o.cliente.empresa){ aviso('Preencha o nome do cliente ou a empresa.'); app.querySelector('[data-c="empresa"]').focus(); return; }
   const t = totais(o), peso = pesoInfo(o);
   const lin = (k,v) => v ? `<div class="rs-l"><span>${k}</span><b>${esc(v)}</b></div>` : '';
@@ -2266,6 +2309,259 @@ function exportarPlanilha(tipo){
   baixarArquivo(txt, `${tipo==='itens'?'itens-':''}orcamentos-rap-${hojeISO()}.csv`, 'text/csv;charset=utf-8');
   aviso('Planilha baixada.');
 }
+
+
+/* ================= calculadora de peso (aço: 7,85 kg por dm³) ================= */
+const BITOLAS = [['#26','0,45'],['#24','0,60'],['#22','0,75'],['#20','0,90'],['#18','1,20'],['#16','1,50'],['#14','1,90'],['#13','2,25'],['#12','2,65'],['#11','3,00']];
+const CALC = {
+  chapa:     {nome:'Chapa, blank ou bobina', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (m)'],['comp','Comprimento (m)']],
+              cada:v=>v.esp*v.larg*v.comp*7.85, desc:v=>`${bitolaDe(v.esp) ? bitolaDe(v.esp)+' ('+med(v,'esp')+' mm)' : med(v,'esp')+' mm'} – ${metro(v.larg)} x ${metro(v.comp)} m`},
+  metalon:   {nome:'Metalon, tubo quadrado ou retangular', campos:[['a','Lado A (mm)'],['b','Lado B (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>(2*v.esp*(v.a+v.b) - 4*v.esp*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
+  tubo:      {nome:'Tubo redondo', campos:[['d','Diâmetro externo (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>(v.d - v.esp)*v.esp*0.02466, desc:v=>`Ø ${meds(v,['d','esp'])} – barra ${metro(v.comp)} m`},
+  cantoneira:{nome:'Cantoneira ou perfil L', campos:[['a','Aba A (mm)'],['b','Aba B (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.esp*(v.a + v.b - v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
+  u:         {nome:'Perfil U simples', campos:[['a','Altura (mm)'],['b','Aba (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.esp*(v.a + 2*v.b - 2*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
+  ue:        {nome:'Perfil U enrijecido ou Z', campos:[['a','Altura (mm)'],['b','Aba (mm)'],['c','Enrijecedor (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.esp*(v.a + 2*v.b + 2*v.c - 4*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','c','esp'])} – barra ${metro(v.comp)} m`},
+  chata:     {nome:'Barra chata', campos:[['a','Largura (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.a*v.esp*0.00785, desc:v=>`${meds(v,['a','esp'])} – barra ${metro(v.comp)} m`},
+  redonda:   {nome:'Barra redonda ou vergalhão', campos:[['d','Diâmetro (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.d*v.d*0.0061654, desc:v=>`Ø ${meds(v,['d'])} – barra ${metro(v.comp)} m`},
+  quadrada:  {nome:'Barra quadrada', campos:[['a','Lado (mm)'],['comp','Barra de (m)']],
+              kgm:v=>v.a*v.a*0.00785, desc:v=>`${meds(v,['a'])} – barra ${metro(v.comp)} m`},
+  kgm:       {nome:'Outro (viga, trilho…) pelo kg por metro', campos:[['kgm','Peso por metro (kg/m)'],['comp','Barra de (m)']],
+              kgm:v=>v.kgm, desc:v=>`${num(v.kgm)} kg/m – barra ${metro(v.comp)} m`},
+};
+const PECA = t => (CALC[t] && CALC[t].peca) || ['barra','barras'];
+/* medida em mm; aceita polegadas: 1"  1/8"  1 1/4" */
+function lerMedida(x){
+  const t = String(x||'').trim().replace(/[”″]/g,'"').replace(/''/g,'"');
+  if(/"|\bpol/i.test(t) || /^\d+\s+\d+\/\d+$/.test(t) || /^\d+\/\d+$/.test(t)){
+    const m = t.replace(/"|pol\w*/gi,'').trim().match(/^(?:(\d+(?:[.,]\d+)?)\s*)?(?:(\d+)\/(\d+))?$/);
+    if(!m) return 0;
+    return ((m[1]?lerNum(m[1]):0) + (m[2]?Number(m[2])/Number(m[3]):0)) * 25.4;
+  }
+  return lerNum(t);
+}
+const ehPol = x => /"|”|\/|pol/i.test(String(x||''));
+const metro = n => (Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:3});
+function med(v, k){ const r = v._raw[k]; return ehPol(r) ? r.trim() : (k==='esp' ? metro(v[k]) : num(v[k])); }
+function meds(v, ks){ const p = ks.map(k=>med(v,k)); const b = ks.includes('esp') && !ehPol(v._raw.esp) ? bitolaDe(v.esp) : null;
+  return p.join(' x ') + (ks.some(k=>!ehPol(v._raw[k])) ? ' mm' : '') + (b ? ` (${b})` : ''); }
+function bitolaDe(mm){ const x = BITOLAS.find(([b,m])=>Math.abs(lerNum(m)-mm) < 0.001); return x ? x[0] : null; }
+function tipoCalc(prod){
+  const n = norm(prod);
+  if(/enrijecid|perfil z|\bue\b/.test(n)) return 'ue';
+  if(/perfil u|^u\b/.test(n)) return 'u';
+  if(/cantoneira|perfil l/.test(n)) return 'cantoneira';
+  if(/metalon|tubo quadrad|tubo retangular/.test(n)) return 'metalon';
+  if(/tubo/.test(n)) return 'tubo';
+  if(/chata/.test(n)) return 'chata';
+  if(/redond|vergalh/.test(n)) return 'redonda';
+  if(/quadrad/.test(n)) return 'quadrada';
+  if(/chapa|blank|bobina|xadrez/.test(n)) return 'chapa';
+  if(/viga|perfil w|perfil i|trilho/.test(n)) return 'kgm';
+  return null;
+}
+function calcular(c){
+  const T = CALC[c.tipo]; if(!T) return null;
+  const v = {_raw:{}};
+  T.campos.forEach(([k])=>{ v._raw[k] = c[k]||''; v[k] = (k==='comp'||k==='larg'||k==='kgm') ? lerNum(c[k]) : lerMedida(c[k]); });
+  if(T.campos.some(([k])=>!(v[k] > 0))) return null;
+  const cada = T.cada ? T.cada(v) : T.kgm(v)*v.comp;
+  const pecas = lerNum(c.pecas);
+  if(!(cada > 0)) return null;
+  return {cada:r2(cada), pecas, total: pecas>0 ? r2(cada*pecas) : 0, desc:T.desc(v)};
+}
+function textoAuto(c, r){ const [um, varios] = PECA(c.tipo); return `${r.desc} · ${num(r.pecas)} ${r.pecas===1?um:varios}`; }
+function calcCamposHTML(c){
+  const T = CALC[c.tipo], [um, varios] = PECA(c.tipo);
+  return `<div class="calc-grid">${T.campos.map(([k,t])=>`<label class="campo"><span>${t}</span><input data-calc="${k}" inputmode="${k==='esp'||k==='comp'||k==='larg'||k==='kgm'?'decimal':'text'}" value="${esc(c[k]||'')}" placeholder="${k==='comp'&&c.tipo!=='chapa'?'6':k==='larg'?'1,20':k==='comp'?'3,00':'0'}"></label>`).join('')}
+    <label class="campo"><span>Quantas ${varios}?</span><input data-calc="pecas" inputmode="decimal" value="${esc(c.pecas||'')}" placeholder="0"></label></div>
+    ${T.campos.some(([k])=>k==='esp') ? `<div class="bitolas"><small>Bitola:</small>${BITOLAS.map(([b,mm])=>`<button type="button" data-bit="${mm}">${b} <b>${mm}</b></button>`).join('')}</div>` : ''}
+    ${T.campos.some(([k])=>['a','b','c','d'].includes(k)) ? `<p class="calc-dica">Pode digitar em polegadas também, como 1" ou 1/8".</p>` : ''}`;
+}
+/* aproveita o que já está escrito no item (ex.: "30x30 chapa 18", 20 barras) */
+function preencherCalc(c, espec, qtd, un){
+  const t = String(espec||'');
+  if(['barra','peça','un'].includes(un) && lerNum(qtd) && !c.pecas) c.pecas = paraCampo(lerNum(qtd));
+  const bit = t.match(/(?:#|chapa\s*|bitola\s*|ch\.?\s*)(\d{2})\b/i);
+  const espBit = bit ? (BITOLAS.find(([b])=>b==='#'+bit[1])||[])[1] : null;
+  const espMm = (t.match(/(\d+[.,]\d+)\s*mm/i)||[])[1];
+  const n = t.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?/i);
+  const comp = (t.match(/(?:barra\s*(?:de\s*)?)?(\d+(?:[.,]\d+)?)\s*m(?:etros?)?\b(?!m)/i)||[])[1];
+  const pol = t.match(/(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”]\s*(?:[x×]\s*(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”])?(?:\s*[x×]\s*(\d+(?:\s+\d+\/\d+)?|\d+\/\d+)\s*["”])?/);
+  const p = (k, val) => { if(val && !c[k]) c[k] = String(val).trim(); };
+  if(c.tipo==='chapa'){
+    if(n && lerNum(n[1]) < 10 && lerNum(n[2]) < 20){ p('larg', n[1]); p('comp', n[2]); }
+    p('esp', espBit || espMm);
+    return;
+  }
+  if(pol){
+    const q = [pol[1], pol[2], pol[3]].filter(Boolean).map(x=>x+'"');
+    if(['tubo','redonda'].includes(c.tipo)) p('d', q[0]);
+    else if(c.tipo==='quadrada') p('a', q[0]);
+    else if(c.tipo==='chata'){ p('a', q[0]); p('esp', q[1]); }
+    else { p('a', q[0]); p('b', q.length>2 ? q[1] : q[0]); p('esp', q.length>2 ? q[2] : q[1]); }
+  } else if(n){
+    const q = [n[1], n[2], n[3], n[4]].filter(Boolean);
+    if(c.tipo==='ue'){ p('a', q[0]); p('b', q[1]); if(q.length>3){ p('c', q[2]); p('esp', q[3]); } else if(q[2]) p('c', q[2]); }
+    else if(c.tipo==='chata'){ p('a', q[0]); p('esp', q[1]); }
+    else if(['tubo'].includes(c.tipo)){ p('d', q[0]); p('esp', q[1]); }
+    else { p('a', q[0]); p('b', q[1]); p('esp', q[2]); }
+  }
+  p('esp', espBit || espMm);
+  if(comp && lerNum(comp) >= 1 && lerNum(comp) <= 15) c.comp = comp;
+}
+/* liga a calculadora dentro do formulário do item */
+function ligarCalculadora(v, it, aoUsar){
+  const $ = s => v.querySelector(s);
+  const c = it.calc ? {...it.calc} : {tipo: tipoCalc(it.prod)||'chapa'};
+  if(!c.comp && c.tipo!=='chapa') c.comp = '6';
+  const desenhaCampos = ()=>{ $('#c-campos').innerHTML = calcCamposHTML(c); conta(); };
+  const conta = ()=>{
+    const r = calcular(c), [um, varios] = PECA(c.tipo);
+    $('#c-res').innerHTML = r ? `<span>Cada ${um}: <b>${num(r.cada)} kg</b></span>${r.pecas>0?`<span class="calc-total">${num(r.pecas)} ${r.pecas===1?um:varios} = <b>${num(r.total)} kg</b></span>`:'<span>Falta a quantidade de '+varios+'.</span>'}`
+                         : `<span>Preencha as medidas para ver o peso.</span>`;
+    $('#c-usar').disabled = !(r && r.total>0);
+    $('#c-usar').textContent = r && r.total>0 ? `Usar ${num(r.total)} kg no item` : 'Usar no item';
+  };
+  $('#c-tipo').onchange = e=>{ c.tipo = e.target.value; if(!c.comp && c.tipo!=='chapa') c.comp = '6'; if(c.tipo==='chapa' && c.comp==='6') c.comp = ''; desenhaCampos(); };
+  $('#c-campos').addEventListener('input', e=>{ const k = e.target.dataset.calc; if(k){ c[k] = e.target.value; conta(); } });
+  $('#c-campos').addEventListener('click', e=>{ const b = e.target.closest('[data-bit]'); if(!b) return; c.esp = b.dataset.bit; const i = $('[data-calc="esp"]'); i.value = c.esp; conta(); });
+  let preenchido = !!it.calc;
+  $('#c-abrir').onclick = ()=>{
+    const box = $('#c-box'); box.hidden = !box.hidden; $('#c-abrir').setAttribute('aria-expanded', !box.hidden);
+    if(box.hidden) return;
+    if(!preenchido){ preenchido = true; preencherCalc(c, $('#f-esp').value, $('#f-qtd').value, $('#f-un').value); $('#c-tipo').value = c.tipo; }
+    desenhaCampos();
+    const f = [...box.querySelectorAll('[data-calc]')].find(x=>!x.value); if(f && !matchMedia('(pointer:coarse)').matches) f.focus();
+  };
+  $('#c-usar').onclick = ()=>{
+    const r = calcular(c); if(!r || !r.total) return;
+    const salvo = {...c}; aoUsar(salvo, r);
+    $('#c-box').hidden = true; $('#c-abrir').setAttribute('aria-expanded', false);
+    $('#c-feito').hidden = false; $('#c-feito').innerHTML = `Calculado: ${esc(textoAuto(c, r))} = <b>${num(r.total)} kg</b>`;
+  };
+  $('#c-tipo').value = c.tipo;
+}
+function calcHTML(it){
+  const cat = (E.produtos.find(x=>x.nome===it.prod)||{}).cat;
+  if(cat==='Telhas' || cat==='Corte') return '';
+  const r = it.calc ? calcular(it.calc) : null;
+  return `<button type="button" class="calc-abrir" id="c-abrir" aria-expanded="false" aria-controls="c-box">${ic('peso',20)} Calcular o peso (kg) pelas medidas</button>
+    <p class="calc-feito" id="c-feito" ${r?'':'hidden'}>${r?`Calculado: ${esc(textoAuto(it.calc, r))} = <b>${num(r.total)} kg</b>`:''}</p>
+    <div class="calc" id="c-box" hidden>
+      <label class="campo" style="margin-top:0"><span>O que é?</span><select id="c-tipo">${Object.entries(CALC).map(([k,T])=>`<option value="${k}">${T.nome}</option>`).join('')}</select></label>
+      <div id="c-campos"></div>
+      <div class="calc-res" id="c-res" aria-live="polite"></div>
+      <button type="button" class="btn btn-pri btn-cheio" id="c-usar" disabled>Usar no item</button>
+      <p class="calc-dica">Peso teórico do aço. O peso da balança pode variar um pouco. Confira a espessura com o fornecedor.</p>
+    </div>`;
+}
+
+/* ================= colar o pedido do cliente ================= */
+const RE_QTD_UN = /(?:^|[\s(])(\d+(?:[.,]\d+)?)\s*(kgs?|quilos?|kilos?|toneladas?|tons?|t|barras?|brs?|varas?|p[cç]s?\.?|pe[cç]as?|chapas?|telhas?|bobinas?|unidades?|unids?|und|un|m²|m2|metros?\s+quadrados?|metros?|mts?|m)(?=$|[\s.,;:)\/-])/gi;
+function unidadeDe(t){
+  t = norm(t).replace(/\.$/,'');
+  if(/^(kgs?|quilos?|kilos?)$/.test(t)) return 'kg';
+  if(/^(toneladas?|tons?|t)$/.test(t)) return 't';
+  if(/^(barras?|brs?|varas?)$/.test(t)) return 'barra';
+  if(/^(pcs?|pecas?|chapas?|telhas?|bobinas?)$/.test(t)) return 'peça';
+  if(/^(unidades?|unids?|und|un)$/.test(t)) return 'un';
+  if(/^(m²|m2|metros? quadrados?)$/.test(t)) return 'm²';
+  return 'm';
+}
+const palavraBase = w => norm(w).replace(/[^a-z0-9]/g,'').replace(/(oes|aes)$/,'ao').replace(/s$/,'');
+function acharProdutoNaLinha(txt){
+  const ws = txt.split(/\s+/).map(palavraBase);
+  let melhor = null;
+  E.produtos.forEach(p=>{
+    const todos = norm(p.nome).split(/\s+/).map(palavraBase), tk = todos.filter(w=>w.length>1);
+    if(tk.length && tk.every(w=>ws.includes(w)) && (!melhor || tk.length > melhor.tk.length)) melhor = {p, tk, todos};
+  });
+  return melhor;
+}
+function lerPedido(texto){
+  const itens = [], ignoradas = [];
+  String(texto||'').split(/\r?\n|;/).forEach(bruta=>{
+    let l = bruta.replace(/[*_~]/g,' ').replace(/\s+/g,' ').trim();
+    if(!l) return;
+    l = l.replace(/^(?:[-–•·>]+|\d{1,2}\s*[).]\s+|[a-z]\)\s+)/i,'').trim();
+    if(!l) return;
+    let qtd = '', un = '', resto = l, achou = null;
+    const todas = [...l.matchAll(RE_QTD_UN)];
+    achou = todas.find(m=>!['m','m²'].includes(unidadeDe(m[2]))) || (todas.length===1 ? todas[0] : todas.find(m=>unidadeDe(m[2])==='m²'));
+    if(achou){
+      qtd = lerNum(achou[1]); un = unidadeDe(achou[2]);
+      const palavraProduto = /^(chapas?|telhas?|bobinas?)$/i.test(achou[2]) ? ' ' + achou[2] + ' ' : ' ';   // "5 chapas galvanizada": a palavra também é o produto
+      resto = (l.slice(0, achou.index) + palavraProduto + l.slice(achou.index + achou[0].length)).trim();
+    } else {
+      const m = l.match(/^(\d+(?:[.,]\d+)?)\s*(?:x\s+|-\s+)?(?=[a-zà-ú])/i) || l.match(/(?:\s[-–x:=]\s*|\s)(\d+(?:[.,]\d+)?)\s*$/i);
+      if(m){ qtd = lerNum(m[1]); resto = (l.slice(0, m.index) + ' ' + l.slice(m.index + m[0].length)).trim(); }
+    }
+    resto = resto.replace(/^(?:de|da|do|das|dos|em)\s+/i,'').replace(/^[\s,:;.\-–]+|[\s,:;.\-–]+$/g,'').trim();
+    const pr = acharProdutoNaLinha(resto);
+    let prod, espec;
+    if(pr){
+      const tirar = [...pr.todos]; const sobra = [];
+      resto.split(/\s+/).forEach(w=>{ const b = palavraBase(w), k = tirar.indexOf(b); if(k>=0) tirar.splice(k,1); else sobra.push(w); });
+      prod = pr.p.nome;
+      espec = sobra.join(' ').replace(/^(?:de|da|do)\s+/i,'').replace(/^[\s,:;.\-–]+|[\s,:;.\-–]+$/g,'').trim();
+      if(!un) un = (pr.p.un==='kg' && qtd) ? 'peça' : pr.p.un;   // "5 chapas" sem unidade = peças, não kg
+    } else {
+      const ws = resto.split(/\s+/); const k = ws.findIndex(w=>/[\d#Ø]/.test(w));
+      prod = (k<0 ? ws : ws.slice(0,k)).join(' '); espec = k<0 ? '' : ws.slice(k).join(' ');
+      prod = prod.charAt(0).toUpperCase() + prod.slice(1);
+      if(!un && qtd){ const tc = tipoCalc(prod); un = tc==='chapa' ? 'peça' : tc ? 'barra' : 'un'; }
+    }
+    const temNum = /\d/.test(l);
+    if(!pr && (!temNum || !prod || prod.length < 3)){ ignoradas.push(l); return; }
+    const certo = !!pr || !!achou || (!!qtd && /^[a-zà-ú]{3,}/i.test(prod));
+    itens.push({prod, espec, qtd, un: un || 'un', certo, linha:l});
+  });
+  return {itens, ignoradas};
+}
+const EXEMPLO_PEDIDO = 'Bom dia! Preciso de:\n20 barras metalon 30x30 chapa 18\n5 chapas galvanizada #18 1,20 x 3,00\n120 m2 telha termoacústica 30mm\n10 cantoneira 1" x 1/8"';
+function colarPedido(oid){
+  const o = acharOrc(oid);
+  const corpo = `
+    <p class="txt-suave">Copie a mensagem do cliente no WhatsApp ou no e-mail e cole aqui. O app separa cada linha em um item. Depois é só conferir e colocar os preços.</p>
+    <label class="campo" style="margin-top:0"><span>Pedido do cliente</span>
+      <textarea id="cp-txt" rows="7" placeholder="${esc(EXEMPLO_PEDIDO)}"></textarea></label>
+    ${navigator.clipboard && navigator.clipboard.readText ? `<button type="button" class="link-simples" id="cp-colar">Colar do celular/computador</button>` : ''}
+    <div id="cp-res" aria-live="polite"></div>`;
+  const v = abrirFolha('Colar pedido do cliente', corpo, `<button class="btn btn-sec" id="cp-cancelar">Cancelar</button><button class="btn btn-pri" id="cp-ok" disabled>Adicionar itens</button>`);
+  const $ = s => v.querySelector(s);
+  let lido = {itens:[], ignoradas:[]};
+  const mostrar = ()=>{
+    lido = lerPedido($('#cp-txt').value);
+    const L = lido.itens;
+    $('#cp-res').innerHTML = !$('#cp-txt').value.trim() ? '' : (L.length ? `<div class="cat" style="margin-top:14px">Encontrei ${L.length} ${L.length===1?'item':'itens'}. Desmarque o que não for item.</div>` : '<p class="txt-suave" style="margin-top:14px">Não encontrei itens. Confira se cada item está em uma linha, com a quantidade.</p>')
+      + L.map((x,k)=>`<label class="cp-l ${x.certo?'':'cp-duvida'}"><input type="checkbox" data-k="${k}" ${x.certo?'checked':''}>
+          <span><b>${x.qtd?`${num(x.qtd)} ${esc(x.un)}`:'<em>sem quantidade</em>'}</b> · ${esc(x.prod)}${x.espec?`<small>${esc(x.espec)}</small>`:''}${x.certo?'':'<small class="cp-aviso">Não tenho certeza. Confira.</small>'}</span></label>`).join('')
+      + (lido.ignoradas.length ? `<p class="cp-ign">Linhas ignoradas: ${lido.ignoradas.map(esc).join(' · ')}</p>` : '');
+    atualizarBotao();
+  };
+  const marcados = ()=> [...v.querySelectorAll('#cp-res [data-k]')].filter(c=>c.checked).map(c=>lido.itens[Number(c.dataset.k)]);
+  const atualizarBotao = ()=>{ const n = marcados().length; $('#cp-ok').disabled = !n; $('#cp-ok').textContent = n ? `Adicionar ${n} ${n===1?'item':'itens'}` : 'Adicionar itens'; };
+  let t; $('#cp-txt').addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(mostrar, 250); });
+  $('#cp-res').addEventListener('change', atualizarBotao);
+  if($('#cp-colar')) $('#cp-colar').onclick = async ()=>{ try{ const x = await navigator.clipboard.readText(); if(x){ $('#cp-txt').value = x; mostrar(); } else aviso('Não há texto copiado.'); }catch(e){ aviso('Toque e segure na caixa e escolha “Colar”.'); $('#cp-txt').focus(); } };
+  $('#cp-cancelar').onclick = ()=> fecharFolha();
+  $('#cp-ok').onclick = ()=>{
+    const novos = marcados(); if(!novos.length) return;
+    novos.forEach(x=> o.itens.push({id:uid(), prod:x.prod, espec:x.espec, qtd:x.qtd||'', un:x.un, preco:'', desc:'', descTipo:'%'}));
+    mudou(o); salvarJa(); fecharFolha(); atualizarTotais(o);
+    aviso(`${novos.length} ${novos.length===1?'item adicionado':'itens adicionados'}. Agora toque em cada um para colocar o preço.`, 4200);
+  };
+  setTimeout(()=> $('#cp-txt').focus(), 60);
+}
+/* itens incompletos (vindos do pedido colado) */
+function faltaNoItem(i){ const f = []; if(!lerNum(i.qtd)) f.push('quantidade'); if(!lerNum(i.preco)) f.push('preço'); return f; }
 
 /* ================= tela: histórico do cliente ================= */
 function docCliente(c){ const d = limpaDoc(c.cnpj); return (d.length===11 || d.length===14) ? d : ''; }
