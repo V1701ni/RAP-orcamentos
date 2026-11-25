@@ -459,6 +459,38 @@ html.tm .np-item .np-rasc{font-size:15.5px}
 .nav-b{font-size:12.5px}
 @media (min-width:1000px){ .nav-cont{position:static;margin-left:auto} .nav-b{font-size:16px} }
 html.tm .etapas li{font-size:15px} html.tm .et-desc{font-size:17px}
+.toast-acao{display:flex;align-items:center;gap:14px;text-align:left;padding:8px 8px 8px 18px}
+.toast-acao button{flex:none;min-height:44px;padding:0 16px;border:0;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:16px}
+.toast-acao button:active{background:rgba(255,255,255,.28)}
+
+/* ===== revisão: áreas de toque, contraste e padrão visual ===== */
+:root{--suave:#5F6878}
+.topo button{height:48px;min-width:48px}
+.fechar{width:48px;height:48px}
+.filtro{height:44px}
+.filtros-per .filtro{height:44px;font-size:15px}
+.ordenar{height:44px}
+.orc-acoes button{min-height:48px}
+.link-simples{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;margin-top:4px}
+.bitolas button{min-height:44px;padding:0 12px}
+.dica-preco button{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}
+.faixa-info button{min-height:44px}
+.etapas small{font-size:13px}
+.et-chip{border-radius:8px}
+.inicio-painel:empty{display:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+/* computador largo: usa a largura sem mudar a ordem das coisas */
+@media (min-width:1200px){
+  main{max-width:1000px}
+  .barra .in{max-width:1000px}
+  .inicio-acoes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .inicio-acoes .novo-ped{margin-top:0;min-height:64px}
+  .inicio-painel{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:14px}
+  .inicio-painel > *{margin-top:0 !important}
+  .inicio-painel > :only-child{grid-column:1 / -1}
+  .cli-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;align-items:start}
+  .cli-grid > :not(label){grid-column:1 / -1}
+}
 </style>
 </head>
 <body>
@@ -1166,7 +1198,7 @@ function totais(o){
   const vs = o.itens.map(valorItem);
   const sub = r2(vs.reduce((s,v)=> s + v.bruto, 0));
   const descItens = r2(vs.reduce((s,v)=> s + v.d, 0));
-  const frete = o.freteTipo === 'valor' ? r2(lerNum(o.freteValor)) : 0;
+  const frete = o.freteTipo === 'valor' ? r2(Math.max(0, lerNum(o.freteValor))) : 0;
   const base = r2(sub - descItens);
   const dv = lerNum(o.desconto);
   const descPed = r2(Math.min(base, Math.max(0, (o.descontoTipo||'R$')==='%' ? base*dv/100 : dv)));
@@ -1278,10 +1310,11 @@ function telaInicio(){
   </header>
   <main>
     ${faixasInicio()}
-    <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
-    <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Emitir pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
-    ${retornoHTML()}
-    ${A.length ? resumoMesHTML() : ''}
+    <div class="inicio-acoes">
+      <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
+      <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Emitir pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
+    </div>
+    <div class="inicio-painel">${retornoHTML()}${A.length ? resumoMesHTML() : ''}</div>
     <div class="busca">${ic('busca')}<label class="sr" for="q">Buscar</label>
       <input id="q" type="search" placeholder="Buscar cliente, empresa ou número" value="${esc(busca)}" oninput="busca=this.value;atualizarLista()">
     </div>
@@ -1499,7 +1532,7 @@ function telaOrc(id){
   <main>
     <div id="faixa-ped">${faixaPedidoHTML(o)}</div>
     <section class="bloco"><h2>Cliente</h2>
-      <div class="cartao">
+      <div class="cartao cli-grid">
         ${linkHistoricoHTML(o)}
         <label class="campo"><span>Empresa <small>(opcional)</small></span>
           <input list="dl-cli" data-c="empresa" value="${esc(o.cliente.empresa)}" autocomplete="off" enterkeyhint="next" placeholder="Ex.: Construtora Silva"></label>
@@ -1611,6 +1644,7 @@ function telaOrc(id){
   enterAvanca(['empresa','cnpj','nome','tel','email','endereco'].map(campoCli));
   app.querySelectorAll('[data-o]').forEach(el => el.addEventListener(el.tagName==='SELECT'||el.type==='date'?'change':'input', ()=>{
     const k = el.dataset.o;
+    if(k==='data' && !el.value){ el.value = o.data || hojeISO(); aviso('A data do orçamento não pode ficar em branco.'); return; }
     o[k] = el.value;
     if(k==='freteTipo') document.getElementById('campo-frete').hidden = el.value!=='valor';
     if(k==='representada'){ document.getElementById('cnpj-forn').innerHTML = textoCnpjForn(el.value);
@@ -1771,7 +1805,10 @@ function textoValidade(o){
   return v;
 }
 function mascaraTel(v){
-  const d = v.replace(/\D/g,'').slice(0,11);
+  let d = String(v||'').replace(/\D/g,'');
+  if(d.length >= 12 && d.startsWith('55')) d = d.slice(2);            // "+55 41 99876-5432", como o WhatsApp copia
+  if(d.length >= 11 && d.startsWith('0')) d = d.replace(/^0+/,'');    // "041 99876-5432"
+  d = d.slice(0,11);
   if(!d) return '';
   if(d.length<=2) return `(${d}`;
   const ddd = d.slice(0,2), r = d.slice(2);
@@ -1899,7 +1936,9 @@ function itensHTML(o){
 async function excluirItem(oid, iid){
   const o = acharOrc(oid), i = o && o.itens.find(x=>x.id===iid); if(!i) return;
   if(await confirmar(`Excluir o item “${i.prod}” deste orçamento?`, 'Excluir')){
-    o.itens = o.itens.filter(x=>x.id!==iid); mudou(o); salvarJa(); atualizarTotais(o); aviso('Item excluído.');
+    const k = o.itens.indexOf(i);
+    o.itens = o.itens.filter(x=>x.id!==iid); mudou(o); salvarJa(); atualizarTotais(o);
+    avisoDesfazer('Item excluído.', ()=>{ o.itens.splice(k, 0, i); mudou(o); salvarJa(); atualizarTotais(o); aviso('Item de volta.'); });
   }
 }
 function resumoHTML(o){
@@ -1995,7 +2034,7 @@ function formItem(oid, iid, pid, nomeLivre){
       <button class="btn btn-sec" id="f-desce" ${pos===o.itens.length-1?'disabled':''}>${ic('baixo',20)} Descer</button>
       <button class="btn btn-sec btn-dup" id="f-dup">${ic('copia',20)} Duplicar item</button>
     </div>` : ''}`;
-  const pe = (atual?`<button class="btn btn-perigo" id="f-del">${ic('lixo')} Remover</button>`:'') +
+  const pe = (atual?`<button class="btn btn-perigo" id="f-del">${ic('lixo')} Excluir</button>`:'') +
     `<button class="btn btn-pri" id="f-ok">${atual?'Salvar item':'Adicionar'}</button>`;
   const v = abrirFolha(atual?'Editar item':'Novo item', corpo, pe);
   const $ = s => v.querySelector(s);
@@ -2041,6 +2080,8 @@ function formItem(oid, iid, pid, nomeLivre){
     if(n.descTipo==='%' && n.desc>100){ $('#f-desc').focus(); aviso('O desconto não pode passar de 100%.'); return false; }
     if(!n.prod){ $('#f-prod').focus(); aviso('Escreva o nome do produto.'); return false; }
     if(!n.qtd){ $('#f-qtd').focus(); aviso('Informe a quantidade.'); return false; }
+    if(lerNum(n.qtd) < 0){ $('#f-qtd').focus(); aviso('A quantidade não pode ser negativa.'); return false; }
+    if(lerNum(n.preco) < 0){ $('#f-preco').focus(); aviso('O preço não pode ser negativo.'); return false; }
     return true;
   };
   const aplicar = ()=>{
@@ -2052,7 +2093,8 @@ function formItem(oid, iid, pid, nomeLivre){
   $('#f-ok').onclick = ()=>{ if(!aplicar()) return; mudou(o); fecharFolha(); atualizarTotais(o); };
   enterAvanca(['#f-prod','#f-esp','#f-qtd','#f-preco','#f-desc'].map($), ()=> $('#f-ok').click());
   if(atual){
-    $('#f-del').onclick = async ()=>{ if(await confirmar('Remover este item do orçamento?','Remover')){ o.itens = o.itens.filter(i=>i.id!==atual.id); mudou(o); salvarJa(); fecharFolha(); atualizarTotais(o); aviso('Item removido.'); } };
+    $('#f-del').onclick = async ()=>{ if(await confirmar('Excluir este item do orçamento?','Excluir')){ const k = o.itens.indexOf(atual); o.itens = o.itens.filter(i=>i.id!==atual.id); mudou(o); salvarJa(); fecharFolha(); atualizarTotais(o);
+      avisoDesfazer('Item excluído.', ()=>{ o.itens.splice(k, 0, atual); mudou(o); salvarJa(); atualizarTotais(o); aviso('Item de volta.'); }); } };
     const mover = dir=>{
       const i = o.itens.indexOf(atual), j = i + dir;
       if(j < 0 || j >= o.itens.length) return;
@@ -2074,18 +2116,27 @@ function formItem(oid, iid, pid, nomeLivre){
   }
 }
 
+function perguntaExcluirOrc(o){
+  const ped = o.pedido ? ` O ${o.pedido.num ? 'pedido Nº '+o.pedido.num : 'pedido começado'} vai junto.` : '';
+  return `Mover o orçamento ${o.num} para a lixeira?${ped} Dá para recuperar por 30 dias.`;
+}
+function desfazerExclusao(o){
+  avisoDesfazer('Orçamento movido para a lixeira.', ()=>{
+    delete o.excluidoEm; o.alterado = agora(); salvarJa(); agendarSinc(); desenhar(); aviso(`Orçamento ${o.num} recuperado.`);
+  });
+}
 async function excluirDaLista(oid){
   const o = acharOrc(oid); if(!o) return;
-  if(await confirmar(`Mover o orçamento ${o.num} para a lixeira? Dá para recuperar por 30 dias.`)){
+  if(await confirmar(perguntaExcluirOrc(o))){
     o.excluidoEm = agora(); o.alterado = o.excluidoEm;
-    salvarJa(); agendarSinc(); desenhar(); aviso('Orçamento movido para a lixeira.');
+    salvarJa(); agendarSinc(); desenhar(); desfazerExclusao(o);
   }
 }
 async function excluirOrc(oid){
   const o = acharOrc(oid);
-  if(await confirmar(`Mover o orçamento ${o.num} para a lixeira? Dá para recuperar por 30 dias.`)){
+  if(await confirmar(perguntaExcluirOrc(o))){
     o.excluidoEm = agora(); o.alterado = o.excluidoEm;
-    salvarJa(); agendarSinc(); aviso('Orçamento movido para a lixeira.'); voltar();
+    salvarJa(); agendarSinc(); desfazerExclusao(o); voltar();
   }
 }
 function restaurarOrc(oid){
@@ -2915,8 +2966,10 @@ function voltarAoPedido(oid, iid){
 }
 async function apagarPedido(oid){
   const o = acharOrc(oid);
-  if(await confirmar(`Apagar ${o.pedido.num ? 'o pedido Nº '+o.pedido.num : 'este pedido'}? O orçamento continua fechado e você pode emitir outro.`, 'Apagar pedido')){
-    delete o.pedido; mudou(o); salvarJa(); voltar(); aviso('Pedido apagado.');
+  if(await confirmar(`Excluir ${o.pedido.num ? 'o pedido Nº '+o.pedido.num : 'este pedido'}? O orçamento continua fechado e você pode emitir outro.`, 'Excluir pedido')){
+    const copia = o.pedido;
+    delete o.pedido; mudou(o); salvarJa(); voltar();
+    avisoDesfazer('Pedido excluído.', ()=>{ o.pedido = copia; mudou(o); salvarJa(); desenhar(); aviso('Pedido de volta.'); });
   }
 }
 function telaPedido(oid){
@@ -2975,7 +3028,7 @@ function telaPedido(oid){
       <label class="campo"><span>Observações do pedido</span><textarea id="p-obs" placeholder="Ex.: IPI incluso. Entregar das 8h às 17h.">${esc(P.obs)}</textarea></label>
     </div></section>
     <section class="bloco"><div class="acoes">
-      <button class="btn btn-sec btn-cheio exc-txt" onclick="apagarPedido('${o.id}')">${ic('lixo')} Apagar este pedido</button>
+      <button class="btn btn-sec btn-cheio exc-txt" onclick="apagarPedido('${o.id}')">${ic('lixo')} Excluir este pedido</button>
     </div></section>
   </main>
   <div class="barra"><div class="in">
@@ -3208,12 +3261,12 @@ function telaRelatorio(){
   <main>
     <section class="bloco"><h2>Últimos 12 meses</h2><div class="cartao">
       <table class="tabela"><thead><tr><th>Mês</th><th class="n">Orçado</th><th class="n">Fechado</th><th class="n">Taxa</th></tr></thead><tbody>
-      ${meses.map(m=>`<tr class="${m.qOrc||m.qFech?'':'vazio-l'}"><td>${m.nome}</td>
+      ${meses.filter((m,k)=>k===0||m.qOrc||m.qFech).map(m=>`<tr class="${m.qOrc||m.qFech?'':'vazio-l'}"><td>${m.nome}</td>
         <td class="n">${m.qOrc?moedaCurta(m.orcado):'—'}<small>${m.qOrc?qtdTxt(m.qOrc):''}</small></td>
         <td class="n">${m.qFech?moedaCurta(m.fechado):'—'}<small>${m.qFech?qtdTxt(m.qFech):''}</small></td>
         <td class="n">${m.taxa==null?'—':m.taxa+'%'}</td></tr>`).join('')}
       </tbody></table>
-      <p class="nota">Taxa: quantos dos orçamentos feitos no mês já foram fechados. “Fechado” conta pela data em que a venda foi marcada como fechada.</p>
+      <p class="nota">Taxa: quantos dos orçamentos feitos no mês já foram fechados. “Fechado” conta pela data em que a venda foi marcada como fechada.${meses.some((m,k)=>k>0&&!m.qOrc&&!m.qFech) ? ' Meses sem nenhum orçamento não aparecem.' : ''}</p>
     </div></section>
     <section class="bloco"><h2>Sua comissão</h2><div class="cartao">
       ${fech12.length ? `<table class="tabela"><thead><tr><th>Mês</th><th class="n">Vendas fechadas</th><th class="n">Comissão</th></tr></thead><tbody>
@@ -3282,7 +3335,7 @@ function telaProdutos(){
       ${E.produtos.filter(p=>p.cat===c).map(p=>`<div class="linha-prod">
         <input value="${esc(p.nome)}" aria-label="Nome do produto" oninput="mudaProd('${p.id}','nome',this.value)">
         <select aria-label="Unidade" onchange="mudaProd('${p.id}','un',this.value)">${[...new Set([...UNIDADES,p.un])].map(u=>`<option ${u===p.un?'selected':''}>${esc(u)}</option>`).join('')}</select>
-        <button class="ico-btn" aria-label="Remover ${esc(p.nome)}" onclick="delProd('${p.id}')">${ic('lixo',20)}</button>
+        <button class="ico-btn" aria-label="Excluir ${esc(p.nome)}" onclick="delProd('${p.id}')">${ic('lixo',20)}</button>
       </div>`).join('')}
     </div></section>`).join('')}
   </main>`;
@@ -3294,7 +3347,7 @@ function addProduto(){
   E.produtos.push({id:uid(), cat, nome, un:document.getElementById('np-un').value}); mudouGeral(); telaProdutos(); aviso('Produto adicionado.');
 }
 function mudaProd(id,k,v){ const p=E.produtos.find(x=>x.id===id); if(p){ p[k]=v; mudouGeral(); } }
-async function delProd(id){ const p=E.produtos.find(x=>x.id===id); if(p && await confirmar(`Remover “${p.nome}” da lista?`,'Remover')){ E.produtos=E.produtos.filter(x=>x.id!==id); mudouGeral(); telaProdutos(); } }
+async function delProd(id){ const p=E.produtos.find(x=>x.id===id); if(p && await confirmar(`Excluir “${p.nome}” da lista de produtos?`,'Excluir')){ E.produtos=E.produtos.filter(x=>x.id!==id); mudouGeral(); telaProdutos(); } }
 
 /* ================= nuvem: celular e computador com os mesmos orçamentos ================= */
 /* Como funciona:
@@ -3465,6 +3518,7 @@ function aplicarGeral(g){
 }
 /* dois aparelhos sem internet podem criar o mesmo número: o que ainda não foi enviado ganha um número novo */
 function corrigirNumerosRepetidos(){
+  corrigirPedidosRepetidos();
   const grupos = {};
   ativos().forEach(o=>{ (grupos[o.num] = grupos[o.num] || []).push(o); });
   Object.entries(grupos).forEach(([num, l])=>{
@@ -3476,6 +3530,23 @@ function corrigirNumerosRepetidos(){
       const p = proximoNumero(Number(m[1])); E.config.seq[p.ano] = p.n;
       o.num = p.txt; o.alterado = agora(); E.geralAlterado = agora();
       aviso(`Havia dois orçamentos com o número ${num}. Um deles agora é o Nº ${o.num}.`, 6000);
+    });
+  });
+}
+function corrigirPedidosRepetidos(){
+  const gp = {};
+  ativos().forEach(o=>{ if(o.pedido && o.pedido.num) (gp[o.pedido.num] = gp[o.pedido.num] || []).push(o); });
+  Object.entries(gp).forEach(([num, l])=>{
+    if(l.length < 2) return;
+    // fica com o número o que já foi enviado (ou o mais antigo); o outro ganha número novo
+    l.sort((a,b)=> ((pedidoFeito(b)?1:0) - (pedidoFeito(a)?1:0)) || (a.pedido.criado||'').localeCompare(b.pedido.criado||''));
+    l.slice(1).forEach(o=>{
+      const m = String(o.pedido.num).match(/^(\d{4})-\d+$/);
+      if(pedidoFeito(o) || !m){ aviso(`Atenção: há dois pedidos com o número ${num}. Confira com a representada.`, 7000); return; }
+      const pn = proximoPedido(Number(m[1]));
+      if(!E.config.seqPed) E.config.seqPed = {};
+      E.config.seqPed[pn.ano] = pn.n; o.pedido.num = pn.txt; o.alterado = agora(); E.geralAlterado = agora();
+      aviso(`Havia dois pedidos com o número ${num}. Um deles agora é o Nº ${pn.txt}.`, 7000);
     });
   });
 }
@@ -3589,6 +3660,14 @@ function secaoNuvemHTML(){
 
 /* ================= aviso ================= */
 let tAviso;
+function avisoDesfazer(msg, desfazer, ms=7000){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t = document.createElement('div'); t.className = 'toast toast-acao'; t.setAttribute('role','status');
+  const sp = document.createElement('span'); sp.textContent = msg; t.appendChild(sp);
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Desfazer';
+  b.onclick = ()=>{ clearTimeout(tAviso); t.remove(); desfazer(); };
+  t.appendChild(b); document.body.appendChild(t); clearTimeout(tAviso); tAviso = setTimeout(()=>t.remove(), ms);
+}
 function aviso(msg, ms=2600){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
   const t=document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent=msg;
@@ -3731,6 +3810,15 @@ function listarClientes(){
     : `<div class="vazio"><strong>Nada encontrado</strong>Tente outro nome ou número.</div>`;
 }
 
+document.addEventListener('focusin', e=>{
+  const el = e.target;
+  if(!matchMedia('(pointer:coarse)').matches || !/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || /^(checkbox|radio|date)$/.test(el.type)) return;
+  setTimeout(()=>{
+    if(document.activeElement !== el) return;
+    const r = el.getBoundingClientRect(), vh = window.visualViewport ? visualViewport.height : innerHeight;
+    if(r.bottom > vh - 90 || r.top < 70) el.scrollIntoView({block:'center', behavior:'smooth'});
+  }, 350);
+});
 carregar(); desenhar(); iniciarNuvem();
 </script>
 </body>
