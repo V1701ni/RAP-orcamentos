@@ -354,14 +354,15 @@ html.tm .calc-aviso{font-size:16.5px}
 html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .calc-conta,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
 
 /* menu fixo */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
-.nav-logo,.nav-novo,.nav-ped,.nav-rodape,.topo .so-pc{display:none}
-.nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;border:0;background:none;color:var(--suave);font-weight:600;font-size:13.5px;position:relative}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
+.nav-logo,.nav-novo,.nav-ped,.nav-rodape,.topo .so-pc,.nav .nav-cfg{display:none}
+.nav-b span{white-space:nowrap}
+.nav-b{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;border:0;background:none;color:var(--suave);font-weight:600;font-size:12.5px;position:relative}
 .nav-b[aria-current="page"]{color:var(--azul)}
 .nav-b[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--azul)}
 .nav-b:active{background:#F3F6FB}
 body.com-nav .toast{bottom:84px}
-html.tm .nav-b{font-size:15px}
+html.tm .nav-b{font-size:13.5px}
 @media (min-width:1000px){
   .nav{top:0;right:auto;width:232px;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:0 14px 18px;background:var(--noite);border:0;box-shadow:none}
   .nav-logo{display:flex;align-items:center;min-height:62px;padding:0 6px}
@@ -375,6 +376,8 @@ html.tm .nav-b{font-size:15px}
   body.com-nav #app{padding-left:232px}
   body.com-nav .logo-topo{display:none !important}
   .topo .so-pc{display:block}
+  .nav .nav-cfg{display:flex}
+  .topo .topo-cfg{display:none}
   body.com-nav .toast{bottom:30px;left:calc(50% + 116px)}
 }
 /* clientes */
@@ -561,6 +564,10 @@ html.escuro .rt-mais{border-top-color:var(--linha)}
 html.escuro :is(.item .falta,.np-rasc,.et-rascunho,.etq-vence){background:rgba(227,170,62,.16);color:#F2C770}
 html.escuro :is(.preco-velho b,.tel-conferir b,.tel-conferir small,.dica-preco .velho,.cp-l .cp-aviso,.cp-l em){color:#F2C770}
 html.escuro :is(.faixa-info button,.tel-conferir button){border-color:#3A4560;color:var(--tinta)}
+/* aba Orçamentos e Clientes: um botão grande só */
+.inicio-acoes.so-um{display:block}
+.inicio-acoes.so-um .novo{width:100%}
+@media (min-width:1000px){ .inicio-acoes.so-um{max-width:360px} }
 </style>
 </head>
 <body>
@@ -585,6 +592,7 @@ html.escuro :is(.faixa-info button,.tel-conferir button){border-color:#3A4560;co
   <symbol id="i-cima" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></symbol>
   <symbol id="i-revisao" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 00-3-3L5 17v3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M13.5 6.5l3 3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6.5 9.5V20h11V9.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
   <symbol id="i-cliente" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
   <symbol id="i-planilha" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 9.5h18M3 15h18M9.5 4v16" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
 </svg>
@@ -1107,6 +1115,7 @@ function estadoInicial(){
     precos:{},
     recentes:[],
     orcs:[],
+    clientes:[],
     _apagarNuvem:[]
   };
 }
@@ -1114,6 +1123,7 @@ function estadoInicial(){
 /* migrações: só acrescentam, nunca apagam dados */
 function migrar(D){
   if(!D.config) D.config = estadoInicial().config;
+  if(!Array.isArray(D.clientes)) D.clientes = [];
   if(!D.config.seq) D.config.seq = {};
   if(!D.config.fornec) D.config.fornec = {};
   FORNECEDORES.forEach(r=>{ if(!D.config.fornec[r]) D.config.fornec[r] = CNPJ_FORNECEDORES[r]; });
@@ -1322,7 +1332,8 @@ function desenhar(){
   if(folhaAberta){ removerFolha(); if(pilha.length) pilha.pop(); }
   document.documentElement.classList.toggle('tm', !!E.config.textoMaior);
   document.documentElement.classList.toggle('escuro', !!E.config.escuro);
-  if(tela.nome==='inicio') telaInicio();
+  if(tela.nome==='inicio') telaInicio(); else if(tela.nome==='orcamentos') telaOrcamentos();
+  else if(tela.nome==='orcamentos') telaOrcamentos();
   else if(tela.nome==='orc') telaOrc(tela.id);
   else if(tela.nome==='config') telaConfig();
   else if(tela.nome==='produtos') telaProdutos();
@@ -1376,8 +1387,9 @@ function telaInicio(){
   app.innerHTML = `
   <header class="topo">
     <span class="logo-topo" style="display:inline-flex;align-items:center">${LOGO_TOPO}</span>
-    <span class="titulo so-pc">Orçamentos</span>
+    <span class="titulo so-pc">Início</span>
     <span class="espaco"></span>
+    <button class="topo-cfg" onclick="irAba('config')" aria-label="Ajustes">${ic('engr')}</button>
   </header>
   <main>
     ${faixasInicio()}
@@ -1386,23 +1398,45 @@ function telaInicio(){
       <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Emitir pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
     </div>
     <div class="inicio-painel">${retornoHTML()}${A.length ? resumoMesHTML() : ''}</div>
+    ${listaOrcHTML(A, cont)}
+    <p class="rodape-ver" id="rodape-nuvem">${esc(rodapeNuvem())}</p>
+  </main>`;
+  atualizarLista();
+}
+/* busca, filtros e lista: aparecem no Início e na aba Orçamentos */
+function listaOrcHTML(A, cont){
+  return `
     <div class="busca">${ic('busca')}<label class="sr" for="q">Buscar</label>
       <input id="q" type="search" placeholder="Buscar cliente, empresa ou número" value="${esc(busca)}" oninput="busca=this.value;atualizarLista()">
     </div>
     <div class="filtros" role="group" aria-label="Filtrar">
       ${[['todos','Todos'],['aberto','Em aberto'],['fechado','Fechados'],['perdido','Perdidos']].map(([k,t])=>
-        `<button class="filtro" aria-pressed="${filtro===k}" onclick="filtro='${k}';telaInicio()">${t} (${cont(k)})</button>`).join('')}
+        `<button class="filtro" aria-pressed="${filtro===k}" onclick="filtro='${k}';redesenharLista()">${t} (${cont(k)})</button>`).join('')}
     </div>
     ${A.length ? `
     <div class="filtros filtros-per" role="group" aria-label="Período">
-      ${PERIODOS.map(([k,t])=>`<button class="filtro" aria-pressed="${periodo===k}" onclick="periodo='${k}';telaInicio()">${t}</button>`).join('')}
+      ${PERIODOS.map(([k,t])=>`<button class="filtro" aria-pressed="${periodo===k}" onclick="periodo='${k}';redesenharLista()">${t}</button>`).join('')}
     </div>
     <div class="linha-lista"><span id="lista-info"></span>
       <label class="sr" for="ordem">Ordenar</label>
       <select id="ordem" class="ordenar" onchange="ordem=this.value;atualizarLista()">${ORDENS.map(([k,t])=>`<option value="${k}" ${ordem===k?'selected':''}>${t}</option>`).join('')}</select>
     </div>` : ''}
     <div class="lista" id="lista"></div>
-    <p class="rodape-ver" id="rodape-nuvem">${esc(rodapeNuvem())}</p>
+`;
+}
+function redesenharLista(){ if(tela.nome==='orcamentos') telaOrcamentos(); else telaInicio(); }
+function telaOrcamentos(){
+  const A = ativos();
+  const doPer = A.filter(noPeriodo);
+  const cont = s => doPer.filter(o=>s==='todos'||o.status===s).length;
+  app.innerHTML = `
+  <header class="topo">
+    <span class="titulo">Orçamentos</span>
+    <span class="espaco"></span>
+  </header>
+  <main>
+    <div class="inicio-acoes so-um"><button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button></div>
+    ${listaOrcHTML(A, cont)}
   </main>`;
   atualizarLista();
 }
@@ -1497,7 +1531,7 @@ function retornoHTML(){
         <span class="etq ${d<0?'etq-vencido':'etq-vence'}">${textoPrazo(d)}</span>
       </button>${acao}</div>`;
   }).join('');
-  const mais = l.length > 5 ? `<button class="rt-mais" onclick="filtro='aberto';ordem='vencendo';periodo='tudo';telaInicio();document.getElementById('lista').scrollIntoView({behavior:'smooth'})">Ver todos (${l.length})</button>` : '';
+  const mais = l.length > 5 ? `<button class="rt-mais" onclick="filtro='aberto';ordem='vencendo';periodo='tudo';redesenharLista();document.getElementById('lista').scrollIntoView({behavior:'smooth'})">Ver todos (${l.length})</button>` : '';
   return `<section class="retorno"><h2>Precisa de retorno</h2>${linhas}${mais}</section>`;
 }
 
@@ -1584,8 +1618,12 @@ function criarRevisao(oid){
 
 /* ================= tela: orçamento ================= */
 function acharOrc(id){ return E.orcs.find(o=>o.id===id); }
+const CAMPOS_CLI = ['empresa','nome','tel','cnpj','email','endereco','cidade'];
+const soDadosCli = c => Object.fromEntries(CAMPOS_CLI.map(k=>[k, c[k]||'']));
+const cadastrados = () => (E.clientes||[]).filter(c=>!c.excluido);
 function clientesConhecidos(){
   const m = new Map();
+  cadastrados().slice().sort((a,b)=>(a.alterado||'').localeCompare(b.alterado||'')).forEach(c=>{ if(c.nome||c.empresa) m.set(norm(c.empresa||c.nome), soDadosCli(c)); });
   ativos().slice().sort((a,b)=>(a.alterado||a.criado||'').localeCompare(b.alterado||b.criado||''))
     .forEach(x=>{ const c = x.cliente; if(!(c.nome||c.empresa)) return; m.set(norm(c.empresa||c.nome), {...c}); });
   return [...m.values()];
@@ -1829,7 +1867,7 @@ function cobrarRetorno(oid){
   const numero = (tel.startsWith('55') && tel.length >= 12) ? tel : '55' + tel;
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
   o.retornoEm = agora(); mudou(o);
-  if(tela.nome==='inicio') telaInicio();
+  if(tela.nome==='inicio') telaInicio(); else if(tela.nome==='orcamentos') telaOrcamentos();
 }
 
 /* campos: lista com opção “Outro” para digitar */
@@ -2652,7 +2690,7 @@ function exportar(){
   E.config.ultimaCopia = agora(); salvarJa();
   baixarArquivo(JSON.stringify(E,null,1), `orcamentos-rap-copia-${hojeISO()}.json`, 'application/json');
   aviso('Cópia salva.');
-  if(tela.nome==='inicio') telaInicio();
+  if(tela.nome==='inicio') telaInicio(); else if(tela.nome==='orcamentos') telaOrcamentos();
   else if(tela.nome==='config') telaConfig();
 }
 function importar(arq){
@@ -3357,7 +3395,74 @@ function chamarNoZap(tel){
   if(telParaConferir(t)){ aviso('Este telefone parece errado. Confira no orçamento mais recente do cliente.', 5000); return; }
   window.open(`https://wa.me/${(t.startsWith('55') && t.length>=12) ? t : '55'+t}`, '_blank');
 }
+/* cadastro de cliente sem orçamento */
+function formCadastro(cid){
+  const atual = cid ? (E.clientes||[]).find(c=>c.id===cid) : null;
+  const c = atual ? soDadosCli(atual) : {empresa:'',nome:'',tel:'',cnpj:'',email:'',endereco:'',cidade:'Curitiba'};
+  const v = abrirFolha(atual ? 'Alterar cliente' : 'Cadastrar cliente', `
+    <label class="campo"><span>Empresa <small>(opcional)</small></span><input data-k="empresa" value="${esc(c.empresa)}" enterkeyhint="next" placeholder="Ex.: Construtora Silva"></label>
+    <label class="campo"><span>Nome do contato</span><input data-k="nome" value="${esc(c.nome)}" autocapitalize="words" enterkeyhint="next" placeholder="Ex.: João Silva"></label>
+    <label class="campo"><span>Telefone / WhatsApp</span><input data-k="tel" type="tel" inputmode="tel" value="${esc(c.tel)}" enterkeyhint="next" placeholder="(41) 99999-9999"></label>
+    <div class="campo"><span>Cidade</span>${escolha('c','cidade',c.cidade,CIDADES,'Digite a cidade','Não informar')}</div>
+    <label class="campo"><span>CNPJ / CPF <small>(opcional)</small></span><input data-k="cnpj" inputmode="numeric" autocapitalize="characters" value="${esc(c.cnpj)}" enterkeyhint="next" placeholder="Só os números"></label>
+    <label class="campo"><span>E-mail <small>(opcional)</small></span><input data-k="email" type="email" inputmode="email" value="${esc(c.email)}" enterkeyhint="next" placeholder="cliente@email.com"></label>
+    <label class="campo"><span>Endereço <small>(opcional)</small></span><input data-k="endereco" value="${esc(c.endereco)}" enterkeyhint="done" placeholder="Rua, número, bairro"></label>`,
+    `<button class="btn btn-sec" onclick="fecharFolha()">Cancelar</button><button class="btn btn-pri" id="cad-ok">${atual ? 'Salvar' : 'Cadastrar'}</button>`);
+  ligarEscolhas(v, ()=>c);
+  v.querySelectorAll('[data-k]').forEach(el=>el.addEventListener('input', ()=>{
+    if(el.dataset.k==='tel') aplicarMascara(el, mascaraTel);
+    if(el.dataset.k==='cnpj') aplicarMascara(el, mascaraDoc);
+  }));
+  enterAvanca([...v.querySelectorAll('input[data-k]')], ()=> v.querySelector('#cad-ok').click());
+  setTimeout(()=> v.querySelector('[data-k="empresa"]').focus(), 60);
+  v.querySelector('#cad-ok').onclick = ()=>{
+    v.querySelectorAll('[data-k]').forEach(el=>{ c[el.dataset.k] = el.value.trim(); });
+    if(!c.empresa && !c.nome){ v.querySelector('[data-k="nome"]').focus(); aviso('Digite o nome do contato ou da empresa.'); return; }
+    const outro = !atual && clientesConhecidos().find(x=>nomeCliente(x)===nomeCliente(c) || (docCliente(c) && docCliente(x)===docCliente(c)));
+    if(outro){ aviso(`${outro.empresa||outro.nome} já está nos clientes.`); return; }
+    if(atual) Object.assign(atual, c, {alterado:agora()});
+    else { if(!E.clientes) E.clientes = []; E.clientes.push({id:uid(), ...c, criado:agora(), alterado:agora()}); }
+    mudouGeral(); salvarJa();
+    fecharFolha(()=>{ desenhar(); aviso(atual ? 'Cliente alterado.' : `${c.empresa||c.nome} cadastrado.`); });
+  };
+}
+async function excluirCadastro(cid){
+  const c = (E.clientes||[]).find(x=>x.id===cid); if(!c) return;
+  if(!await confirmar(`Excluir o cadastro de ${c.empresa||c.nome}?`)) return;
+  c.excluido = true; c.alterado = agora(); mudouGeral(); salvarJa();
+  voltar(); aviso('Cadastro excluído.');
+}
+function novoComCliente(cid){
+  const c = (E.clientes||[]).find(x=>x.id===cid); if(!c) return;
+  novoOrc();
+  const o = acharOrc(tela.id); if(!o) return;
+  o.cliente = soDadosCli(c); mudou(o); salvarJa(); telaOrc(o.id);
+}
+function telaClienteCad(cid){
+  const c = (E.clientes||[]).find(x=>x.id===cid && !x.excluido); if(!c){ voltar(); return; }
+  const tel = String(c.tel||'').replace(/\D/g,'');
+  const dados = [c.empresa && c.nome ? esc(c.nome) : '', c.tel ? esc(c.tel) : '', c.cnpj ? `${tipoDoc(c.cnpj)} ${esc(c.cnpj)}` : '', c.email ? esc(c.email) : '', c.endereco ? esc(c.endereco) : '', c.cidade ? esc(c.cidade) : ''].filter(Boolean);
+  app.innerHTML = `
+  <header class="topo">
+    <button onclick="voltar()" aria-label="Voltar">${ic('voltar')}</button>
+    <span class="titulo">Cliente</span>
+  </header>
+  <main>
+    <section class="bloco"><div class="cartao cli-cab">
+      <h2 class="cli-nome">${esc(c.empresa||c.nome)}</h2>
+      ${dados.length ? `<p class="cli-dados">${dados.join('<br>')}</p>` : ''}
+      <div class="acoes">
+        <button class="btn btn-pri btn-cheio" onclick="novoComCliente('${c.id}')">${ic('mais')} Novo orçamento para este cliente</button>
+        ${tel.length>=10 ? `<button class="btn btn-zap btn-cheio" onclick="chamarNoZap('${tel}')">${ic('zap')} Conversar no WhatsApp</button>` : ''}
+        <button class="btn btn-sec btn-cheio" onclick="formCadastro('${c.id}')">${ic('revisao')} Alterar dados</button>
+        <button class="btn btn-perigo btn-cheio" onclick="excluirCadastro('${c.id}')">${ic('lixo')} Excluir cadastro</button>
+      </div>
+    </div></section>
+    <div class="vazio"><strong>Nenhum orçamento ainda</strong>Os orçamentos deste cliente vão aparecer aqui.</div>
+  </main>`;
+}
 function telaCliente(oid){
+  if(String(oid).startsWith('c:')){ telaClienteCad(String(oid).slice(2)); return; }
   const base = acharOrc(oid); if(!base){ ir({nome:'inicio'}); return; }
   const l = orcsDoCliente(base.cliente).sort(maisNovoPrimeiro);
   if(!l.length){ voltar(); return; }
@@ -3576,7 +3681,7 @@ const marcaMaior = (a,b) => !!a && (!b || a.s > b.s || (a.s === b.s && a.n > b.n
 function paraNuvem(o){ const x = JSON.parse(JSON.stringify(o)); Object.keys(x).forEach(k=>{ if(k[0]==='_') delete x[k]; }); return x; }
 function geralParaNuvem(){
   const c = {...E.config}; delete c.ultimaCopia; delete c.textoMaior; delete c.escuro; delete c.dicaIOS;   // preferências de cada aparelho
-  return JSON.parse(JSON.stringify({config:c, produtos:E.produtos, precos:E.precos, recentes:E.recentes||[], alterado:E.geralAlterado}));
+  return JSON.parse(JSON.stringify({config:c, produtos:E.produtos, precos:E.precos, recentes:E.recentes||[], clientes:E.clientes||[], alterado:E.geralAlterado}));
 }
 function substituirObjeto(alvo, novo){ Object.keys(alvo).forEach(k=>{ if(!(k in novo)) delete alvo[k]; }); Object.assign(alvo, novo); }
 function pendentesNuvem(){
@@ -3679,6 +3784,12 @@ function aplicarRemoto(r){
 function aplicarGeral(g){
   let mud = false;
   if(!g){ if(!E.geralAlterado){ E.geralAlterado = agora(); mud = true; } return mud; }   // nuvem vazia: este aparelho envia o que tem
+  /* clientes cadastrados: junta os dos dois aparelhos, cliente por cliente (vale o mais novo) */
+  const rem = new Map((Array.isArray(g.clientes) ? g.clientes : []).map(c=>[c.id,c]));
+  const loc = new Map((E.clientes||[]).map(c=>[c.id,c]));
+  rem.forEach((r,id)=>{ const l = loc.get(id); if(!l || (r.alterado||'') > (l.alterado||'')){ loc.set(id, r); mud = true; } });
+  const soAqui = [...loc.values()].some(c=>{ const r = rem.get(c.id); return !r || (c.alterado||'') > (r.alterado||''); });
+  E.clientes = [...loc.values()];
   const seqR = (g.config && g.config.seq) || {};
   Object.entries(seqR).forEach(([ano,n])=>{ if((E.config.seq[ano]||0) < n){ E.config.seq[ano] = n; mud = true; } });
   if(!E.config.seqPed) E.config.seqPed = {};
@@ -3689,8 +3800,10 @@ function aplicarGeral(g){
     if(Array.isArray(g.produtos) && g.produtos.length) E.produtos = garantirDegraus(g.produtos);
     E.precos = {...(E.precos||{}), ...(g.precos||{})};
     if(Array.isArray(g.recentes)) E.recentes = g.recentes;
+    E.clientes = [...loc.values()];
     E.geralAlterado = g.alterado; E._geralSinc = g.alterado; mud = true;
   } else if(g.alterado === E.geralAlterado && E._geralSinc !== g.alterado){ E._geralSinc = g.alterado; mud = true; }
+  if(soAqui){ E.geralAlterado = agora(); mud = true; }   // a nuvem ainda não tem algum cliente deste aparelho
   return mud;
 }
 /* dois aparelhos sem internet podem criar o mesmo número: o que ainda não foi enviado ganha um número novo */
@@ -3735,7 +3848,7 @@ function redesenharSeguro(forcar){
     if(a && app.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
   }
   if(folhaAberta && forcar) return;
-  if(tela.nome==='inicio') telaInicio();
+  if(tela.nome==='inicio') telaInicio(); else if(tela.nome==='orcamentos') telaOrcamentos();
   else if(tela.nome==='relatorio') telaRelatorio();
   else if(tela.nome==='orc') telaOrc(tela.id);
   else if(tela.nome==='config') telaConfig();
@@ -3858,8 +3971,8 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
 
 
 /* ================= menu fixo: barra embaixo no celular, coluna à esquerda no computador ================= */
-const ABAS = [['inicio','Orçamentos','doc'],['pedidos','Pedidos','caixa'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
-const ABA_DA_TELA = {inicio:'inicio', pedidos:'pedidos', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
+const ABAS = [['inicio','Início','casa'],['orcamentos','Orçamentos','doc'],['pedidos','Pedidos','caixa'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
+const ABA_DA_TELA = {inicio:'inicio', orcamentos:'orcamentos', pedidos:'pedidos', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
 function irAba(n){
   if(folhaAberta) return;
   if(ABA_DA_TELA[tela.nome]===n && tela.nome===n){ window.scrollTo({top:0, behavior:'smooth'}); return; }
@@ -3880,7 +3993,7 @@ function atualizarNav(){
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
       <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Emitir pedido <span class="np-cont" id="nav-np" hidden></span></button>
-      ${ABAS.map(([k,t,i])=>`<button class="nav-b" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':''}</button>`).join('')}
+      ${ABAS.map(([k,t,i])=>`<button class="nav-b${k==='config'?' nav-cfg':''}" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':''}</button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
   }
@@ -3893,7 +4006,7 @@ function atualizarNav(){
   ['nav-np','nav-cont-ped'].forEach(id=>{ const e = document.getElementById(id); if(e){ e.hidden = !n; e.textContent = n; } });
 }
 /* toda tela desenhada atualiza o menu */
-['telaInicio','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes','telaPedidos','telaPedido'].forEach(nome=>{
+['telaInicio','telaOrcamentos','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes','telaPedidos','telaPedido'].forEach(nome=>{
   const f = window[nome]; if(typeof f!=='function') return;
   window[nome] = function(){ const r = f.apply(this, arguments); atualizarNav(); return r; };
 });
@@ -3940,12 +4053,19 @@ function gruposDeClientes(){
     g.orcs.push(o);
     if(d) porDoc.set(d, g); if(n) porNome.set(n, g);
   });
-  return grupos.map(g=>{
+  const lista = grupos.map(g=>{
     const l = g.orcs, c = l[0].cliente, fech = l.filter(o=>o.status==='fechado');
     return {id:l[0].id, c, n:l.length, ab:l.filter(o=>o.status==='aberto').length, nf:fech.length,
       vendido: somaVendido(fech), ultima: l[0].data||'',
       texto: norm([c.empresa, c.nome, c.cnpj, c.tel, c.cidade].join(' ')), dig: [c.cnpj, c.tel].join(' ').replace(/\D/g,'')};
   });
+  cadastrados().forEach(c=>{
+    const d = docCliente(c), n = nomeCliente(c);
+    if((d && porDoc.has(d)) || (n && porNome.has(n))) return;   // já tem orçamento: aparece pelo histórico
+    lista.push({id:'c:'+c.id, cad:true, c, n:0, ab:0, nf:0, vendido:0, ultima:(c.criado||'').slice(0,10),
+      texto: norm([c.empresa, c.nome, c.cnpj, c.tel, c.cidade].join(' ')), dig: [c.cnpj, c.tel].join(' ').replace(/\D/g,'')});
+  });
+  return lista.sort((a,b)=>(b.ultima||'').localeCompare(a.ultima||''));
 }
 function telaClientes(){
   const todos = gruposDeClientes();
@@ -3954,6 +4074,7 @@ function telaClientes(){
     <span class="titulo">Clientes</span>
   </header>
   <main>
+    <div class="inicio-acoes so-um"><button class="novo" onclick="formCadastro()">${ic('mais',26)} Cadastrar cliente</button></div>
     ${todos.length ? `
     <div class="busca">${ic('busca')}<label class="sr" for="qc">Buscar cliente</label>
       <input id="qc" type="search" placeholder="Buscar nome, empresa, CNPJ ou telefone" value="${esc(buscaCli)}" oninput="buscaCli=this.value;listarClientes()">
@@ -3961,7 +4082,7 @@ function telaClientes(){
     ${(()=>{ const ruins = todos.filter(g=>telParaConferir(g.c.tel));
       return ruins.length ? `<div class="tel-conferir"><b>${ruins.length===1 ? '1 cliente com telefone para conferir' : ruins.length+' clientes com telefone para conferir'}</b>
         <span>Parecem incompletos ou errados. Toque para abrir o orçamento mais recente e corrigir.</span>
-        ${ruins.map(g=>`<button onclick="irComHistorico({nome:'orc',id:'${g.id}'})">${esc(g.c.empresa||g.c.nome)} <small>${esc(g.c.tel)}</small></button>`).join('')}</div>` : ''; })()}
+        ${ruins.map(g=>`<button onclick="irComHistorico({nome:'${g.cad?'cliente':'orc'}',id:'${g.id}'})">${esc(g.c.empresa||g.c.nome)} <small>${esc(g.c.tel)}</small></button>`).join('')}</div>` : ''; })()}
     <div class="linha-lista"><span id="cli-info"></span>
       <label class="sr" for="ordem-cli">Ordenar</label>
       <select id="ordem-cli" class="ordenar" onchange="ordemCli=this.value;listarClientes()">
@@ -3969,7 +4090,7 @@ function telaClientes(){
       </select>
     </div>
     <div class="lista" id="lista-cli"></div>`
-    : `<div class="vazio"><strong>Nenhum cliente ainda</strong>Os clientes aparecem aqui sozinhos quando você faz um orçamento.</div>`}
+    : `<div class="vazio"><strong>Nenhum cliente ainda</strong>Cadastre um cliente ou faça um orçamento: ele aparece aqui sozinho.</div>`}
   </main>`;
   if(todos.length) listarClientes();
 }
@@ -3986,7 +4107,7 @@ function listarClientes(){
     return `<button class="cli-item" onclick="irComHistorico({nome:'cliente',id:'${g.id}'})">
       <span class="ci-nome">${esc(quem)}</span><span class="ci-vend">${g.nf ? moedaCurta(g.vendido) : ''}<small>${g.nf ? 'comprado' : 'ainda não comprou'}</small></span>
       ${sub ? `<span class="ci-sub">${esc(sub)}</span>` : ''}
-      <span class="ci-meta">${qtdTxt(g.n)}${g.ab ? ` · ${g.ab} em aberto` : ''} · último em ${dataBR(g.ultima)}</span>
+      <span class="ci-meta">${g.cad ? `Cadastrado em ${dataBR(g.ultima)} · nenhum orçamento ainda` : `${qtdTxt(g.n)}${g.ab ? ` · ${g.ab} em aberto` : ''} · último em ${dataBR(g.ultima)}`}</span>
     </button>`; }).join('')
     : `<div class="vazio"><strong>Nada encontrado</strong>Tente outro nome ou número.</div>`;
 }
