@@ -334,9 +334,13 @@ html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
 .bitolas button b{color:var(--marinho)}
 .calc-res{display:flex;flex-direction:column;gap:2px;margin:14px 0 12px;padding:12px 14px;background:#fff;border-radius:10px;border:1px solid var(--linha);font-size:15.5px;color:var(--suave)}
 .calc-res b{color:var(--tinta)}
+.calc-res .calc-conta{margin:1px 0 6px;font-size:13.5px;line-height:1.4;color:var(--suave);overflow-wrap:anywhere}
 .calc-res .calc-total{font-size:18px;color:var(--tinta)}
 .calc-res .calc-total b{color:var(--marinho);font-family:Plex,sans-serif}
 .calc-dica{margin:8px 2px 0;font-size:13.5px;color:var(--suave);line-height:1.4}
+.calc-aviso{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#fff;border-left:4px solid var(--azul);font-size:14.5px;font-weight:600;color:var(--tinta);line-height:1.4}
+html.escuro .calc-aviso{background:#151E31}
+html.tm .calc-aviso{font-size:16.5px}
 .add-colar{margin-top:8px;width:100%;min-height:48px;border:1px solid #D5E0F2;background:#fff;color:var(--azul);border-radius:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 .item .falta{grid-column:1 / -1;color:#8A5A0B;background:#FFF1D6;border-radius:8px;padding:3px 8px;font-size:14px;font-weight:600;margin-top:4px;justify-self:start}
 .cp-l{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border:1px solid var(--linha);border-radius:10px;background:#fff;margin-top:6px;cursor:pointer}
@@ -347,7 +351,7 @@ html.tm .preco-l b{font-size:18px} html.tm .cli-nome{font-size:23px}
 .cp-duvida{border-color:#F1DDA8;background:#FFFBF0}
 .cp-l .cp-aviso{color:#8A5A0B;font-weight:600}
 .cp-ign{margin:12px 2px 0;font-size:13.5px;color:var(--suave)}
-html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
+html.tm .calc-abrir,html.tm .add-colar,html.tm .cp-l span{font-size:17px} html.tm .calc-feito,html.tm .calc-dica,html.tm .calc-conta,html.tm .cp-l small,html.tm .item .falta,html.tm .bitolas button{font-size:15.5px}
 
 /* menu fixo */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:14;display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-top:1px solid var(--linha);padding:0 4px env(safe-area-inset-bottom);box-shadow:0 -10px 30px -22px rgba(19,41,92,.5)}
@@ -2714,29 +2718,51 @@ function pesoXadrez(esp){
   for(let k=1; k<T.length; k++) if(esp <= T[k][0]){ const [a,pa] = T[k-1], [b,pb] = T[k]; return pa + (pb-pa)*(esp-a)/(b-a); }
 }
 const tabelaDe = prod => /galvaniz|galvalume|zinc/.test(norm(prod||'')) ? 'galv' : '';
+/* comprimento e largura em mm (6000, 1200). Também aceita metros (6 ou 1,20): até 30 o app entende como metros */
+function emMetros(x){
+  const s = String(x||''), n = lerNum(s);
+  if(/mm/i.test(s)) return n/1000;
+  if(/m/i.test(s)) return n;
+  return n > 30 ? n/1000 : n;
+}
+const ehMmDigitado = x => { const s = String(x||''); return /mm/i.test(s) || (!/m/i.test(s) && lerNum(s) > 30); };
+const mmDe = m => num(r4(m*1000));                  // 6 (m) -> "6.000"
+const espTxt = e => metro(e);                       // 2,00 · 3,175
+const compTxt = v => ehMmDigitado(v._raw.comp) ? `${mmDe(v.comp)} mm` : `${metro(v.comp)} m`;
+const tamChapa = v => ehMmDigitado(v._raw.larg) && ehMmDigitado(v._raw.comp) ? `${mmDe(v.larg)} x ${mmDe(v.comp)} mm` : `${metro(v.larg)} x ${metro(v.comp)} m`;
+const barra = (ks) => v => `${meds(v, ks)} – barra ${compTxt(v)}`;
+/* peso (kg) = seção (mm²) x comprimento (mm) x 7,85 ÷ 1.000.000
+   perfis dobrados: seção = (soma das medidas − 4 espessuras) x espessura */
 const CALC = {
-  xadrez:    {nome:'Chapa xadrez (piso)', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (m)'],['comp','Comprimento (m)']],
-              cada:v=>v.larg*v.comp*pesoXadrez(v.esp), desc:v=>`${med(v,'esp')} mm${polXadrez(v.esp) ? ' ('+polXadrez(v.esp)+')' : ''} – ${metro(v.larg)} x ${metro(v.comp)} m`},
-  chapa:     {nome:'Chapa, blank ou bobina', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (m)'],['comp','Comprimento (m)']],
-              cada:v=>v.esp*v.larg*v.comp*7.85, desc:v=>`${bitolaDe(v.esp, v._tab) ? bitolaDe(v.esp, v._tab)+' ('+med(v,'esp')+' mm)' : med(v,'esp')+' mm'} – ${metro(v.larg)} x ${metro(v.comp)} m`},
-  metalon:   {nome:'Metalon, tubo quadrado ou retangular', campos:[['a','Lado A (mm)'],['b','Lado B (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>(2*v.esp*(v.a+v.b) - 4*v.esp*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
-  tubo:      {nome:'Tubo redondo', campos:[['d','Diâmetro externo (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>(v.d - v.esp)*v.esp*0.02466, desc:v=>`Ø ${meds(v,['d','esp'])} – barra ${metro(v.comp)} m`},
-  cantoneira:{nome:'Cantoneira ou perfil L', campos:[['a','Aba A (mm)'],['b','Aba B (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.esp*(v.a + v.b - v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
-  u:         {nome:'Perfil U simples', campos:[['a','Altura (mm)'],['b','Aba (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.esp*(v.a + 2*v.b - 2*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','esp'])} – barra ${metro(v.comp)} m`},
-  ue:        {nome:'Perfil U enrijecido ou Z', campos:[['a','Altura (mm)'],['b','Aba (mm)'],['c','Enrijecedor (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.esp*(v.a + 2*v.b + 2*v.c - 4*v.esp)*0.00785, desc:v=>`${meds(v,['a','b','c','esp'])} – barra ${metro(v.comp)} m`},
-  chata:     {nome:'Barra chata', campos:[['a','Largura (mm)'],['esp','Espessura (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.a*v.esp*0.00785, desc:v=>`${meds(v,['a','esp'])} – barra ${metro(v.comp)} m`},
-  redonda:   {nome:'Barra redonda ou vergalhão', campos:[['d','Diâmetro (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.d*v.d*0.0061654, desc:v=>`Ø ${meds(v,['d'])} – barra ${metro(v.comp)} m`},
-  quadrada:  {nome:'Barra quadrada', campos:[['a','Lado (mm)'],['comp','Barra de (m)']],
-              kgm:v=>v.a*v.a*0.00785, desc:v=>`${meds(v,['a'])} – barra ${metro(v.comp)} m`},
-  kgm:       {nome:'Outro (viga, trilho…) pelo kg por metro', campos:[['kgm','Peso por metro (kg/m)'],['comp','Barra de (m)']],
-              kgm:v=>v.kgm, desc:v=>`${num(v.kgm)} kg/m – barra ${metro(v.comp)} m`},
+  chapa:     {nome:'Chapa, blank ou bobina', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>v.esp*v.larg*1000, areaTxt:v=>`${espTxt(v.esp)} × ${mmDe(v.larg)}`,
+              desc:v=>`${bitolaDe(v.esp, v._tab) ? bitolaDe(v.esp, v._tab)+' ('+med(v,'esp')+' mm)' : med(v,'esp')+' mm'} – ${tamChapa(v)}`},
+  xadrez:    {nome:'Chapa xadrez (piso)', peca:['chapa','chapas'], campos:[['esp','Espessura (mm)'],['larg','Largura (mm)'],['comp','Comprimento (mm)']],
+              cada:v=>v.larg*v.comp*pesoXadrez(v.esp), conta:v=>`${metro(v.larg)} m × ${metro(v.comp)} m × ${num(r2(pesoXadrez(v.esp)))} kg/m²`,
+              desc:v=>`${med(v,'esp')} mm${polXadrez(v.esp) ? ' ('+polXadrez(v.esp)+')' : ''} – ${tamChapa(v)}`},
+  u:         {nome:'Perfil U ou Z simples', dica:'Digite a medida de uma aba só. O app já conta as duas.', campos:[['a','Altura (mm)'],['b','Uma aba (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(v.a + 2*v.b - 4*v.esp)*v.esp, areaTxt:v=>`(${num(v.a)} + 2 × ${num(v.b)} − 4 × ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:barra(['a','b','esp'])},
+  ue:        {nome:'Perfil U ou Z enrijecido', dica:'Digite a medida de uma aba e de um enrijecedor só. O app já conta os dois lados.', campos:[['a','Altura (mm)'],['b','Uma aba (mm)'],['c','Um enrijecedor (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(v.a + 2*v.b + 2*v.c - 4*v.esp)*v.esp, areaTxt:v=>`(${num(v.a)} + 2 × ${num(v.b)} + 2 × ${num(v.c)} − 4 × ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:barra(['a','b','c','esp'])},
+  l:         {nome:'Perfil L dobrado', dica:'Digite as duas abas. Se forem iguais, repita a medida.', campos:[['a','Aba A (mm)'],['b','Aba B (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(v.a + v.b - 4*v.esp)*v.esp, areaTxt:v=>`(${num(v.a)} + ${num(v.b)} − 4 × ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:barra(['a','b','esp'])},
+  cartola:   {nome:'Perfil cartola', dica:'Digite a medida de uma altura e de uma aba só. O app já conta os dois lados.', campos:[['a','Largura do topo (mm)'],['h','Uma altura (mm)'],['b','Uma aba (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(v.a + 2*v.h + 2*v.b - 4*v.esp)*v.esp, areaTxt:v=>`(${num(v.a)} + 2 × ${num(v.h)} + 2 × ${num(v.b)} − 4 × ${espTxt(v.esp)}) × ${espTxt(v.esp)}`,
+              desc:v=>`topo ${med(v,'a')} x altura ${med(v,'h')} x aba ${med(v,'b')} x ${med(v,'esp')} mm – barra ${compTxt(v)}`},
+  metalon:   {nome:'Metalon, tubo quadrado ou retangular', campos:[['a','Lado A (mm)'],['b','Lado B (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(2*(v.a + v.b) - 4*v.esp)*v.esp, areaTxt:v=>`(2 × (${num(v.a)} + ${num(v.b)}) − 4 × ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:barra(['a','b','esp'])},
+  tubo:      {nome:'Tubo redondo', campos:[['d','Diâmetro externo (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>Math.PI*(v.d - v.esp)*v.esp, areaTxt:v=>`3,1416 × (${num(v.d)} − ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:v=>`Ø ${meds(v,['d','esp'])} – barra ${compTxt(v)}`},
+  cantoneira:{nome:'Cantoneira laminada', campos:[['a','Aba A (mm)'],['b','Aba B (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>(v.a + v.b - v.esp)*v.esp, areaTxt:v=>`(${num(v.a)} + ${num(v.b)} − ${espTxt(v.esp)}) × ${espTxt(v.esp)}`, desc:barra(['a','b','esp'])},
+  chata:     {nome:'Barra chata', campos:[['a','Largura (mm)'],['esp','Espessura (mm)'],['comp','Comprimento (mm)']],
+              area:v=>v.a*v.esp, areaTxt:v=>`${num(v.a)} × ${espTxt(v.esp)}`, desc:barra(['a','esp'])},
+  redonda:   {nome:'Barra redonda ou vergalhão', campos:[['d','Diâmetro (mm)'],['comp','Comprimento (mm)']],
+              area:v=>Math.PI*v.d*v.d/4, areaTxt:v=>`3,1416 × ${num(v.d)} × ${num(v.d)} ÷ 4`, desc:v=>`Ø ${meds(v,['d'])} – barra ${compTxt(v)}`},
+  quadrada:  {nome:'Barra quadrada', campos:[['a','Lado (mm)'],['comp','Comprimento (mm)']],
+              area:v=>v.a*v.a, areaTxt:v=>`${num(v.a)} × ${num(v.a)}`, desc:barra(['a'])},
+  kgm:       {nome:'Outro (viga, trilho…) pelo kg por metro', campos:[['kgm','Peso por metro (kg/m)'],['comp','Comprimento (mm)']],
+              cada:v=>v.kgm*v.comp, conta:v=>`${num(v.kgm)} kg/m × ${metro(v.comp)} m`, desc:v=>`${num(v.kgm)} kg/m – barra ${compTxt(v)}`},
 };
 const ehChapa = t => t==='chapa' || t==='xadrez';   // chapas não têm a "barra de 6 m"
 const PECA = t => (CALC[t] && CALC[t].peca) || ['barra','barras'];
@@ -2759,9 +2785,11 @@ function bitolaDe(mm, tab){ const x = (tab==='galv' ? BITOLAS_GALV : BITOLAS).fi
 function polXadrez(mm){ const x = ESP_XADREZ.find(([p,m])=>p && Math.abs(lerNum(m)-mm) < 0.02); return x ? x[0] : null; }
 function tipoCalc(prod){
   const n = norm(prod);
-  if(/enrijecid|perfil z|\bue\b/.test(n)) return 'ue';
+  if(/cartola/.test(n)) return 'cartola';
+  if(/enrijecid|perfil z|\bue\b|^z\b/.test(n)) return 'ue';
   if(/perfil u|^u\b/.test(n)) return 'u';
-  if(/cantoneira|perfil l/.test(n)) return 'cantoneira';
+  if(/perfil l|^l\b|cantoneira dobrad/.test(n)) return 'l';
+  if(/cantoneira/.test(n)) return 'cantoneira';
   if(/metalon|tubo quadrad|tubo retangular/.test(n)) return 'metalon';
   if(/tubo/.test(n)) return 'tubo';
   if(/chata/.test(n)) return 'chata';
@@ -2775,23 +2803,30 @@ function tipoCalc(prod){
 function calcular(c){
   const T = CALC[c.tipo]; if(!T) return null;
   const v = {_raw:{}, _tab:c.tab||''};
-  T.campos.forEach(([k])=>{ v._raw[k] = c[k]||''; v[k] = (k==='comp'||k==='larg'||k==='kgm') ? lerNum(c[k]) : lerMedida(c[k]); });
+  T.campos.forEach(([k])=>{ v._raw[k] = c[k]||''; v[k] = (k==='comp'||k==='larg') ? emMetros(c[k]) : k==='kgm' ? lerNum(c[k]) : lerMedida(c[k]); });
   if(T.campos.some(([k])=>!(v[k] > 0))) return null;
-  const cada = T.cada ? T.cada(v) : T.kgm(v)*v.comp;
+  const cada = T.cada ? T.cada(v) : T.area(v) * v.comp * 0.00785;   // mm² x m x 7,85 kg/dm³ = mm² x mm x 7,85 ÷ 1.000.000
   const pecas = lerNum(c.pecas);
   if(!(cada > 0)) return null;
-  return {cada:r2(cada), pecas, total: pecas>0 ? r2(cada*pecas) : 0, desc:T.desc(v)};
+  const conta = T.conta ? T.conta(v) : `${T.areaTxt(v)} × ${mmDe(v.comp)} × 7,85 ÷ 1.000.000`;
+  return {cada:r2(cada), pecas, total: pecas>0 ? r2(cada*pecas) : 0, desc:T.desc(v), conta};
 }
 function textoAuto(c, r){ const [um, varios] = PECA(c.tipo); return `${r.desc} · ${num(r.pecas)} ${r.pecas===1?um:varios}`; }
+/* comprimento e largura gravados em metros (6 / 1,20) aparecem em mm no campo (6000 / 1200) */
+function camposEmMm(c){
+  ['comp','larg'].forEach(k=>{ const s = String(c[k]||''); if(s && !/m/i.test(s) && lerNum(s) > 0 && lerNum(s) <= 30) c[k] = paraCampo(r4(lerNum(s)*1000)); });
+}
 function calcCamposHTML(c){
-  const T = CALC[c.tipo], [um, varios] = PECA(c.tipo);
-  return `<div class="calc-grid">${T.campos.map(([k,t])=>`<label class="campo"><span>${t}</span><input data-calc="${k}" inputmode="${k==='esp'||k==='comp'||k==='larg'||k==='kgm'?'decimal':'text'}" value="${esc(c[k]||'')}" placeholder="${k==='comp'&&!ehChapa(c.tipo)?'6':k==='larg'?'1,20':k==='comp'?'3,00':'0'}"></label>`).join('')}
+  const T = CALC[c.tipo], [um, varios] = PECA(c.tipo), ch = ehChapa(c.tipo);
+  const ph = k => k==='comp' ? (ch ? '3000' : '6000') : k==='larg' ? '1200' : '0';
+  return `${T.dica ? `<p class="calc-aviso">${T.dica}</p>` : ''}<div class="calc-grid">${T.campos.map(([k,t])=>`<label class="campo"><span>${t}</span><input data-calc="${k}" inputmode="${['esp','comp','larg','kgm'].includes(k)?'decimal':'text'}" value="${esc(c[k]||'')}" placeholder="${ph(k)}"></label>`).join('')}
     <label class="campo"><span>Quantas ${varios}?</span><input data-calc="pecas" inputmode="decimal" value="${esc(c.pecas||'')}" placeholder="0"></label></div>
     ${T.campos.some(([k])=>k==='esp') ? (c.tipo==='xadrez'
         ? `<div class="bitolas"><small>Espessura:</small>${ESP_XADREZ.map(([pl,mm])=>`<button type="button" data-bit="${mm}">${pl ? pl+' ' : ''}<b>${mm}</b></button>`).join('')}</div>
            <p class="calc-dica">Peso pela tabela de chapa xadrez do fabricante, que já conta o relevo.</p>`
         : `<div class="bitolas"><small>Bitola${c.tab==='galv' ? ' da galvanizada' : ''}:</small>${(c.tab==='galv' ? BITOLAS_GALV : BITOLAS).map(([b,mm])=>`<button type="button" data-bit="${mm}">${b} <b>${mm}</b></button>`).join('')}</div>`) : ''}
-    ${T.campos.some(([k])=>['a','b','c','d'].includes(k)) ? `<p class="calc-dica">Pode digitar em polegadas também, como 1" ou 1/8".</p>` : ''}`;
+    <p class="calc-dica">${ch ? 'Largura e comprimento em mm, como 1200 x 3000. Em metros também serve, como 1,20 x 3,00.'
+      : `Comprimento em mm, como 6000. Em metros também serve, como 6.${T.campos.some(([k])=>['a','b','c','d','h'].includes(k)) ? ' As medidas podem ser em polegadas, como 1" ou 1/8".' : ''}`}</p>`;
 }
 /* aproveita o que já está escrito no item (ex.: "30x30 chapa 18", 20 barras) */
 function preencherCalc(c, espec, qtd, un){
@@ -2800,48 +2835,71 @@ function preencherCalc(c, espec, qtd, un){
   const bit = t.match(/(?:#|chapa\s*|bitola\s*|ch\.?\s*)(\d{2})\b/i);
   const espBit = bit ? ((c.tab==='galv' ? BITOLAS_GALV : BITOLAS).find(([b])=>b==='#'+bit[1])||[])[1] : null;
   const espMm = (t.match(/(\d+[.,]\d+)\s*mm/i)||[])[1];
-  const n = t.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?(?:\s*[x×]\s*(\d+(?:[.,]\d+)?))?/i);
-  const comp = (t.match(/(?:barra\s*(?:de\s*)?)?(\d+(?:[.,]\d+)?)\s*m(?:etros?)?\b(?!m)/i)||[])[1];
+  const N = String.raw`(\d+(?:[.,]\d+)?)`, X = String.raw`\s*[x×]\s*`;
+  const n = t.match(new RegExp(`${N}${X}${N}(?:${X}${N})?(?:${X}${N})?(?:${X}${N})?`, 'i'));
+  const q = n ? n.slice(1).filter(Boolean) : [];
+  const k = q.map(lerNum);
   const P = String.raw`(\d+(?:\s*[\s.\-]\s*\d+\/\d+)?|\d+\/\d+)`;
   const pol = t.match(new RegExp(`${P}\\s*["”]\\s*(?:[x×]\\s*${P}\\s*["”])?(?:\\s*[x×]\\s*${P}\\s*["”])?`));
-  const p = (k, val) => { if(val && !c[k]) c[k] = String(val).trim(); };
+  const p = (key, val) => { if(val && !c[key]) c[key] = String(val).trim(); };
   if(c.tipo==='xadrez' && pol && !c.esp) c.esp = pol[1] + '"';   // "chapa xadrez 3/16"
-  if(c.tipo==='chapa' || c.tipo==='xadrez'){
-    if(n && lerNum(n[1]) < 10 && lerNum(n[2]) < 20){ p('larg', n[1]); p('comp', n[2]); }
-    p('esp', espBit || espMm);
+  if(ehChapa(c.tipo)){
+    const tam = x => (x>0 && x<20) || (x>=100 && x<=20000);
+    p('esp', espBit);
+    if(k.length>=3 && k[0]<=30 && tam(k[1]) && tam(k[2])){ p('esp', q[0]); p('larg', q[1]); p('comp', q[2]); }          // 2,00 x 1200 x 3000
+    else if(k.length>=3 && k[2]<=30 && k[0]>=100 && k[1]>=100){ p('larg', q[0]); p('comp', q[1]); p('esp', q[2]); }   // 1200 x 3000 x 2,00
+    else if(k.length===2 && tam(k[0]) && tam(k[1]) && (k[0]<20)===(k[1]<20)){ p('larg', q[0]); p('comp', q[1]); }     // 1,20 x 3,00 ou 1200 x 3000
+    p('esp', espMm);
+    camposEmMm(c);
     return;
   }
+  // comprimento: "barra de 6 m", "6000 mm" ou o último número da medida (100 x 50 x 2,00 x 6000)
+  let compMm = (t.match(/\b(\d{4,5}|\d{1,2}\.\d{3})\s*mm\b/i)||[])[1];
+  if(q.length > 1 && k[k.length-1] >= 1000){ compMm = compMm || q[q.length-1]; q.pop(); k.pop(); }
+  const compM = (t.match(/(?:barra\s*(?:de\s*)?)?(\d+(?:[.,]\d+)?)\s*m(?:etros?)?\b(?!m)/i)||[])[1];
   if(pol){
-    const q = [pol[1], pol[2], pol[3]].filter(Boolean).map(x=>x+'"');
-    if(['tubo','redonda'].includes(c.tipo)) p('d', q[0]);
-    else if(c.tipo==='quadrada') p('a', q[0]);
-    else if(c.tipo==='chata'){ p('a', q[0]); p('esp', q[1]); }
-    else { p('a', q[0]); p('b', q.length>2 ? q[1] : q[0]); p('esp', q.length>2 ? q[2] : q[1]); }
-  } else if(n){
-    const q = [n[1], n[2], n[3], n[4]].filter(Boolean);
-    if(c.tipo==='ue'){ p('a', q[0]); p('b', q[1]); if(q.length>3){ p('c', q[2]); p('esp', q[3]); } else if(q[2]) p('c', q[2]); }
-    else if(c.tipo==='chata'){ p('a', q[0]); p('esp', q[1]); }
-    else if(['tubo'].includes(c.tipo)){ p('d', q[0]); p('esp', q[1]); }
-    else { p('a', q[0]); p('b', q[1]); p('esp', q[2]); }
+    const r = [pol[1], pol[2], pol[3]].filter(Boolean).map(x=>x+'"');
+    if(['tubo','redonda'].includes(c.tipo)) p('d', r[0]);
+    else if(c.tipo==='quadrada') p('a', r[0]);
+    else if(c.tipo==='chata'){ p('a', r[0]); p('esp', r[1]); }
+    else if(c.tipo==='cartola') p('esp', r[r.length-1]);
+    else if(c.tipo!=='kgm'){ p('a', r[0]); p('b', r.length>2 ? r[1] : r[0]); p('esp', r.length>2 ? r[2] : r[1]); }
+  } else if(q.length){
+    // espessura: a bitola (#18), o número com "mm" ou o último número pequeno (até 16 mm)
+    const ult = q[q.length-1];
+    let e = null;
+    if(q.length > 1 && (ult===espMm || (!espBit && !espMm && lerNum(ult) <= 16))){ e = ult; q.pop(); }
+    const d = q;
+    if(c.tipo==='ue' && d.length===2) c.tipo = 'u';          // Z ou U com 2 medidas = simples
+    else if(c.tipo==='u' && d.length===3) c.tipo = 'ue';     // com 3 medidas = enrijecido
+    if(c.tipo==='ue'){ p('a', d[0]); p('b', d[1]); p('c', d[2]); }
+    else if(['tubo','redonda'].includes(c.tipo)) p('d', d[0]);
+    else if(['chata','quadrada'].includes(c.tipo)) p('a', d[0]);
+    else if(c.tipo!=='cartola' && c.tipo!=='kgm'){ p('a', d[0]); p('b', d[1] || (['cantoneira','l','metalon'].includes(c.tipo) ? d[0] : '')); }
+    p('esp', espBit || espMm || e);
   }
   p('esp', espBit || espMm);
-  if(comp && lerNum(comp) >= 1 && lerNum(comp) <= 15) c.comp = comp;
+  if(compMm && lerNum(compMm) >= 300 && lerNum(compMm) <= 15000) c.comp = String(lerNum(compMm));
+  else if(compM && lerNum(compM) >= 1 && lerNum(compM) <= 15) c.comp = paraCampo(r4(lerNum(compM)*1000));
+  camposEmMm(c);
 }
 /* liga a calculadora dentro do formulário do item */
 function ligarCalculadora(v, it, aoUsar){
   const $ = s => v.querySelector(s);
   const c = it.calc ? {...it.calc} : {tipo: tipoCalc(it.prod)||'chapa'};
-  if(!c.comp && !ehChapa(c.tipo)) c.comp = '6';
+  if(!CALC[c.tipo]) c.tipo = 'chapa';
+  camposEmMm(c);
+  if(!c.comp && !ehChapa(c.tipo)) c.comp = '6000';
   const prodAtual = ()=> ($('#f-prod') ? $('#f-prod').value : it.prod) || it.prod;
   const desenhaCampos = ()=>{ c.tab = tabelaDe(prodAtual()); $('#c-campos').innerHTML = calcCamposHTML(c); conta(); };
   const conta = ()=>{
     const r = calcular(c), [um, varios] = PECA(c.tipo);
-    $('#c-res').innerHTML = r ? `<span>Cada ${um}: <b>${num(r.cada)} kg</b></span>${r.pecas>0?`<span class="calc-total">${num(r.pecas)} ${r.pecas===1?um:varios} = <b>${num(r.total)} kg</b></span>`:'<span>Falta a quantidade de '+varios+'.</span>'}`
+    $('#c-res').innerHTML = r ? `<span>Cada ${um}: <b>${num(r.cada)} kg</b></span><small class="calc-conta">${esc(r.conta)} = ${num(r.cada)} kg</small>${r.pecas>0?`<span class="calc-total">${num(r.pecas)} ${r.pecas===1?um:varios} = <b>${num(r.total)} kg</b></span>`:'<span>Falta a quantidade de '+varios+'.</span>'}`
                          : `<span>Preencha as medidas para ver o peso.</span>`;
     $('#c-usar').disabled = !(r && r.total>0);
     $('#c-usar').textContent = r && r.total>0 ? `Usar ${num(r.total)} kg no item` : 'Usar no item';
   };
-  $('#c-tipo').onchange = e=>{ c.tipo = e.target.value; if(!c.comp && !ehChapa(c.tipo)) c.comp = '6'; if(ehChapa(c.tipo) && c.comp==='6') c.comp = ''; desenhaCampos(); };
+  $('#c-tipo').onchange = e=>{ c.tipo = e.target.value; if(!c.comp && !ehChapa(c.tipo)) c.comp = '6000'; if(ehChapa(c.tipo) && ['6','6000','6.000'].includes(String(c.comp))) c.comp = ''; desenhaCampos(); };
   $('#c-campos').addEventListener('input', e=>{ const k = e.target.dataset.calc; if(k){ c[k] = e.target.value; conta(); } });
   $('#c-campos').addEventListener('click', e=>{ const b = e.target.closest('[data-bit]'); if(!b) return; c.esp = b.dataset.bit; const i = $('[data-calc="esp"]'); i.value = c.esp; conta(); });
   let preenchido = !!it.calc;
@@ -2928,7 +2986,7 @@ function lerPedido(texto){
       const ws = resto.split(/\s+/); const k = ws.findIndex(w=>/[\d#Ø]/.test(w));
       prod = (k<0 ? ws : ws.slice(0,k)).join(' '); espec = k<0 ? '' : ws.slice(k).join(' ');
       prod = prod.charAt(0).toUpperCase() + prod.slice(1);
-      if(!un && qtd){ const tc = tipoCalc(prod); un = tc==='chapa' ? 'peça' : tc ? 'barra' : 'un'; }
+      if(!un && qtd){ const tc = tipoCalc(prod); un = ehChapa(tc) ? 'peça' : tc ? 'barra' : 'un'; }
     }
     const temNum = /\d/.test(l);
     if(!pr && (!temNum || !prod || prod.length < 3)){ ignoradas.push(l); return; }
