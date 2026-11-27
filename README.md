@@ -1,60 +1,125 @@
-# Orçamentos RAP
+[README (1).md](https://github.com/user-attachments/files/35495179/README.1.md)
+<div align="center">
 
-Aplicativo web para criar, enviar e acompanhar orçamentos de aço da **RAP Representações**, empresa de representação comercial de Curitiba e região metropolitana.
+# RAP Orçamentos
 
-O representante monta o orçamento no celular ou no computador, gera um PDF com a identidade visual da empresa e envia pelo WhatsApp em poucos toques. Os orçamentos ficam salvos no aparelho, funcionam sem internet e sincronizam com a nuvem para aparecerem em todos os aparelhos do usuário.
+**App web para criar, enviar e acompanhar orçamentos e pedidos de aço.**
 
-> Projeto real, em uso no dia a dia da empresa. Desenvolvido por **Vinicius Lima Pereira**, estudante de Sistemas de Informação.
+[![Acessar o app](https://img.shields.io/badge/Acessar_o_app-1D3F8F?style=for-the-badge&logo=render&logoColor=white)](https://rap-representa-es-or-amentos.onrender.com)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Firebase](https://img.shields.io/badge/Firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
+
+Projeto real, em uso no dia a dia da **RAP Representações**, representação comercial de aço em Curitiba e região metropolitana.
+
+</div>
 
 ---
 
-## O problema
+## Sobre
 
-Os orçamentos eram montados à mão e enviados por WhatsApp e e-mail, sem padrão visual, sem histórico organizado e sem forma de acompanhar quais estavam em aberto. O usuário principal é uma pessoa mais velha, então a solução precisava ser simples, com letras grandes e poucos passos.
+O representante monta o orçamento no celular ou no computador, gera um PDF com a identidade visual da empresa e envia pelo WhatsApp em poucos toques. Quando o cliente fecha, o mesmo orçamento vira pedido.
+
+Tudo fica salvo no aparelho, funciona sem internet e sincroniza com a nuvem para aparecer em todos os aparelhos do usuário.
+
+### O problema
+
+Os orçamentos eram feitos à mão e enviados por WhatsApp e e-mail, sem padrão visual, sem histórico e sem controle do que estava em aberto. O usuário principal é uma pessoa mais velha, então o app precisava de letras grandes, poucos passos e nenhum caminho onde ele pudesse se perder.
+
+---
+
+## Telas
+
+| Aba | Para que serve |
+|---|---|
+| **Início** | Resumo do mês, orçamentos vencendo e atalho para emitir pedidos. As configurações ficam na engrenagem do topo |
+| **Orçamentos** | Lista com busca, filtros por período e situação |
+| **Pedidos** | Vendas fechadas, com o que falta emitir e o que já foi enviado |
+| **Clientes** | Cadastro e histórico de cada cliente, mesmo sem orçamento |
+| **Relatório** | Últimos 12 meses por origem do cliente e motivo de perda |
+
+---
 
 ## Funcionalidades
 
-### Orçamentos
-- Cadastro do cliente:
-  - CNPJ ou CPF com máscara e conferência dos dígitos verificadores, incluindo o novo **CNPJ alfanumérico** (em vigor desde julho de 2026);
-  - telefone com DDD;
-  - cidade escolhida em uma lista com Curitiba e região metropolitana.
-- Sugestão automática de clientes já atendidos. Ao escolher um, os dados dele são preenchidos.
-- Lista de produtos por grupo (chapas, perfis, tubos, telhas, corte), com busca sem acentos e um grupo "usados recentemente".
-- Em cada item:
-  - especificação, quantidade, unidade e preço;
-  - preço com até 4 casas decimais, porque aço é vendido por kg;
-  - lembra o último preço usado para aquele produto;
-  - sugere as medidas já usadas antes para aquele produto.
-- Desconto por produto ou no pedido inteiro, em % ou R$. Todas as contas são arredondadas em centavos, para a soma das linhas bater com o total.
-- Frete incluso (CIF), por conta do cliente (FOB) ou cobrado como taxa de entrega.
-- Condições comerciais em listas prontas: pagamento, prazo, validade e fornecedor, com o CNPJ do fornecedor já cadastrado.
-- Duplicar orçamento, criar revisão (`2026-014-R1`) e começar um novo orçamento para o mesmo cliente.
+<details open>
+<summary><b>Orçamentos</b></summary>
 
-### PDF profissional
-- Gerado no próprio navegador com **jsPDF**, com as fontes da marca embutidas.
-- Cabeçalho com logo, quadro de dados do cliente, tabela de itens com paginação automática, condições comerciais, totais, peso total e campo opcional de aceite do cliente.
-- Tela "Confira antes de gerar", para revisar tudo antes de enviar.
-- Envio direto pelo WhatsApp pela Web Share API. No computador, o PDF é baixado.
+- Cliente com CNPJ ou CPF validado (inclusive o **CNPJ alfanumérico**, em vigor desde julho de 2026), telefone e cidade da região.
+- Sugestão de clientes já atendidos, com os dados preenchidos ao escolher.
+- Produtos por grupo (chapas e bobinas, perfis, tubos, barras, telhas, corte), com busca sem acento e "usados recentemente".
+- Em cada item, o app lembra o último preço e as medidas já usadas para aquele produto.
+- Preço com até 4 casas decimais, porque aço é vendido por kg.
+- Desconto por item ou no total, em % ou R$, com contas em centavos para a soma sempre bater.
+- Frete CIF, FOB ou taxa de entrega.
+- Condições comerciais prontas: pagamento, prazo, validade e fornecedor.
+- Duplicar, criar revisão (`2026-014-R1`) ou começar outro orçamento para o mesmo cliente.
+- **Colar pedido do cliente**: o texto que o cliente mandou no WhatsApp vira itens do orçamento.
 
-### Organização
+</details>
+
+<details>
+<summary><b>Calculadora de peso</b></summary>
+
+Dentro do item, calcula o peso do aço (7,85 kg/dm³) com todas as medidas em mm:
+
+- chapas, barras e tubos pelas fórmulas de cada formato;
+- perfis dobrados (U, L, Z, cartola): `(soma das medidas − 4 × espessura) × espessura × comprimento × 7,85 ÷ 1.000.000`.
+
+Nos perfis, o app avisa quando a medida é de **uma aba só**, para evitar erro na conta.
+
+</details>
+
+<details>
+<summary><b>Pedidos</b></summary>
+
+- O pedido sai de um orçamento fechado, sem digitar nada de novo.
+- Numeração própria de pedido, separada da dos orçamentos.
+- PDF de pedido no mesmo padrão visual.
+- Aviso quando o orçamento muda depois que o pedido foi emitido.
+
+</details>
+
+<details>
+<summary><b>PDF profissional</b></summary>
+
+- Gerado no navegador com **jsPDF**, com as fontes da marca embutidas.
+- Logo, dados do cliente, tabela com paginação automática, condições, totais, peso total e campo opcional de aceite.
+- Tela **Confira antes de gerar** para revisar tudo.
+- Envio pelo WhatsApp com a Web Share API. No computador, o PDF é baixado.
+
+</details>
+
+<details>
+<summary><b>Acompanhamento</b></summary>
+
 - Situação de cada orçamento: em aberto, fechado ou perdido, com o motivo da perda.
-- Etiquetas de validade ("Vence amanhã", "Vencido") e botão **Cobrar retorno pelo WhatsApp**, que abre uma mensagem pronta.
-- Resumo do mês (orçado, fechado, taxa de fechamento) e relatório dos últimos 12 meses, por origem do cliente e por motivo de perda.
-- Busca, filtros por período e ordenação.
-- Exportação para Excel em CSV, com separador `;` e acentos corretos.
+- Etiquetas "Vence amanhã" e "Vencido" e botão **Cobrar retorno pelo WhatsApp** com mensagem pronta.
+- Resumo do mês: orçado, fechado e taxa de fechamento.
+- Exportação para Excel (CSV com `;` e acentos corretos).
 
-### Segurança dos dados
-- Lixeira com 30 dias para recuperar orçamentos excluídos.
+</details>
+
+<details>
+<summary><b>Segurança dos dados</b></summary>
+
+- Lixeira com 30 dias para recuperar o que foi excluído.
 - Cópia de segurança em arquivo, com lembrete periódico.
-- Migrações de dados por versão: atualizar o app nunca apaga dados antigos.
-- Sincronização com a nuvem (detalhes abaixo).
+- Migrações por versão: atualizar o app nunca apaga dados antigos.
+- Sincronização com a nuvem, explicada abaixo.
 
-### Uso no celular
-- App instalável (PWA): ícone próprio e abertura em tela cheia.
-- Funciona sem internet, por um service worker com estratégia *network-first*.
-- O botão voltar do celular fecha só a janela aberta.
-- Campos que avançam com Enter e opção de texto maior.
+</details>
+
+<details>
+<summary><b>Uso no celular</b></summary>
+
+- Instalável (PWA), com ícone próprio e tela cheia.
+- Abre sem internet, com service worker *network-first*.
+- O botão voltar do Android fecha só a janela aberta.
+- Campos que avançam com Enter e opção de letra maior.
+
+</details>
 
 ---
 
@@ -62,31 +127,34 @@ Os orçamentos eram montados à mão e enviados por WhatsApp e e-mail, sem padr�
 
 | Parte | Tecnologia |
 |---|---|
-| Interface | HTML, CSS e JavaScript puro (sem framework) |
-| PDF | jsPDF, com as fontes Barlow e IBM Plex Sans Condensed embutidas |
-| Dados no aparelho | `localStorage`, com migrações versionadas |
-| Nuvem | Firebase Authentication (e-mail e senha) e Cloud Firestore (cliente *lite*) |
-| Empacotamento | esbuild, para incluir só as funções do Firebase usadas (cerca de 220 KB) |
-| App instalável e offline | Web App Manifest e Service Worker |
-| Testes | Playwright, com o emulador oficial do Firebase Authentication e uma nuvem simulada |
+| Interface | HTML, CSS e JavaScript puro, sem framework |
+| PDF | jsPDF, com Barlow e IBM Plex Sans Condensed embutidas |
+| Dados no aparelho | `localStorage` com migrações versionadas |
+| Nuvem | Firebase Authentication (e-mail e senha) e Cloud Firestore (*lite*) |
+| Empacotamento | esbuild, com só as funções do Firebase usadas (cerca de 220 KB) |
+| Offline e instalação | Web App Manifest e Service Worker |
+| Testes | Playwright, emulador do Firebase Authentication e nuvem simulada |
 | Hospedagem | Render (site estático) |
 
-O app inteiro é **um único arquivo HTML**. Fontes, logo, jsPDF e Firebase vão embutidos, então ele não depende de CDN e abre mesmo sem conexão.
+O app inteiro é **um único arquivo HTML**. Fontes, logo, jsPDF e Firebase vão embutidos, então ele não depende de CDN e abre sem conexão.
 
 ---
 
-## Como a sincronização funciona
+## Sincronização
 
-O app foi feito para funcionar **primeiro no aparelho** (*offline-first*). A nuvem é uma camada de sincronização por cima.
+O app é *offline-first*: tudo é salvo no aparelho e a nuvem sincroniza por cima.
 
-1. **Tudo é salvo primeiro no aparelho.** Cada orçamento tem um campo `alterado`, com data e hora da última mudança.
-2. **Busca incremental.** Cada documento na nuvem recebe um `serverTimestamp()` (`sinc`). O aparelho guarda o maior `sinc` que já leu e, na próxima sincronização, busca só o que mudou depois dele (`where('sinc', '>', marca)`). Isso economiza leituras e não depende do relógio de cada aparelho.
-3. **Envio do que está pendente.** Cada orçamento guarda localmente qual versão já está na nuvem (`_sinc`). Quando `_sinc` é diferente de `alterado`, ele precisa subir. Se a internet cair, a alteração fica pendente e sobe na próxima tentativa, mesmo que o app seja fechado.
-4. **Conflitos.** Vale a versão mais recente de cada orçamento (*last-write-wins*). Os dados gerais (configurações, produtos e preços) seguem a mesma regra, mas a numeração sempre fica com o maior valor.
-5. **Numeração sem repetir.** Se dois aparelhos sem internet criam o mesmo número, o que ainda não foi enviado ao cliente recebe automaticamente o próximo número livre.
-6. **Quando sincroniza.** Ao abrir o app, ao voltar para ele, ao reconectar e a cada minuto com o app aberto.
+| Etapa | Como funciona |
+|---|---|
+| **Salvar** | Cada orçamento tem o campo `alterado`, com a data e a hora da última mudança |
+| **Baixar** | Cada documento recebe um `serverTimestamp()` (`sinc`). O aparelho busca só o que mudou depois do último lido (`where('sinc', '>', marca)`), sem depender do relógio de cada aparelho |
+| **Enviar** | O campo `_sinc` guarda a versão que já está na nuvem. Se for diferente de `alterado`, sobe. Sem internet, fica pendente para a próxima tentativa |
+| **Conflitos** | Vale a versão mais recente (*last-write-wins*). Na numeração, vale sempre o maior valor |
+| **Números repetidos** | Se dois aparelhos offline criam o mesmo número, o que ainda não foi enviado ao cliente pega o próximo livre |
+| **Quando** | Ao abrir o app, ao voltar para ele, ao reconectar e a cada minuto |
 
-### Regras de segurança do Firestore
+<details>
+<summary><b>Regras do Firestore e estrutura dos dados</b></summary>
 
 Cada usuário só lê e grava os próprios dados:
 
@@ -101,54 +169,56 @@ service cloud.firestore {
 }
 ```
 
-Estrutura dos dados:
+```
+usuarios/{uid}/orcamentos/{id}   um documento por orçamento
+usuarios/{uid}/dados/geral       configurações, produtos, preços e numeração
+```
 
-```
-usuarios/{uid}/orcamentos/{id}      um documento por orçamento
-usuarios/{uid}/dados/geral          configurações, produtos, preços e numeração
-```
+</details>
 
 ---
 
 ## Arquivos
 
 ```
-index.html                      o app completo (interface, PDF, dados e sincronização)
-orcamentos.webmanifest          nome, ícones e modo tela cheia do app instalado
-sw-orcamentos.js                service worker (abre sem internet)
-icone-orcamentos-*.png          ícones do app (180, 192, 512 e versão "maskable")
+index.html                 o app completo (interface, PDF, dados e sincronização)
+orcamentos.webmanifest     nome, ícones e modo tela cheia
+sw-orcamentos.js           service worker (abre sem internet)
+icone-orcamentos-*.png     ícones (180, 192, 512 e "maskable")
 ```
 
 ---
 
-## Como usar ou publicar
+## Como publicar
 
-1. Publique os arquivos em qualquer hospedagem estática, como Render, GitHub Pages ou Netlify. Eles precisam ficar na raiz do site.
+1. Coloque os arquivos na raiz de uma hospedagem estática (Render, GitHub Pages ou Netlify).
 2. Para usar a nuvem, crie um projeto no Firebase:
    1. ative o login por **e-mail e senha**;
    2. crie o **Firestore** e publique as regras acima;
    3. registre um app da Web e coloque o `firebaseConfig` no app.
 3. Abra o site, toque em **Entrar** e use o e-mail e a senha criados no Firebase.
-4. No celular, use **Adicionar à tela inicial** para instalar o app.
+4. No celular, use **Adicionar à tela inicial**.
 
-Sem o Firebase configurado, o app funciona normalmente, só que salvando apenas no aparelho.
+Sem Firebase, o app funciona normalmente, salvando só no aparelho.
 
 ---
 
 ## Testes
 
-Os testes automatizados usam **Playwright**, com celular e computador simulados. Eles cobrem:
+Testes automatizados com **Playwright**, em celular e computador simulados:
 
-- a migração de dados de versões antigas sem perder nada, e o PDF gerado igual ao de antes;
-- o fluxo completo de orçamento, com o voltar do Android em cada janela, a lixeira e a numeração;
-- as contas em centavos e o preço com 4 casas;
-- o PDF com 30 itens, e-mails longos e observações;
-- a sincronização entre dois aparelhos, sem internet, com conflitos e com números repetidos;
-- o login real do Firebase, testado no emulador oficial;
-- as telas de 360 a 1366 px, sem rolagem lateral, e o app abrindo sem internet.
+- migração de versões antigas sem perder dados, com o PDF igual ao de antes;
+- fluxo completo de orçamento e pedido, com o voltar do Android, a lixeira e a numeração;
+- contas em centavos, preço com 4 casas e calculadora de peso;
+- PDF com 30 itens, e-mails longos e observações;
+- sincronização entre dois aparelhos, offline, com conflitos e números repetidos;
+- login real do Firebase no emulador oficial;
+- telas de 360 a 1366 px sem rolagem lateral e abertura sem internet.
 
 ---
 
-## Autor
+<div align="center">
 
-**Vinicius Lima Pereira**: estudante de Sistemas de Informação na Universidade Positivo, em Curitiba (PR).
+Desenvolvido por **Vinicius Lima Pereira**, estudante de Sistemas de Informação na Universidade Positivo, Curitiba (PR).
+
+</div>
