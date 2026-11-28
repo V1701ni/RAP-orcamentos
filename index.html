@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -568,6 +569,67 @@ html.escuro :is(.faixa-info button,.tel-conferir button){border-color:#3A4560;co
 .inicio-acoes.so-um{display:block}
 .inicio-acoes.so-um .novo{width:100%}
 @media (min-width:1000px){ .inicio-acoes.so-um{max-width:360px} }
+/* anotações */
+.nav{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:430px){ .nav-b{font-size:11px;letter-spacing:-.15px} html.tm .nav-b{font-size:11.5px} }
+.an-sec h2{font-size:16px;margin:22px 2px 8px;display:flex;align-items:center;gap:8px;color:var(--tinta)}
+.an-sec h2 small{font-size:13px;font-weight:700;color:var(--suave);background:#E8ECF2;border-radius:999px;padding:1px 8px}
+.an-sec.atrasada h2{color:var(--vermelho)}
+.an-lista{display:flex;flex-direction:column;gap:8px}
+.an-item{display:flex;align-items:stretch;background:var(--branco);border:1px solid var(--linha);border-radius:12px;overflow:hidden}
+.an-item.atrasada{border-left:4px solid var(--vermelho)}
+.an-check{flex:none;width:58px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#fff;padding:0}
+.an-check .bola{width:28px;height:28px;border-radius:50%;border:2px solid #9AA4B2;display:flex;align-items:center;justify-content:center;background:var(--branco)}
+.an-check:active .bola{background:#E7F4EC;border-color:var(--verde)}
+.an-item.feita .an-check .bola{background:var(--verde);border-color:var(--verde)}
+.an-corpo{flex:1;min-width:0;border:0;background:none;text-align:left;padding:13px 14px 13px 0;display:flex;flex-direction:column;gap:7px}
+.an-txt{color:var(--tinta);font-size:16.5px;line-height:1.38;white-space:pre-wrap;overflow-wrap:anywhere}
+.an-item.feita .an-txt{text-decoration:line-through;color:var(--suave)}
+.an-meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;color:var(--suave)}
+.an-cli{display:inline-flex;align-items:center;gap:4px}
+.etq-hora{background:#EAF1FD;color:var(--azul)}
+.etq-atrasada{background:#FBE7E4;color:#9B2C20}
+.an-painel{margin-top:14px;background:var(--branco);border:1px solid #C9D8F2;border-radius:var(--raio);overflow:hidden}
+.an-painel h2{margin:0;padding:10px 14px;font-size:16px;color:var(--marinho);background:#EEF3FB;display:flex;align-items:center;gap:8px}
+.an-painel .an-item{border:0;border-top:1px solid var(--linha);border-radius:0}
+.an-painel .an-item.atrasada{border-left:4px solid var(--vermelho)}
+.an-ver{width:100%;border:0;border-top:1px solid var(--linha);background:none;color:var(--azul);font-weight:700;min-height:46px}
+.an-chips{display:flex;flex-wrap:wrap;gap:8px}
+.an-chips .filtro{height:44px}
+.an-escolher{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.an-escolher[hidden]{display:none}
+.an-escolher .campo{margin-top:10px}
+.an-quando-txt{margin:10px 2px 0;font-size:15px;color:var(--texto);font-weight:600}
+.an-agenda{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:15.5px;color:var(--tinta);cursor:pointer}
+.an-agenda[hidden]{display:none}
+.an-agenda input{width:24px;height:24px;flex:none;margin:0;accent-color:var(--azul)}
+.an-agenda small{color:var(--suave)}
+.an-mic{width:100%;margin-top:10px;min-height:48px;font-size:16px}
+.an-mic.gravando{background:#FBE7E4;color:#9B2C20;border-color:#EBC1BB}
+.an-mais{display:flex;flex-direction:column;gap:10px;margin-top:22px;padding-top:16px;border-top:1px solid var(--linha)}
+.an-feitas{margin-top:22px}
+.an-feitas summary{cursor:pointer;font-weight:700;color:var(--suave);padding:8px 2px;font-size:15.5px}
+.an-feitas .an-lista{margin-top:6px}
+.an-cli-btn{margin-top:12px}
+.an-rodape{margin-top:26px;text-align:center}
+.an-novo{border-color:var(--azul-vivo);color:var(--azul-vivo)}
+.an-fab{position:fixed;right:14px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:15;height:54px;padding:0 20px 0 16px;border:0;border-radius:999px;background:var(--azul-vivo);color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;gap:6px;box-shadow:0 10px 24px -8px rgba(14,103,223,.65)}
+.an-fab[hidden]{display:none}
+.an-fab:active{background:var(--azul)}
+.nav .nav-anotar{display:none}
+.nav-cont-notas{background:var(--vermelho)}
+@media (min-width:1000px){ .an-fab{display:none !important} .nav .nav-anotar{display:flex;margin-top:-4px} }
+@media (min-width:1200px){ .inicio-acoes{grid-template-columns:1fr 1fr 1fr} .inicio-acoes .an-novo{margin-top:0;min-height:64px} }
+html.tm .an-txt{font-size:18.5px} html.tm .an-meta{font-size:15.5px} html.tm .an-painel h2,html.tm .an-sec h2{font-size:18px}
+html.escuro .an-painel{border-color:var(--linha)}
+html.escuro .an-painel h2{background:#1E2A44;color:#A9C3F7}
+html.escuro .etq-hora{background:#1E2A44;color:#A9C3F7}
+html.escuro .etq-atrasada{background:rgba(255,142,128,.16);color:#FF8E80}
+html.escuro .an-sec h2 small{background:#26324B;color:#B3BCCB}
+html.escuro .an-check .bola{border-color:#6B7891}
+html.escuro .an-mic.gravando{background:rgba(255,142,128,.16);color:#FF8E80;border-color:#5A3530}
+html.escuro .an-novo{border-color:#86ADFF;color:#86ADFF}
+html.escuro .nav-cont-notas{background:#C0392B}
 </style>
 </head>
 <body>
@@ -595,6 +657,9 @@ html.escuro :is(.faixa-info button,.tel-conferir button){border-color:#3A4560;co
   <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6.5 9.5V20h11V9.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20v-5h4v5" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
   <symbol id="i-cliente" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 21c1.2-4 4.2-6 8-6s6.8 2 8 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
   <symbol id="i-planilha" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 9.5h18M3 15h18M9.5 4v16" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+  <symbol id="i-nota" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></g></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21"/></g></symbol>
+  <symbol id="i-certo" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <div id="app"></div>
@@ -1013,7 +1078,7 @@ const CHAVE = 'rap-orcamentos-v1';
 const TESTE = false;
 const NUVEM_CONFIG = {"apiKey": "AIzaSyAN7dGMMiING53Pedv1yNhqQwXsjNb-ScQ", "authDomain": "orcamentos-rap.firebaseapp.com", "projectId": "orcamentos-rap", "storageBucket": "orcamentos-rap.firebasestorage.app", "messagingSenderId": "187997430413", "appId": "1:187997430413:web:af40b938bb4ed30d63f8c4"};          // configuração do Firebase (fica null até ser preenchida)
 const NUVEM_PASTA = TESTE ? 'teste-' : '';  // a versão de teste guarda na nuvem separada dos orçamentos reais
-const VERSAO = 8;
+const VERSAO = 9;
 const DIA = 86400000;
 
 /* carrega as fontes na tela a partir das mesmas fontes do PDF */
@@ -1116,6 +1181,7 @@ function estadoInicial(){
     recentes:[],
     orcs:[],
     clientes:[],
+    notas:[],
     _apagarNuvem:[]
   };
 }
@@ -1177,6 +1243,9 @@ function migrar(D){
   if(D.versao < 8){ garantirDegraus(D.produtos); D.versao = 8; }
   if(!Array.isArray(D.recentes)) D.recentes = [];
   if(!Array.isArray(D._apagarNuvem)) D._apagarNuvem = [];
+  if(!Array.isArray(D.notas)) D.notas = [];
+  if(D.versao < 9) D.versao = 9;
+  D.notas = podarNotas(D.notas);
   return D;
 }
 
@@ -1342,6 +1411,7 @@ function desenhar(){
   else if(tela.nome==='clientes') telaClientes();
   else if(tela.nome==='pedido') telaPedido(tela.id);
   else if(tela.nome==='pedidos') telaPedidos();
+  else if(tela.nome==='notas') telaNotas();
 }
 
 /* ================= tela: início ================= */
@@ -1396,8 +1466,9 @@ function telaInicio(){
     <div class="inicio-acoes">
       <button class="novo" onclick="novoOrc()">${ic('mais',26)} Novo orçamento</button>
       <button class="novo-ped" onclick="escolherParaPedido()">${ic('doc',24)} Emitir pedido${semPedido().length ? `<span class="np-cont">${semPedido().length}</span>` : ''}</button>
+      <button class="novo-ped an-novo" onclick="formNota()">${ic('nota',24)} Anotar</button>
     </div>
-    <div class="inicio-painel">${retornoHTML()}${A.length ? resumoMesHTML() : ''}</div>
+    <div class="inicio-painel">${notasInicioHTML()}${retornoHTML()}${A.length ? resumoMesHTML() : ''}</div>
     ${listaOrcHTML(A, cont)}
     <p class="rodape-ver" id="rodape-nuvem">${esc(rodapeNuvem())}</p>
   </main>`;
@@ -3458,6 +3529,7 @@ function telaClienteCad(cid){
         <button class="btn btn-perigo btn-cheio" onclick="excluirCadastro('${c.id}')">${ic('lixo')} Excluir cadastro</button>
       </div>
     </div></section>
+    ${notasClienteHTML('c:'+c.id, c)}
     <div class="vazio"><strong>Nenhum orçamento ainda</strong>Os orçamentos deste cliente vão aparecer aqui.</div>
   </main>`;
 }
@@ -3493,6 +3565,7 @@ function telaCliente(oid){
       <span class="rm-cel"><small>Taxa de fechamento</small><strong>${Math.round(fech.length/l.length*100)}%</strong><em>${ab.length} em aberto · ${perd.length} ${perd.length===1?'perdido':'perdidos'}</em></span>
       <span class="rm-cel"><small>Sua comissão</small><strong>${fech.length && com.sem<fech.length ? moeda(com.v) : '—'}</strong><em>${fech.length ? 'das vendas fechadas' : 'quando fechar uma venda'}</em></span>
     </div>
+    ${notasClienteHTML(l[0].id, c)}
     <section class="bloco"><h2>Últimos preços passados</h2><div class="cartao">
       ${precos.length ? precos.map(x=>`<div class="preco-l">
         <div><b>${esc(x.i.prod)}</b>${x.i.espec?`<small class="d">${esc(x.i.espec)}</small>`:''}
@@ -3681,7 +3754,7 @@ const marcaMaior = (a,b) => !!a && (!b || a.s > b.s || (a.s === b.s && a.n > b.n
 function paraNuvem(o){ const x = JSON.parse(JSON.stringify(o)); Object.keys(x).forEach(k=>{ if(k[0]==='_') delete x[k]; }); return x; }
 function geralParaNuvem(){
   const c = {...E.config}; delete c.ultimaCopia; delete c.textoMaior; delete c.escuro; delete c.dicaIOS;   // preferências de cada aparelho
-  return JSON.parse(JSON.stringify({config:c, produtos:E.produtos, precos:E.precos, recentes:E.recentes||[], clientes:E.clientes||[], alterado:E.geralAlterado}));
+  return JSON.parse(JSON.stringify({config:c, produtos:E.produtos, precos:E.precos, recentes:E.recentes||[], clientes:E.clientes||[], notas:notasParaNuvem(), alterado:E.geralAlterado}));
 }
 function substituirObjeto(alvo, novo){ Object.keys(alvo).forEach(k=>{ if(!(k in novo)) delete alvo[k]; }); Object.assign(alvo, novo); }
 function pendentesNuvem(){
@@ -3790,6 +3863,12 @@ function aplicarGeral(g){
   rem.forEach((r,id)=>{ const l = loc.get(id); if(!l || (r.alterado||'') > (l.alterado||'')){ loc.set(id, r); mud = true; } });
   const soAqui = [...loc.values()].some(c=>{ const r = rem.get(c.id); return !r || (c.alterado||'') > (r.alterado||''); });
   E.clientes = [...loc.values()];
+  /* anotações: mesma regra, uma por uma */
+  const remN = new Map((Array.isArray(g.notas) ? g.notas : []).filter(n=>n && n.id && !notaVencida(n)).map(n=>[n.id,n]));
+  const locN = new Map((E.notas||[]).map(n=>[n.id,n]));
+  remN.forEach((r,id)=>{ const l = locN.get(id); if(!l || (r.alterado||'') > (l.alterado||'')){ locN.set(id, r); mud = true; } });
+  E.notas = podarNotas([...locN.values()]);
+  const soAquiN = E.notas.some(n=>{ const r = remN.get(n.id); return !r || (n.alterado||'') > (r.alterado||''); });
   const seqR = (g.config && g.config.seq) || {};
   Object.entries(seqR).forEach(([ano,n])=>{ if((E.config.seq[ano]||0) < n){ E.config.seq[ano] = n; mud = true; } });
   if(!E.config.seqPed) E.config.seqPed = {};
@@ -3803,7 +3882,7 @@ function aplicarGeral(g){
     E.clientes = [...loc.values()];
     E.geralAlterado = g.alterado; E._geralSinc = g.alterado; mud = true;
   } else if(g.alterado === E.geralAlterado && E._geralSinc !== g.alterado){ E._geralSinc = g.alterado; mud = true; }
-  if(soAqui){ E.geralAlterado = agora(); mud = true; }   // a nuvem ainda não tem algum cliente deste aparelho
+  if(soAqui || soAquiN){ E.geralAlterado = agora(); mud = true; }   // a nuvem ainda não tem algum cliente deste aparelho
   return mud;
 }
 /* dois aparelhos sem internet podem criar o mesmo número: o que ainda não foi enviado ganha um número novo */
@@ -3856,6 +3935,7 @@ function redesenharSeguro(forcar){
   else if(tela.nome==='clientes') telaClientes();
   else if(tela.nome==='pedido') telaPedido(tela.id);
   else if(tela.nome==='pedidos') telaPedidos();
+  else if(tela.nome==='notas') telaNotas();
 }
 function textoStatusNuvem(){
   if(!NUVEM) return '';
@@ -3970,9 +4050,308 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
 }
 
 
+/* ================= anotações e lembretes ================= */
+/* cada anotação: {id, texto, quando:'AAAA-MM-DDTHH:MM' ou '', cli:{empresa,nome,cnpj,tel}|null, feito:ISO|null, excluido, criado, alterado}
+   vai para a nuvem junto com os clientes (no documento "geral"), juntando aparelho por aparelho: vale a mais nova */
+const CHAVE_AVISADOS = `${CHAVE}-avisados`;
+const CHAVE_AGENDA = `${CHAVE}-agenda`;
+const DIAS_SEM = ['dom','seg','ter','qua','qui','sex','sáb'];
+let buscaNota = '';
+
+const notasAtivas = () => (E.notas||[]).filter(n=>!n.excluido);
+const acharNota = id => (E.notas||[]).find(n=>n.id===id);
+const pendente = n => !n.feito;
+function horaLocal(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+const agoraLocal = () => horaLocal(new Date());
+/* feitas ou excluídas há mais de 120 dias saem do app (em todos os aparelhos) */
+const notaVencida = n => (n.excluido || n.feito) && (Date.now() - Date.parse(n.alterado||n.criado||0)) > 120*DIA;
+function podarNotas(l){ return (l||[]).filter(n=>n && n.id && !notaVencida(n)); }
+function notasParaNuvem(){ return (E.notas||[]).map(n=>{ const x = {...n}; Object.keys(x).forEach(k=>{ if(k[0]==='_') delete x[k]; }); return x; }); }
+
+function grupoNota(n){
+  if(n.feito) return 'feita';
+  if(!n.quando) return 'semdata';
+  if(n.quando <= agoraLocal()) return 'atrasada';
+  return n.quando.slice(0,10) === hojeISO() ? 'hoje' : 'proxima';
+}
+const porQuando = (a,b) => (a.quando||'').localeCompare(b.quando||'') || (a.criado||'').localeCompare(b.criado||'');
+const vencidasAgora = () => notasAtivas().filter(n=>pendente(n) && n.quando && n.quando <= agoraLocal());
+function textoQuando(q){
+  if(!q) return '';
+  const d = q.slice(0,10), h = q.slice(11,16), dd = diasAte(d);
+  const [a,m,di] = d.split('-').map(Number);
+  const dia = dd===0 ? 'Hoje' : dd===1 ? 'Amanhã' : dd===-1 ? 'Ontem' : `${DIAS_SEM[new Date(a,m-1,di).getDay()]}, ${diaMes(d)}`;
+  return `${dia}, ${h}`;
+}
+const nomeCliNota = c => c ? (c.empresa || c.nome || '') : '';
+function notasDoCliente(c){
+  const d = docCliente(c), k = nomeCliente(c);
+  if(!d && !k) return [];
+  return notasAtivas().filter(n=> n.cli && ((d && docCliente(n.cli)===d) || (k && nomeCliente(n.cli)===k)));
+}
+
+/* uma linha de anotação: bolinha para marcar como feita + texto */
+function itemNotaHTML(n, semCliente){
+  const g = grupoNota(n), cli = nomeCliNota(n.cli);
+  const etq = n.quando ? `<span class="etq ${g==='atrasada'?'etq-atrasada':g==='feita'?'etq-vencido':'etq-hora'}">${g==='atrasada'?'Passou da hora · ':''}${esc(textoQuando(n.quando))}</span>` : '';
+  const meta = [etq, cli && !semCliente ? `<span class="an-cli">${ic('cliente',15)} ${esc(cli)}</span>` : ''].filter(Boolean).join('');
+  const resumo = esc(String(n.texto).slice(0,60));
+  return `<div class="an-item ${g}">
+    <button class="an-check" onclick="concluirNota('${n.id}')" aria-label="${n.feito ? 'Desmarcar' : 'Marcar como feita'}: ${resumo}"><span class="bola">${n.feito ? ic('certo',16) : ''}</span></button>
+    <button class="an-corpo" onclick="formNota('${n.id}')" aria-label="Abrir anotação: ${resumo}">
+      <span class="an-txt">${esc(n.texto)}</span>${meta ? `<span class="an-meta">${meta}</span>` : ''}
+    </button></div>`;
+}
+
+/* tela Anotações */
+function telaNotas(){
+  const pedir = ('Notification' in window) && Notification.permission==='default' && (!ehIOS() || instalado());
+  app.innerHTML = `
+  <header class="topo"><span class="titulo">Anotações</span></header>
+  <main>
+    ${pedir ? faixa('Para o app avisar na hora marcada, permita as notificações.', 'Permitir avisos', 'pedirAvisos()') : ''}
+    <div class="inicio-acoes so-um"><button class="novo" onclick="formNota()">${ic('mais',26)} Anotar</button></div>
+    ${notasAtivas().length ? `<div class="busca">${ic('busca')}<label class="sr" for="qn">Buscar anotação</label>
+      <input id="qn" type="search" placeholder="Buscar nas anotações ou cliente" value="${esc(buscaNota)}" oninput="buscaNota=this.value;listarNotas()"></div>` : ''}
+    <div id="an-lista"></div>
+    <p class="nota an-rodape">O aviso aparece com o app aberto. Para ser avisado com o app fechado, marque “Pôr também na agenda do celular” ao anotar.</p>
+  </main>`;
+  listarNotas();
+}
+function listarNotas(){
+  const el = document.getElementById('an-lista'); if(!el) return;
+  const todas = notasAtivas();
+  if(!todas.length){ el.innerHTML = `<div class="vazio"><strong>Nenhuma anotação ainda</strong>Toque em “Anotar” para guardar algo do trabalho e ser lembrado na hora certa.</div>`; return; }
+  const q = norm(buscaNota.trim());
+  const l = q ? todas.filter(n=> norm(n.texto + ' ' + nomeCliNota(n.cli)).includes(q)) : todas;
+  if(!l.length){ el.innerHTML = `<div class="vazio"><strong>Nada encontrado</strong>Tente outra palavra.</div>`; return; }
+  const grupos = [['atrasada','Atrasadas'],['hoje','Hoje'],['proxima','Próximas'],['semdata','Sem data']];
+  let h = grupos.map(([k,t])=>{
+    const x = l.filter(n=>grupoNota(n)===k).sort(k==='semdata' ? (a,b)=>(b.criado||'').localeCompare(a.criado||'') : porQuando);
+    return x.length ? `<section class="an-sec ${k}"><h2>${t} <small>${x.length}</small></h2><div class="an-lista">${x.map(n=>itemNotaHTML(n)).join('')}</div></section>` : '';
+  }).join('');
+  const feitas = l.filter(n=>n.feito).sort((a,b)=>(b.feito||'').localeCompare(a.feito||''));
+  if(feitas.length) h += `<details class="an-feitas"${q ? ' open' : ''}><summary>Feitas (${feitas.length})</summary><div class="an-lista">${feitas.slice(0,40).map(n=>itemNotaHTML(n)).join('')}</div></details>`;
+  el.innerHTML = h;
+}
+
+/* quadro no Início: o que é para hoje ou já passou */
+function notasInicioHTML(){
+  const hj = hojeISO();
+  const l = notasAtivas().filter(n=>pendente(n) && n.quando && n.quando.slice(0,10) <= hj).sort(porQuando);
+  if(!l.length) return '';
+  return `<section class="an-painel"><h2>${ic('nota',20)} Para lembrar hoje</h2>
+    ${l.slice(0,5).map(n=>itemNotaHTML(n)).join('')}
+    <button class="an-ver" onclick="irAba('notas')">${l.length > 5 ? `Ver mais ${l.length-5} e todas as anotações ›` : 'Ver todas as anotações ›'}</button></section>`;
+}
+/* bloco na tela do cliente */
+function notasClienteHTML(ref, c){
+  const l = notasDoCliente(c);
+  const abertas = l.filter(pendente).sort((a,b)=> (a.quando||'9').localeCompare(b.quando||'9')), feitas = l.filter(n=>n.feito).sort((a,b)=>(b.feito||'').localeCompare(a.feito||''));
+  return `<section class="bloco"><h2>Anotações${abertas.length ? ` (${abertas.length})` : ''}</h2>
+    ${abertas.length ? `<div class="an-lista">${abertas.map(n=>itemNotaHTML(n, true)).join('')}</div>` : `<p class="txt-suave">Nada anotado para este cliente.</p>`}
+    ${feitas.length ? `<details class="an-feitas"><summary>Feitas (${feitas.length})</summary><div class="an-lista">${feitas.slice(0,20).map(n=>itemNotaHTML(n, true)).join('')}</div></details>` : ''}
+    <button class="btn btn-sec btn-cheio an-cli-btn" onclick="formNotaCliente('${ref}')">${ic('nota')} Anotar para este cliente</button>
+  </section>`;
+}
+function formNotaCliente(ref){
+  let c = null;
+  if(String(ref).startsWith('c:')) c = (E.clientes||[]).find(x=>x.id===String(ref).slice(2));
+  else { const o = acharOrc(ref); if(o) c = o.cliente; }
+  formNota(null, c ? {empresa:c.empresa||'', nome:c.nome||'', cnpj:c.cnpj||'', tel:c.tel||''} : null);
+}
+
+/* opções rápidas de "Lembrar quando?" */
+function opcoesQuando(){
+  const d = new Date(), H = d.getHours(), hj = hojeISO();
+  const op = [['','Sem data'], [horaLocal(new Date(Date.now()+3600000)),'Daqui 1 hora']];
+  if(H < 13) op.push([hj+'T14:00','Hoje 14h']); else if(H < 16) op.push([hj+'T17:00','Hoje 17h']);
+  op.push([somaDias(hj,1)+'T08:00','Amanhã 8h']);
+  const ateSeg = ((8 - d.getDay()) % 7) || 7;
+  if(ateSeg > 1) op.push([somaDias(hj,ateSeg)+'T08:00','Segunda 8h']);
+  return op;
+}
+
+/* janela para anotar ou alterar */
+function formNota(id, cliInicial){
+  const atual = id ? acharNota(id) : null;
+  let q = atual ? (atual.quando||'') : '';
+  const ops = opcoesQuando();
+  let outro = !!q && !ops.some(([v])=>v===q);
+  const nomes = [...new Set(clientesConhecidos().map(c=>c.empresa||c.nome).filter(Boolean))].sort((a,b)=>norm(a).localeCompare(norm(b)));
+  const cliTxt = nomeCliNota(atual ? atual.cli : cliInicial);
+  let agendaPadrao = false; try{ agendaPadrao = localStorage.getItem(CHAVE_AGENDA)==='1'; }catch(e){}
+  const temMic = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  const v = abrirFolha(atual ? 'Anotação' : 'Nova anotação', `
+    <label class="campo"><span>O que você precisa lembrar?</span>
+      <textarea id="an-texto" rows="3" placeholder="Ex.: Ver com a usina o prazo da chapa 3/16 do pedido do João">${esc(atual ? atual.texto : '')}</textarea></label>
+    ${temMic ? `<button type="button" class="btn btn-sec an-mic" id="an-mic">${ic('mic')}<span>Falar em vez de digitar</span></button>` : ''}
+    <div class="campo"><span>Lembrar quando?</span>
+      <div class="an-chips" id="an-chips"></div>
+      <div class="an-escolher" id="an-escolher" hidden>
+        <label class="campo"><span>Dia</span><input type="date" id="an-dia"></label>
+        <label class="campo"><span>Hora</span><input type="time" id="an-hora"></label>
+      </div>
+      <p class="an-quando-txt" id="an-quando-txt"></p>
+      <label class="an-agenda" id="an-agenda-l"><input type="checkbox" id="an-agenda" ${agendaPadrao?'checked':''}><span>Pôr também na agenda do celular <small>(avisa mesmo com o app fechado)</small></span></label>
+    </div>
+    <label class="campo"><span>Cliente <small>(opcional)</small></span>
+      <input id="an-cli" list="an-clientes" value="${esc(cliTxt)}" autocapitalize="words" placeholder="Digite para escolher da lista"></label>
+    <datalist id="an-clientes">${nomes.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+    ${atual ? `<div class="an-mais">
+      <button type="button" class="btn btn-sec btn-cheio" onclick="concluirNota('${atual.id}', true)">${ic('check')} ${atual.feito ? 'Voltar para a lista (não feita)' : 'Marcar como feita'}</button>
+      <button type="button" class="btn btn-perigo btn-cheio" onclick="excluirNota('${atual.id}')">${ic('lixo')} Excluir anotação</button></div>` : ''}`,
+    `<button class="btn btn-sec" onclick="fecharFolha()">Cancelar</button><button class="btn btn-pri" id="an-ok">${atual ? 'Salvar' : 'Anotar'}</button>`);
+  const chips = v.querySelector('#an-chips'), box = v.querySelector('#an-escolher'), dia = v.querySelector('#an-dia'), hora = v.querySelector('#an-hora');
+  const txtQ = v.querySelector('#an-quando-txt'), agL = v.querySelector('#an-agenda-l');
+  function desenharQuando(){
+    chips.innerHTML = ops.map(([val,t],i)=>`<button type="button" class="filtro" data-i="${i}" aria-pressed="${!outro && q===val}">${t}</button>`).join('')
+      + `<button type="button" class="filtro" data-i="outro" aria-pressed="${outro}">Escolher dia e hora</button>`;
+    box.hidden = !outro;
+    txtQ.textContent = q ? `Vou lembrar: ${textoQuando(q).toLowerCase()}.` : 'Sem data: fica na lista até você marcar como feita.';
+    agL.hidden = !q;
+  }
+  chips.addEventListener('click', e=>{
+    const b = e.target.closest('[data-i]'); if(!b) return;
+    if(b.dataset.i==='outro'){
+      outro = true;
+      if(!q){ q = somaDias(hojeISO(),1)+'T08:00'; }
+      dia.value = q.slice(0,10); hora.value = q.slice(11,16);
+    } else { outro = false; q = ops[Number(b.dataset.i)][0]; }
+    desenharQuando();
+  });
+  const lerEscolhido = ()=>{ if(dia.value){ q = `${dia.value}T${hora.value || '08:00'}`; desenharQuando(); } };
+  dia.addEventListener('change', lerEscolhido); hora.addEventListener('change', lerEscolhido);
+  if(outro){ dia.value = q.slice(0,10); hora.value = q.slice(11,16); }
+  desenharQuando();
+  if(temMic) ligarMic(v);
+  const ta = v.querySelector('#an-texto');
+  if(!atual) setTimeout(()=> ta.focus(), 60);
+  v.querySelector('#an-ok').onclick = ()=>{
+    const texto = ta.value.trim();
+    if(!texto){ ta.focus(); aviso('Escreva o que precisa lembrar.'); return; }
+    const nomeDig = v.querySelector('#an-cli').value.trim();
+    let cli = null;
+    if(nomeDig){
+      const k = norm(nomeDig);
+      const ach = clientesConhecidos().find(c=> norm(c.empresa||c.nome)===k || norm(c.nome)===k);
+      const antes = atual ? atual.cli : cliInicial;
+      cli = ach ? {empresa:ach.empresa||'', nome:ach.nome||'', cnpj:ach.cnpj||'', tel:ach.tel||''}
+        : (antes && norm(nomeCliNota(antes))===k) ? antes : {empresa:'', nome:nomeDig, cnpj:'', tel:''};
+    }
+    const agenda = !!q && v.querySelector('#an-agenda').checked;
+    try{ localStorage.setItem(CHAVE_AGENDA, v.querySelector('#an-agenda').checked ? '1' : '0'); }catch(e){}
+    let n = atual;
+    if(n) Object.assign(n, {texto, quando:q, cli, alterado:agora()});
+    else { n = {id:uid(), texto, quando:q, cli, feito:null, criado:agora(), alterado:agora()}; (E.notas = E.notas||[]).push(n); }
+    mudouGeral(); salvarJa();
+    if(agenda) baixarAgenda(n);
+    fecharFolha(()=>{ desenhar(); aviso(q ? `Anotado. Vou lembrar ${textoQuando(q).toLowerCase()}.` : 'Anotado.', 3500); });
+  };
+}
+
+/* ditar a anotação (quando o navegador permite) */
+function ligarMic(v){
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const b = v.querySelector('#an-mic'), rot = b.querySelector('span'), ta = v.querySelector('#an-texto');
+  let rec = null;
+  b.onclick = ()=>{
+    if(rec){ rec.stop(); return; }
+    try{ rec = new R(); }catch(e){ b.remove(); return; }
+    rec.lang = 'pt-BR'; rec.interimResults = false; rec.maxAlternatives = 1;
+    rec.onresult = e=>{
+      let t = [...e.results].map(r=>r[0].transcript).join(' ').trim();
+      if(!t) return;
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      ta.value = ta.value.trim() ? `${ta.value.trim()} ${t}` : t;
+    };
+    rec.onerror = e=>{ if(e.error==='not-allowed' || e.error==='service-not-allowed') aviso('Permita o microfone para falar a anotação.', 4000); };
+    rec.onend = ()=>{ rec = null; b.classList.remove('gravando'); rot.textContent = 'Falar em vez de digitar'; };
+    rec.start(); b.classList.add('gravando'); rot.textContent = 'Ouvindo… toque para parar';
+  };
+}
+
+function concluirNota(id, daJanela){
+  const n = acharNota(id); if(!n) return;
+  const antes = n.feito || null;
+  n.feito = n.feito ? null : agora(); n.alterado = agora(); mudouGeral(); salvarJa();
+  const depois = ()=>{ desenhar(); if(n.feito) avisoDesfazer('Anotação feita.', ()=>{ n.feito = antes; n.alterado = agora(); mudouGeral(); salvarJa(); desenhar(); }); else aviso('Voltou para a lista.'); };
+  if(daJanela) fecharFolha(depois); else depois();
+}
+async function excluirNota(id){
+  const n = acharNota(id); if(!n) return;
+  if(!await confirmar('Excluir esta anotação?')) return;
+  n.excluido = true; n.alterado = agora(); mudouGeral(); salvarJa();
+  fecharFolha(()=>{ desenhar(); avisoDesfazer('Anotação excluída.', ()=>{ n.excluido = false; n.alterado = agora(); mudouGeral(); salvarJa(); desenhar(); }); });
+}
+
+/* arquivo de agenda (.ics): o celular abre na agenda e avisa na hora, mesmo com o app fechado */
+function baixarAgenda(n){
+  const e = s => String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+  const f = q => q.replace(/[-:]/g,'') + '00';
+  const fim = horaLocal(new Date(new Date(n.quando).getTime() + 15*60000));
+  const cli = nomeCliNota(n.cli);
+  const titulo = String(n.texto).split('\n')[0].slice(0,70);
+  const stamp = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
+  const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RAP Representacoes//Orcamentos//PT','CALSCALE:GREGORIAN','BEGIN:VEVENT',
+    `UID:${n.id}@orcamentos-rap`, `DTSTAMP:${stamp}`, `DTSTART:${f(n.quando)}`, `DTEND:${f(fim)}`,
+    `SUMMARY:${e(titulo)}`, `DESCRIPTION:${e(n.texto + (cli ? `\nCliente: ${cli}` : '') + '\nAnotado no app de orçamentos da RAP.')}`,
+    'BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${e(titulo)}`,'TRIGGER:-PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  baixarArquivo(ics, `lembrete-${n.quando.slice(0,10)}.ics`, 'text/calendar');
+}
+
+/* avisos na hora marcada (com o app aberto ou em segundo plano) */
+function lerAvisados(){ try{ return JSON.parse(localStorage.getItem(CHAVE_AVISADOS)) || {}; }catch(e){ return {}; } }
+function pedirAvisos(){
+  if(!('Notification' in window)) return;
+  Notification.requestPermission().then(p=>{
+    aviso(p==='granted' ? 'Pronto! O app vai avisar na hora marcada.' : 'Sem permissão: os lembretes aparecem só dentro do app.', 4000);
+    if(tela.nome==='notas') telaNotas();
+  });
+}
+function dispararLembrete(n){
+  const cli = nomeCliNota(n.cli);
+  aviso(`Lembrete: ${String(n.texto).slice(0,90)}`, 9000);
+  try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){}
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const op = {body: n.texto + (cli ? `\nCliente: ${cli}` : ''), tag:'nota-'+n.id, icon:'/icone-orcamentos-192.png', data:{nota:n.id}};
+  const simples = ()=>{ try{ new Notification('Lembrete', op); }catch(e){} };
+  if(navigator.serviceWorker && navigator.serviceWorker.getRegistration)
+    navigator.serviceWorker.getRegistration().then(r=> r ? r.showNotification('Lembrete', op) : simples()).catch(simples);
+  else simples();
+}
+function checarLembretes(){
+  if(!E) return;
+  const ag = agoraLocal(), av = lerAvisados();
+  const ha12h = horaLocal(new Date(Date.now() - 12*3600000));
+  let novo = false;
+  notasAtivas().filter(n=>pendente(n) && n.quando && n.quando <= ag && av[n.id] !== n.quando).forEach(n=>{
+    av[n.id] = n.quando; novo = true;
+    if(n.quando >= ha12h) dispararLembrete(n);   // lembrete muito antigo não toca: só aparece em "Atrasadas"
+  });
+  if(novo){
+    const ids = new Set((E.notas||[]).map(n=>n.id));
+    Object.keys(av).forEach(k=>{ if(!ids.has(k)) delete av[k]; });
+    try{ localStorage.setItem(CHAVE_AVISADOS, JSON.stringify(av)); }catch(e){}
+    if(tela.nome==='inicio' || tela.nome==='notas') redesenharSeguro();
+  }
+  atualizarSelo();
+}
+/* número no ícone do app e na aba Anotações */
+function atualizarSelo(){
+  const k = E ? vencidasAgora().length : 0;
+  const el = document.getElementById('nav-cont-notas'); if(el){ el.hidden = !k; el.textContent = k; }
+  try{ if(navigator.setAppBadge){ if(k) navigator.setAppBadge(k).catch(()=>{}); else navigator.clearAppBadge().catch(()=>{}); } }catch(e){}
+}
+setInterval(checarLembretes, 30000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setTimeout(checarLembretes, 800); });
+if(navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e=>{
+  if(e.data && e.data.nota && acharNota(e.data.nota)){ if(folhaAberta) fecharFolha(()=>formNota(e.data.nota)); else { irAba('notas'); setTimeout(()=>formNota(e.data.nota), 120); } }
+});
+
 /* ================= menu fixo: barra embaixo no celular, coluna à esquerda no computador ================= */
-const ABAS = [['inicio','Início','casa'],['orcamentos','Orçamentos','doc'],['pedidos','Pedidos','caixa'],['clientes','Clientes','cliente'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
-const ABA_DA_TELA = {inicio:'inicio', orcamentos:'orcamentos', pedidos:'pedidos', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config'};
+const ABAS = [['inicio','Início','casa'],['orcamentos','Orçamentos','doc'],['pedidos','Pedidos','caixa'],['clientes','Clientes','cliente'],['notas','Anotações','nota'],['relatorio','Relatório','grafico'],['config','Ajustes','engr']];
+const ABA_DA_TELA = {inicio:'inicio', orcamentos:'orcamentos', pedidos:'pedidos', clientes:'clientes', cliente:'clientes', relatorio:'relatorio', config:'config', produtos:'config', notas:'notas'};
 function irAba(n){
   if(folhaAberta) return;
   if(ABA_DA_TELA[tela.nome]===n && tela.nome===n){ window.scrollTo({top:0, behavior:'smooth'}); return; }
@@ -3993,7 +4372,8 @@ function atualizarNav(){
     nav.innerHTML = `<div class="nav-logo">${logo}</div>
       <button class="nav-novo" onclick="novoDoMenu()">${ic('mais',22)} Novo orçamento</button>
       <button class="nav-ped" onclick="escolherParaPedido()">${ic('doc',22)} Emitir pedido <span class="np-cont" id="nav-np" hidden></span></button>
-      ${ABAS.map(([k,t,i])=>`<button class="nav-b${k==='config'?' nav-cfg':''}" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':''}</button>`).join('')}
+      <button class="nav-ped nav-anotar" onclick="formNota()">${ic('nota',22)} Anotar</button>
+      ${ABAS.map(([k,t,i])=>`<button class="nav-b${k==='config'?' nav-cfg':''}" data-aba="${k}" onclick="irAba('${k}')" ${k==='config'?'aria-label="Configurações"':''}>${ic(i,24)}<span>${t}</span>${k==='pedidos'?'<em class="nav-cont" id="nav-cont-ped" hidden></em>':k==='notas'?'<em class="nav-cont nav-cont-notas" id="nav-cont-notas" hidden></em>':''}</button>`).join('')}
       <p class="nav-rodape" id="nav-rodape"></p>`;
     document.body.appendChild(nav);
   }
@@ -4003,10 +4383,14 @@ function atualizarNav(){
   nav.querySelectorAll('[data-aba]').forEach(b=>{ if(b.dataset.aba===aba) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   const r = document.getElementById('nav-rodape'); if(r) r.textContent = rodapeNuvem();
   const n = semPedido().length;
+  let fab = document.getElementById('an-fab');
+  if(!fab){ fab = document.createElement('button'); fab.id = 'an-fab'; fab.className = 'an-fab'; fab.innerHTML = `${ic('mais',24)} Anotar`; fab.onclick = ()=>formNota(); document.body.appendChild(fab); }
+  fab.hidden = !aba || aba==='inicio' || aba==='notas' || tela.nome==='cliente';
+  atualizarSelo();
   ['nav-np','nav-cont-ped'].forEach(id=>{ const e = document.getElementById(id); if(e){ e.hidden = !n; e.textContent = n; } });
 }
 /* toda tela desenhada atualiza o menu */
-['telaInicio','telaOrcamentos','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes','telaPedidos','telaPedido'].forEach(nome=>{
+['telaInicio','telaOrcamentos','telaOrc','telaConfig','telaRelatorio','telaProdutos','telaCliente','telaClientes','telaPedidos','telaPedido','telaNotas'].forEach(nome=>{
   const f = window[nome]; if(typeof f!=='function') return;
   window[nome] = function(){ const r = f.apply(this, arguments); atualizarNav(); return r; };
 });
@@ -4121,7 +4505,7 @@ document.addEventListener('focusin', e=>{
     if(r.bottom > vh - 90 || r.top < 70) el.scrollIntoView({block:'center', behavior:'smooth'});
   }, 350);
 });
-carregar(); desenhar(); iniciarNuvem();
+carregar(); desenhar(); iniciarNuvem(); setTimeout(checarLembretes, 1500);
 </script>
 </body>
 </html>
